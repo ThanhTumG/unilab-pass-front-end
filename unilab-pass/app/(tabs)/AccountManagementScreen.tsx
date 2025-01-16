@@ -3,14 +3,14 @@ import React from "react";
 
 type Props = {};
 
-const Login = (props: Props) => {
+const ManageAccountScreen = (props: Props) => {
   return (
     <View>
-      <Text>sign up</Text>
+      <Text>ManageAccountScreen</Text>
     </View>
   );
 };
 
-export default Login;
+export default ManageAccountScreen;
 
 const styles = StyleSheet.create({});

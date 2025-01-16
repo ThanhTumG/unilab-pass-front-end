@@ -1,9 +1,7 @@
 // Core
 import React from "react";
-import { StyleSheet, View, Text, Image, Dimensions } from "react-native";
-import { Button } from "react-native-paper";
-import { MaterialCommunityIcons } from "@expo/vector-icons";
-import { SharedValue } from "react-native-reanimated";
+import { StyleSheet, View, Image, Dimensions } from "react-native";
+import { Text } from "react-native-paper";
 
 // App
 import { ImageSliderType } from "constants/OnboardingData";
@@ -24,8 +22,12 @@ const SliderItem = ({ item, index }: Props) => {
     <View style={styles.itemContainer}>
       <Image source={item.image} style={{ width, height }} resizeMode="cover" />
       <View style={styles.textContainer}>
-        <Text style={styles.title}>{item.title}</Text>
-        <Text style={styles.subtitle}>{item.description}</Text>
+        <Text variant="titleLarge" style={styles.title}>
+          {item.title}
+        </Text>
+        <Text variant="bodyLarge" style={styles.subtitle}>
+          {item.description}
+        </Text>
       </View>
     </View>
   );
@@ -45,15 +47,14 @@ const styles = StyleSheet.create({
     justifyContent: "flex-start",
     alignItems: "center",
     paddingHorizontal: 20,
-    gap: 8,
+    paddingVertical: 10,
+    gap: 10,
   },
   title: {
-    fontSize: 24,
     fontFamily: "Poppins-Bold",
     color: "#F5F5F5",
   },
   subtitle: {
-    fontSize: 16,
     fontFamily: "Poppins-Regular",
     color: "#F5F5F5",
     textAlign: "center",

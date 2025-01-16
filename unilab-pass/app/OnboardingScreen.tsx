@@ -22,11 +22,12 @@ export default function Onboarding() {
   const scrollX = useSharedValue(0);
   const flatListRef = useRef<FlatList<ImageSliderType>>(null);
 
+  // Router
   const router = useRouter();
 
-  const ResetCache = async () => {
-    await AsyncStorage.removeItem("hasSeenOnboarding");
-  };
+  // const ResetCache = async () => {
+  //   await AsyncStorage.removeItem("hasSeenOnboarding");
+  // };
 
   // Methods
   // Handle Scroll Slide
@@ -44,12 +45,12 @@ export default function Onboarding() {
       if (flatListRef.current !== null)
         flatListRef.current.scrollToIndex({ index: nextIndex, animated: true });
     }
-    if (paginationIndex == 2) router.replace("/(auth)/login");
+    if (paginationIndex == 2) router.replace("/(auth)/LoginScreen");
   };
 
   // Handle Click Skip
   const handleSkip = () => {
-    router.replace("/(auth)/login");
+    router.replace("/(auth)/LoginScreen");
   };
 
   const viewabilityConfig = {

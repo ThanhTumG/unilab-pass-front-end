@@ -1,8 +1,10 @@
 // Core
 import { Stack } from "expo-router";
-import { ImageBackground, StyleSheet, Text } from "react-native";
+import { ImageBackground, StyleSheet } from "react-native";
 
+// Component
 export default function RootLayout() {
+  // Template
   return (
     <ImageBackground
       source={require("../../assets/images/background.png")}
@@ -11,8 +13,8 @@ export default function RootLayout() {
       <Stack
         screenOptions={{ contentStyle: { backgroundColor: "transparent" } }}
       >
-        <Stack.Screen name="login" options={{ headerShown: false }} />
-        <Stack.Screen name="signUp" options={{ headerShown: false }} />
+        <Stack.Screen name="LoginScreen" options={{ headerShown: false }} />
+        <Stack.Screen name="SignUpScreen" options={{ headerShown: false }} />
       </Stack>
     </ImageBackground>
   );

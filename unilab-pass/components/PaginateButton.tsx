@@ -1,8 +1,9 @@
-import { StyleSheet, View, Text, Image, Dimensions } from "react-native";
+// Core
+import { StyleSheet, View, Dimensions } from "react-native";
 import React from "react";
-import { Button } from "react-native-paper";
-import { MaterialCommunityIcons } from "@expo/vector-icons";
+import { Button, Icon, Text } from "react-native-paper";
 
+// Types
 type Props = {
   isLastSlide: boolean;
   onPressScroll: () => void;
@@ -11,7 +12,9 @@ type Props = {
 // Screen Dimension
 const { width } = Dimensions.get("window");
 
+// Component
 const PaginateButton = ({ isLastSlide, onPressScroll }: Props) => {
+  // Template
   return (
     <Button
       buttonColor="#F5F5F5"
@@ -26,15 +29,11 @@ const PaginateButton = ({ isLastSlide, onPressScroll }: Props) => {
       }}
     >
       <View style={styles.button}>
-        <Text style={styles.buttonText}>
+        <Text variant="titleMedium" style={styles.buttonText}>
           {isLastSlide ? "Get Started" : "Next"}
         </Text>
         {!isLastSlide && (
-          <MaterialCommunityIcons
-            name="chevron-right"
-            color="#1B61B5"
-            size={22}
-          />
+          <Icon source="chevron-right" color="#1B61B5" size={22} />
         )}
       </View>
     </Button>
@@ -43,6 +42,7 @@ const PaginateButton = ({ isLastSlide, onPressScroll }: Props) => {
 
 export default PaginateButton;
 
+// Styles
 const styles = StyleSheet.create({
   button: {
     flexDirection: "row",
@@ -50,9 +50,9 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   buttonText: {
-    fontSize: 15,
     fontFamily: "Poppins-Bold",
     paddingTop: 3,
+    textAlignVertical: "center",
     color: "#1B61B5",
   },
 });
