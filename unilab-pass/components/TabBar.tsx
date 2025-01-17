@@ -124,7 +124,7 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     bottom: 25,
     backgroundColor: "#fff",
-    marginHorizontal: 20,
+    marginHorizontal: 16,
     paddingVertical: 15,
     borderRadius: 25,
     borderCurve: "circular",

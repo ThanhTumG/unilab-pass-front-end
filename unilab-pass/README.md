@@ -7,7 +7,7 @@ This is an [Expo](https://expo.dev) project created with [`create-expo-app`](htt
 1. Install dependencies
 
    ```bash
-   npm install
+   pnpm install
    ```
 
 2. Start the app
@@ -25,15 +25,23 @@ In the output, you'll find options to open the app in a
 
 You can start developing by editing the files inside the **app** directory. This project uses [file-based routing](https://docs.expo.dev/router/introduction).
 
-## Get a fresh project
+## Fix Expo go error network
 
-When you're ready, run:
+1. Open Command Prompt, type
 
-```bash
-npm run reset-project
-```
+   ```bash
+   ipconfig
+   ```
 
-This command will move the starter code to the **app-example** directory and create a blank **app** directory where you can start developing.
+   Copy the IPv4 Address
+
+2. Run Window PowerShell as administrator, then run this command
+
+   ```bash
+   setx /M REACT_NATIVE_PACKAGER_HOSTNAME [IPv4 Address]
+   ```
+
+3. Reset computer
 
 ## Learn more
 
