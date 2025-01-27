@@ -83,12 +83,13 @@ const TabBar = ({ state, descriptors, navigation }: BottomTabBarProps) => {
         return (
           <TouchableRipple
             key={route.name}
-            style={[styles.alginCenter, { flex: 1 }]}
+            style={[styles.alginCenter, styles.button]}
             accessibilityState={isFocused ? { selected: true } : {}}
             accessibilityLabel={options.tabBarAccessibilityLabel}
             testID={options.tabBarButtonTestID}
             onPress={onPress}
             onLongPress={onLongPress}
+            rippleColor={"#f9f9f9"}
           >
             <View style={[styles.alginCenter, styles.tabbarItem]}>
               {icons[route.name]({
@@ -137,5 +138,10 @@ const styles = StyleSheet.create({
   tabbarItem: {
     flex: 1,
     gap: 2,
+  },
+  button: {
+    flex: 1,
+    // backgroundColor: "#333",
+    borderRadius: 20,
   },
 });

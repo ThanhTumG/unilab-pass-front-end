@@ -5,7 +5,7 @@ import { Stack } from "expo-router";
 import { StatusBar } from "expo-status-bar";
 import { useEffect } from "react";
 import { StyleSheet } from "react-native";
-import { PaperProvider } from "react-native-paper";
+import { PaperProvider, DefaultTheme } from "react-native-paper";
 import { SafeAreaView } from "react-native-safe-area-context";
 import * as SplashScreen from "expo-splash-screen";
 
@@ -35,10 +35,21 @@ export default function RootLayout() {
     return null;
   }
 
+  // Theme
+  const customTheme = {
+    ...DefaultTheme,
+    colors: {
+      ...DefaultTheme.colors,
+      text: "#333",
+      primary: "#3385FF",
+      outline: "#6C6C6C",
+    },
+  };
+
   // Template
   return (
     <SafeAreaView style={styles.safeArea}>
-      <PaperProvider>
+      <PaperProvider theme={customTheme}>
         <Stack>
           <Stack.Screen name="index" options={{ headerShown: false }} />
           <Stack.Screen

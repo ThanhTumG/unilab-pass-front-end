@@ -112,7 +112,7 @@ const LoginScreen = (props: Props) => {
                 secureTextEntry={isHidePassword}
                 right={
                   <TextInput.Icon
-                    icon={isHidePassword ? "eye" : "eye-off"}
+                    icon={isHidePassword ? "eye-off" : "eye"}
                     onPress={() => setIsHidePassword(!isHidePassword)}
                     color="#777"
                   />
