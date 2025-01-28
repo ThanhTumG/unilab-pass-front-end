@@ -18,10 +18,10 @@ const App = (props: Props) => {
           "hasSeenOnboarding"
         );
         if (hasSeenOnboarding === null) {
-          router.replace("/(auth)/LoginScreen");
+          router.replace("/OnboardingScreen");
           await AsyncStorage.setItem("hasSeenOnboarding", "true");
         } else {
-          router.replace("/OnboardingScreen");
+          router.replace("/(auth)/LoginScreen");
         }
       } catch (error) {
         console.error("Error AsyncStorage:", error);

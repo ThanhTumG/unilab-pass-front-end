@@ -73,13 +73,7 @@ const TabBar = ({ state, descriptors, navigation }: BottomTabBarProps) => {
           }
         };
 
-        const onLongPress = () => {
-          navigation.emit({
-            type: "tabLongPress",
-            target: route.key,
-          });
-        };
-
+        // Template
         return (
           <TouchableRipple
             key={route.name}
@@ -88,7 +82,6 @@ const TabBar = ({ state, descriptors, navigation }: BottomTabBarProps) => {
             accessibilityLabel={options.tabBarAccessibilityLabel}
             testID={options.tabBarButtonTestID}
             onPress={onPress}
-            onLongPress={onLongPress}
             rippleColor={"#f9f9f9"}
           >
             <View style={[styles.alginCenter, styles.tabbarItem]}>

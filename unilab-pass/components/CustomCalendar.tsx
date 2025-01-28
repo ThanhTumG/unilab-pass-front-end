@@ -10,7 +10,7 @@ import React from "react";
 import { Calendar, DateData } from "react-native-calendars";
 import dayjs from "dayjs";
 import Animated from "react-native-reanimated";
-import { Button, IconButton, Text } from "react-native-paper";
+import { Button, IconButton, Text, TouchableRipple } from "react-native-paper";
 
 // App
 import HeaderCalendar from "./ui/HeaderCalendar";
@@ -38,7 +38,7 @@ type MarkedDatesType =
         textColor: string;
       };
     }
-  | { month: string };
+  | { month: string; year: string };
 
 // Screen Dimension
 const { width } = Dimensions.get("window");
@@ -105,7 +105,10 @@ const CustomCalendar = ({
     const newDate = currentDate.split("-");
     newDate[1] = (index + 1).toString().padStart(2, "0");
     setCurrentDate(newDate.join("-"));
-    setMarkedDates({ month: (index + 1).toString() });
+    setMarkedDates({
+      month: (index + 1).toString(),
+      year: currentDate.split("-")[0],
+    });
   };
 
   // Handle scroll end animation
@@ -188,19 +191,37 @@ const CustomCalendar = ({
                     setCurrentDate={setCurrentDate}
                   />
                 </View>
-                <View style={{ height: 200 }}>
-                  {/* Month Grid */}
-                  <View style={styles.grid}>
-                    {months.map((month, index) => (
-                      <Button
+
+                {/* Month Grid */}
+                <View key={currentDate} style={styles.grid}>
+                  {months.map((month, index) => {
+                    const isFocused =
+                      (index + 1).toString() == markedDates.month &&
+                      currentDate.split("-")[0] == markedDates.year;
+
+                    return (
+                      <TouchableRipple
+                        rippleColor={"#E6F0FF"}
                         key={index}
-                        // style={styles.month}
+                        style={[
+                          styles.month,
+                          {
+                            backgroundColor: isFocused ? "#99C2FF" : "",
+                          },
+                        ]}
                         onPress={() => handleSelectMonth(index)}
                       >
-                        <Text>{month}</Text>
-                      </Button>
-                    ))}
-                  </View>
+                        <Text
+                          variant="bodyMedium"
+                          style={{ fontFamily: "Poppins-Regular" }}
+                        >
+                          {month}
+                        </Text>
+                      </TouchableRipple>
+
+                      // </Button>
+                    );
+                  })}
                 </View>
               </View>
             )}
@@ -260,6 +281,7 @@ const styles = StyleSheet.create({
   },
   calendar: {
     width: 0.922 * width,
+    height: 350,
   },
   clearButton: {
     position: "absolute",
@@ -273,8 +295,19 @@ const styles = StyleSheet.create({
     marginBottom: 5,
   },
   grid: {
+    height: 350,
+    paddingVertical: 20,
+    paddingHorizontal: 5,
     flexDirection: "row",
     flexWrap: "wrap",
     justifyContent: "space-between",
+    rowGap: 10,
+  },
+  month: {
+    width: 104,
+    height: 33,
+    justifyContent: "center",
+    alignItems: "center",
+    // backgroundColor: "#333",
   },
 });
