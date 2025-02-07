@@ -42,9 +42,14 @@ const LoginScreen = (props: Props) => {
 
   // Methods
   // Handle submit form
-  const onSubmit = (data: any) => {
+  const handleOnSubmit = (data: any) => {
     // console.log("Data:", data);
     router.replace("/SelectLabScreen");
+  };
+
+  // Handle sign up
+  const handleSignup = () => {
+    router.replace("/(auth)/SignUpScreen");
   };
 
   // Template
@@ -138,8 +143,8 @@ const LoginScreen = (props: Props) => {
           textColor="#F5F5F5"
           labelStyle={{ fontFamily: "Poppins-SemiBold", fontSize: 18 }}
           contentStyle={{ width: 300, height: 50 }}
-          // onPress={handleSubmit(onSubmit)}
-          onPress={onSubmit}
+          // onPress={handleSubmit(handleOnSubmit)}
+          onPress={handleOnSubmit}
         >
           Sign In
         </Button>
@@ -155,12 +160,12 @@ const LoginScreen = (props: Props) => {
           {/* Sign up button */}
           <Button
             mode="text"
-            style={{ margin: -5 }}
             labelStyle={{
               fontSize: 14,
               fontFamily: "Poppins-SemiBold",
               color: "#3385ff",
             }}
+            onPress={handleSignup}
           >
             Sign Up
           </Button>

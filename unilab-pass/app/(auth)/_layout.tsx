@@ -15,6 +15,10 @@ export default function RootLayout() {
       >
         <Stack.Screen name="LoginScreen" options={{ headerShown: false }} />
         <Stack.Screen name="SignUpScreen" options={{ headerShown: false }} />
+        <Stack.Screen
+          name="OTPVerificationScreen"
+          options={{ headerShown: false }}
+        />
       </Stack>
     </ImageBackground>
   );

@@ -12,13 +12,8 @@ type Props = {
 // Component
 const CustomBarChart = ({ data }: Props) => {
   // States
-  // const [data, setData] = useState<barDataItem[]>([]);
 
-  // Effects
-  // useEffect(() => {
-  //   setData(chartData);
-  // }, []);
-
+  // Template
   return (
     <View style={styles.container}>
       <Text variant="titleMedium" style={styles.title}>

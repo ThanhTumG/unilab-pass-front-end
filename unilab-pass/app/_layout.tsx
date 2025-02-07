@@ -43,6 +43,14 @@ export default function RootLayout() {
       text: "#333",
       primary: "#3385FF",
       outline: "#6C6C6C",
+      elevation: {
+        level0: "transparent",
+        level1: "#FAFCFF",
+        level2: "#FAFCFF",
+        level3: "#FAFCFF",
+        level4: "#FAFCFF",
+        level5: "#FAFCFF",
+      },
     },
   };
 
