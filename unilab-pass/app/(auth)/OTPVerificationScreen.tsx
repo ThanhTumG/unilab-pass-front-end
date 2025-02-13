@@ -1,7 +1,7 @@
 // Core
 import { StyleSheet, View } from "react-native";
 import React, { useEffect, useMemo, useState } from "react";
-import { Button, IconButton, Text } from "react-native-paper";
+import { Button, IconButton, Text, TouchableRipple } from "react-native-paper";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { OtpInput } from "react-native-otp-entry";
 import { useTimer } from "react-timer-hook";
@@ -71,14 +71,11 @@ const OTPVerificationScreen = (props: Props) => {
     <View style={styles.container}>
       {/* Go back to sign up screen */}
       <IconButton
-        icon={"arrow-left-thin"}
+        icon={"chevron-left"}
         style={styles.backBtn}
         size={32}
         iconColor="#808080"
-        onPress={
-          () => route.replace("/SignUpScreen")
-          // route.reload
-        }
+        onPress={() => route.replace("/SignUpScreen")}
       ></IconButton>
 
       {/* Title */}
@@ -142,7 +139,7 @@ const OTPVerificationScreen = (props: Props) => {
 
       {/* Resend OTP */}
       <View
-        style={{ flexDirection: "row", alignItems: "center", marginTop: 11 }}
+        style={{ flexDirection: "row", alignItems: "center", marginTop: 20 }}
       >
         <Text
           variant="bodySmall"
@@ -150,13 +147,22 @@ const OTPVerificationScreen = (props: Props) => {
         >
           Didn't you receive any code?
         </Text>
-        <Button
-          labelStyle={{ fontFamily: "Poppins-Medium", fontSize: 14 }}
-          style={{ justifyContent: "center" }}
+        <TouchableRipple
           onPress={handleResendOtp}
+          rippleColor={"#FCFCFC"}
+          style={{ marginLeft: 4 }}
         >
-          Resend
-        </Button>
+          <Text
+            variant="bodySmall"
+            style={{
+              fontSize: 14,
+              fontFamily: "Poppins-SemiBold",
+              color: "#3385ff",
+            }}
+          >
+            Resend
+          </Text>
+        </TouchableRipple>
       </View>
     </View>
   );

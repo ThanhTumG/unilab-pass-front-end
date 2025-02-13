@@ -1,5 +1,5 @@
 // Core
-import { TypeOf, z } from "zod";
+import { z } from "zod";
 
 // Form schemas
 // Login form

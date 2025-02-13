@@ -1,7 +1,15 @@
 // Core
 import { StyleSheet, View, Modal } from "react-native";
 import React, { useState } from "react";
-import { Button, IconButton, Text, Portal } from "react-native-paper";
+import {
+  Button,
+  IconButton,
+  Text,
+  Portal,
+  Surface,
+  TouchableRipple,
+  Icon,
+} from "react-native-paper";
 
 // App
 import CustomCalendar from "./CustomCalendar";
@@ -27,13 +35,22 @@ const FilterAccess = (props: Props) => {
   return (
     <>
       {/* Trigger */}
-      <IconButton
+      {/* <IconButton
         mode="outlined"
         icon={"filter-variant"}
         containerColor="#fff"
         iconColor="#333"
         onPress={showModal}
-      />
+      /> */}
+      <Surface style={styles.filterBtn} elevation={1}>
+        <TouchableRipple
+          borderless
+          style={styles.filterBtn}
+          onPress={showModal}
+        >
+          <Icon size={22} color="#1B61B5" source={"filter-variant"} />
+        </TouchableRipple>
+      </Surface>
 
       {/* Modal */}
       <Portal>
@@ -106,11 +123,17 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
   },
-
   container: {
     flex: 1,
     // maxHeight: height,
     backgroundColor: "rgba(0, 0, 0, 0.25)",
+  },
+  filterBtn: {
+    height: 40,
+    width: 40,
+    alignItems: "center",
+    justifyContent: "center",
+    borderRadius: 25,
   },
   modelContainer: {
     flex: 1,

@@ -8,7 +8,7 @@ import {
 } from "react-native";
 import React, { useState } from "react";
 import { useRouter } from "expo-router";
-import { Button, TextInput, Text } from "react-native-paper";
+import { Button, TextInput, Text, TouchableRipple } from "react-native-paper";
 import { useForm, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 
@@ -158,17 +158,22 @@ const LoginScreen = (props: Props) => {
           </Text>
 
           {/* Sign up button */}
-          <Button
-            mode="text"
-            labelStyle={{
-              fontSize: 14,
-              fontFamily: "Poppins-SemiBold",
-              color: "#3385ff",
-            }}
+          <TouchableRipple
             onPress={handleSignup}
+            rippleColor={"#FCFCFC"}
+            style={{ marginLeft: 4 }}
           >
-            Sign Up
-          </Button>
+            <Text
+              variant="bodySmall"
+              style={{
+                fontSize: 14,
+                fontFamily: "Poppins-SemiBold",
+                color: "#3385ff",
+              }}
+            >
+              Sign Up
+            </Text>
+          </TouchableRipple>
         </View>
       </View>
     </KeyboardAvoidingView>

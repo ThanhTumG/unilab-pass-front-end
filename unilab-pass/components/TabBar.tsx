@@ -116,7 +116,7 @@ const styles = StyleSheet.create({
   tabbar: {
     position: "absolute",
     flexDirection: "row",
-    bottom: 25,
+    bottom: 13,
     backgroundColor: "#fff",
     marginHorizontal: 16,
     paddingVertical: 15,

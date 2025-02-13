@@ -1,14 +1,9 @@
 // Core
-import {
-  Dimensions,
-  ImageBackground,
-  ScrollView,
-  StyleSheet,
-  View,
-} from "react-native";
+import { ImageBackground, StyleSheet, View } from "react-native";
 import React from "react";
-import { Button, Icon, Text } from "react-native-paper";
-import { DataTable } from "react-native-paper";
+import { Icon, Searchbar, Text } from "react-native-paper";
+
+// App
 import Table from "components/Table";
 import FilterAccess from "components/FilterAccess";
 
@@ -18,6 +13,7 @@ type Props = {};
 // Component
 const ManageAccessScreen = (props: Props) => {
   // States
+  const [searchQuery, setSearchQuery] = React.useState("");
 
   const [recordData] = React.useState([
     {
@@ -130,23 +126,33 @@ const ManageAccessScreen = (props: Props) => {
   // Template
   return (
     <ImageBackground
-      source={require("../../assets/images/background-with-icon.png")}
+      source={require("../../assets/images/background-without-logo.png")}
       style={[styles.background]}
     >
-      {/* <View style={[styles.titleContainer]}> */}
       {/* Title */}
-      <Text variant="titleMedium" style={styles.title}>
+      <Text variant="titleSmall" style={styles.title}>
         Access Management
       </Text>
 
+      {/* Search bar */}
+      <Searchbar
+        placeholder="Search by ID or Name"
+        onChangeText={setSearchQuery}
+        style={styles.searchBar}
+        icon={() => <Icon source="magnify" color={"#777"} size={22} />}
+        inputStyle={styles.searchInput}
+        value={searchQuery}
+      />
+
       {/* Filter */}
-      <View style={{ position: "absolute", top: 80, right: 20 }}>
+      <View style={{ position: "absolute", top: 35, right: 20 }}>
         <FilterAccess />
       </View>
       {/* </View> */}
 
       {/* Table */}
       <Table
+        mode="access"
         data={recordData}
         columns={["id", "name", "time", "type", "status"]}
       />
@@ -178,11 +184,27 @@ const styles = StyleSheet.create({
     backgroundColor: "#333",
   },
   title: {
-    marginLeft: 30,
-    marginTop: 100,
+    marginLeft: 25,
+    marginTop: 45,
     marginRight: "auto",
     fontFamily: "Poppins-SemiBold",
     color: "#333",
     textAlignVertical: "center",
+  },
+  searchBar: {
+    justifyContent: "center",
+    backgroundColor: "#fff",
+    borderColor: "rgba(0, 0, 0, 0.15)",
+    borderWidth: 1,
+    marginHorizontal: 17,
+    marginTop: 20,
+    maxHeight: 40,
+  },
+  searchInput: {
+    fontFamily: "Poppins-Regular",
+    fontSize: 12,
+    minHeight: 50,
+    textAlignVertical: "center",
+    marginTop: -5,
   },
 });

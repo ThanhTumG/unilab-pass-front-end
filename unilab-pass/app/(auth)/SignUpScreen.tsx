@@ -7,7 +7,7 @@ import {
   View,
 } from "react-native";
 import React, { useState } from "react";
-import { Button, Text, TextInput } from "react-native-paper";
+import { Button, IconButton, Text, TextInput } from "react-native-paper";
 import { useRouter } from "expo-router";
 import { Controller, useForm } from "react-hook-form";
 import { SignupFormType } from "constants/auth.type";
@@ -62,6 +62,15 @@ const SignUpScreen = (props: Props) => {
       style={[styles.container, styles.alignCenter]}
       behavior={Platform.OS === "ios" ? "padding" : "height"}
     >
+      {/* Go back to sign up screen */}
+      <IconButton
+        icon={"chevron-left"}
+        style={{ position: "absolute", top: 10, left: 10 }}
+        size={32}
+        iconColor="#808080"
+        onPress={() => router.replace("/LoginScreen")}
+      ></IconButton>
+
       <View style={[styles.formField, styles.alignCenter]}>
         <Text variant="headlineLarge" style={styles.title}>
           Create account
