@@ -58,19 +58,27 @@ const CustomDropdownItem = ({
 
 // Custom dropdown input
 const CustomDropdownInput = ({
+  mode,
   placeholder,
   selectedLabel,
   rightIcon,
+  error,
+  label,
 }: DropdownInputProps) => (
   // Template
   <TextInput
-    mode="outlined"
+    mode={mode}
+    label={label}
     placeholder={placeholder}
     placeholderTextColor="#777"
     value={selectedLabel}
-    style={{ backgroundColor: "#fafafa", width: 270 }}
+    error={error}
+    style={{
+      backgroundColor: `${mode == "flat" ? "transparent" : "#fafafa"}`,
+      width: 300,
+    }}
     textColor="#333"
-    contentStyle={{ fontFamily: "Poppins-Medium", fontSize: 18 }}
+    contentStyle={{ fontFamily: "Poppins-Regular" }}
     right={rightIcon}
     outlineColor="#fff"
     outlineStyle={[styles.shadowBox]}

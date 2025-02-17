@@ -1,34 +1,33 @@
 // Core
-import { zodResolver } from "@hookform/resolvers/zod";
-import React, { useEffect, useState } from "react";
-import { useLocalSearchParams, useRouter } from "expo-router";
-import { Controller, useForm } from "react-hook-form";
-import { View, StyleSheet, ImageBackground, ScrollView } from "react-native";
-import {
-  Button,
-  IconButton,
-  Switch,
-  Text,
-  TextInput,
-} from "react-native-paper";
+import { ImageBackground, ScrollView, StyleSheet, View } from "react-native";
+import React, { useState } from "react";
+import { useRouter } from "expo-router";
 
 // App
 import useBackHandler from "utils/useBackHandler";
+import { Controller, useForm } from "react-hook-form";
 import { DetailUserInformationFormType } from "constants/userInfor.type";
+import { zodResolver } from "@hookform/resolvers/zod";
 import {
   DEFAULT_DETAIL_USER_INFORMATION_FORM_VALUES,
   DetailUserInformationFormSchema,
 } from "constants/userInfor.constant";
-import dayjs from "dayjs";
-import utc from "dayjs/plugin/utc";
+import {
+  Button,
+  Icon,
+  IconButton,
+  Text,
+  TextInput,
+  TouchableRipple,
+} from "react-native-paper";
 import { Dropdown } from "react-native-paper-dropdown";
 import {
   CustomDropdownInput,
   CustomDropdownItem,
 } from "components/CustomDropdown";
 
-// UTC time
-dayjs.extend(utc);
+// Types
+type Props = {};
 
 // Options
 const OPTIONS = [
@@ -37,19 +36,11 @@ const OPTIONS = [
 ];
 
 // Component
-const UserDetailScreen = () => {
+const CreateMemberScreen = (props: Props) => {
   // States
-  const [isEditMode, setIsEditMode] = useState<boolean>(false);
   const [gender, setGender] = useState<string | undefined>(
     DEFAULT_DETAIL_USER_INFORMATION_FORM_VALUES.gender
   );
-  const [isAllowed, setIsAllowed] = useState<boolean>(
-    DEFAULT_DETAIL_USER_INFORMATION_FORM_VALUES.permission
-  );
-
-  // Param
-  const { id } = useLocalSearchParams();
-
   // Router
   const router = useRouter();
 
@@ -60,15 +51,7 @@ const UserDetailScreen = () => {
     formState: { errors },
   } = useForm<DetailUserInformationFormType>({
     resolver: zodResolver(DetailUserInformationFormSchema),
-    defaultValues: {
-      fullName: "Thanh Tùng",
-      id: id as string,
-      birth: "2003-10-25",
-      email: "thanhtumg.2510@gmail.com",
-      gender: "male",
-      phone: "0986801203",
-      permission: DEFAULT_DETAIL_USER_INFORMATION_FORM_VALUES.permission,
-    },
+    defaultValues: DEFAULT_DETAIL_USER_INFORMATION_FORM_VALUES,
   });
 
   // Methods
@@ -78,14 +61,9 @@ const UserDetailScreen = () => {
     return true;
   });
 
-  // handle toggle switch
-  const handleToggleSwitch = () => {
-    if (isEditMode) setIsAllowed(!isAllowed);
-  };
-
-  // handle toggle edit mode
-  const handleToggleEdit = () => {
-    setIsEditMode(!isEditMode);
+  // handle submit form
+  const handleSubmitForm = (data: DetailUserInformationFormType) => {
+    console.log(data);
   };
 
   // Template
@@ -101,15 +79,15 @@ const UserDetailScreen = () => {
           alignItems: "center",
           backgroundColor: "#FCFCFC",
           width: "100%",
-          paddingVertical: 10,
+          paddingVertical: 20,
         }}
       >
         {/* Go back button */}
         <IconButton
           icon={"chevron-left"}
-          style={{ position: "absolute", left: 10, zIndex: 10 }}
           size={32}
           iconColor="#808080"
+          style={{ position: "absolute", left: 10, zIndex: 10 }}
           onPress={() => router.replace("/(tabs)/AccountManagementScreen")}
         />
         {/* Title */}
@@ -123,22 +101,23 @@ const UserDetailScreen = () => {
             alignItems: "center",
           }}
         >
-          Details Information
+          Create Member
         </Text>
-
-        <IconButton
-          icon={isEditMode ? "eraser" : "square-edit-outline"}
-          size={24}
-          iconColor={isEditMode ? "#808080" : "#3385FF"}
-          onPress={handleToggleEdit}
-          style={{ position: "absolute", right: 10 }}
-        />
       </View>
 
       {/* Content */}
       <ScrollView>
         <View style={styles.container}>
           <View style={styles.formField}>
+            <Text
+              variant="titleMedium"
+              style={{
+                fontFamily: "Poppins-SemiBold",
+                alignSelf: "flex-start",
+              }}
+            >
+              Detail information
+            </Text>
             {/* Form */}
             {/* Fullname */}
             <Controller
@@ -153,7 +132,6 @@ const UserDetailScreen = () => {
                         onSurfaceVariant: "#777",
                       },
                     }}
-                    disabled={!isEditMode}
                     textColor="#333"
                     mode="flat"
                     style={styles.inputField}
@@ -161,7 +139,7 @@ const UserDetailScreen = () => {
                       fontFamily: "Poppins-Regular",
                       marginTop: 8,
                     }}
-                    label="Name"
+                    label="Fullname"
                     onChangeText={onChange}
                     onBlur={onBlur}
                     value={value}
@@ -177,20 +155,37 @@ const UserDetailScreen = () => {
             />
 
             {/* ID */}
-            <View>
-              <TextInput
-                disabled={!isEditMode}
-                textColor="#333"
-                mode="flat"
-                style={styles.inputField}
-                contentStyle={{
-                  fontFamily: "Poppins-Regular",
-                  marginTop: 8,
-                }}
-                label="ID"
-                value={id.toString()}
-              />
-            </View>
+            <Controller
+              control={control}
+              name="id"
+              render={({ field: { onChange, onBlur, value } }) => (
+                <View>
+                  <TextInput
+                    theme={{
+                      colors: {
+                        primary: "#2B56F0",
+                        onSurfaceVariant: "#777",
+                      },
+                    }}
+                    textColor="#333"
+                    mode="flat"
+                    style={styles.inputField}
+                    contentStyle={{
+                      fontFamily: "Poppins-Regular",
+                      marginTop: 8,
+                    }}
+                    label="ID"
+                    onChangeText={onChange}
+                    onBlur={onBlur}
+                    value={value}
+                    error={!!errors.id}
+                  />
+                  {errors.id && (
+                    <Text style={styles.error}>{`${errors.id.message}`}</Text>
+                  )}
+                </View>
+              )}
+            />
 
             {/* Birth */}
             <Controller
@@ -205,7 +200,7 @@ const UserDetailScreen = () => {
                         onSurfaceVariant: "#777",
                       },
                     }}
-                    disabled={!isEditMode}
+                    placeholder="YYYY-MM-DD"
                     textColor="#333"
                     mode="flat"
                     style={styles.inputField}
@@ -247,7 +242,6 @@ const UserDetailScreen = () => {
                         pointerEvents="none"
                       />
                     }
-                    disabled={!isEditMode}
                     error={!!errors.gender}
                     menuDownIcon={
                       <TextInput.Icon
@@ -285,7 +279,6 @@ const UserDetailScreen = () => {
                         onSurfaceVariant: "#777",
                       },
                     }}
-                    disabled={!isEditMode}
                     textColor="#333"
                     mode="flat"
                     style={styles.inputField}
@@ -321,7 +314,6 @@ const UserDetailScreen = () => {
                         onSurfaceVariant: "#777",
                       },
                     }}
-                    disabled={!isEditMode}
                     textColor="#333"
                     mode="flat"
                     style={styles.inputField}
@@ -343,55 +335,56 @@ const UserDetailScreen = () => {
                 </View>
               )}
             />
+          </View>
 
-            {/* Permission */}
-            <View style={styles.permissionContainer}>
-              <Text
-                style={{
-                  fontSize: 13,
-                  color: isEditMode ? "#777" : "rgba(28, 27, 31, 0.38)",
-                }}
-              >
-                Permission
-              </Text>
-              <Switch value={isAllowed} onValueChange={handleToggleSwitch} />
-            </View>
+          <View style={{ marginTop: 20, gap: 10 }}>
+            <Text
+              variant="titleMedium"
+              style={{ fontFamily: "Poppins-SemiBold" }}
+            >
+              Face Authentication
+            </Text>
+            <TouchableRipple
+              style={styles.faceAuth}
+              onPress={() => {
+                console.log("ngan");
+              }}
+            >
+              <View style={{ justifyContent: "center", alignItems: "center" }}>
+                <Icon
+                  source={"plus-circle-outline"}
+                  color="#A6A6A6"
+                  size={30}
+                />
+                <Text
+                  variant="bodySmall"
+                  style={{ fontFamily: "Poppins-Regular", color: "#A6A6A6" }}
+                >
+                  click here to scan face
+                </Text>
+              </View>
+            </TouchableRipple>
           </View>
 
           {/* Action Button */}
-          <View style={styles.actionButtonContainer}>
-            <Button
-              labelStyle={{ fontFamily: "Poppins-Medium" }}
-              mode="contained"
-              style={[styles.actButton, { backgroundColor: "#FF6666" }]}
-            >
-              Delete Member
-            </Button>
-            <Button
-              labelStyle={{ fontFamily: "Poppins-Medium" }}
-              mode="contained"
-              disabled={!isEditMode}
-              style={[styles.actButton]}
-            >
-              Apply
-            </Button>
-          </View>
+          <Button
+            labelStyle={{ fontFamily: "Poppins-Medium" }}
+            mode="contained"
+            style={styles.actButton}
+            onPress={handleSubmit(handleSubmitForm)}
+          >
+            Create
+          </Button>
         </View>
       </ScrollView>
     </View>
   );
 };
 
-export default UserDetailScreen;
+export default CreateMemberScreen;
 
 // Styles
 const styles = StyleSheet.create({
-  background: {
-    flex: 1,
-    resizeMode: "cover",
-    justifyContent: "flex-start",
-    alignItems: "center",
-  },
   container: {
     flex: 1,
     justifyContent: "flex-start",
@@ -401,12 +394,16 @@ const styles = StyleSheet.create({
   title: {
     fontFamily: "Poppins-SemiBold",
     color: "#333",
-    marginTop: 26,
+    textAlign: "center",
+    position: "absolute",
+    left: "50%",
+    transform: [{ translateX: -50 }],
+    padding: 10,
   },
   formField: {
     justifyContent: "center",
     alignItems: "center",
-    marginTop: 50,
+    marginTop: 80,
     gap: 3,
   },
   inputField: {
@@ -420,25 +417,21 @@ const styles = StyleSheet.create({
     fontFamily: "Poppins-Light",
     fontSize: 12,
   },
-  permissionContainer: {
-    flexDirection: "row",
-    justifyContent: "flex-start",
-    alignItems: "center",
-    gap: 10,
-    paddingLeft: 16,
-    maxHeight: 77,
+
+  faceAuth: {
     width: 300,
-  },
-  actionButtonContainer: {
-    flexDirection: "row",
+    height: 70,
     justifyContent: "center",
     alignItems: "center",
-    gap: 20,
-    marginTop: 60,
+    borderWidth: 2,
+    borderStyle: "dashed",
+    borderColor: "#A6A6A6",
+    borderRadius: 5,
   },
   actButton: {
+    marginTop: 37,
     borderRadius: 5,
-    minWidth: 150,
+    minWidth: 300,
     minHeight: 40,
   },
 });

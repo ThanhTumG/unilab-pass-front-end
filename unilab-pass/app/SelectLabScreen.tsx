@@ -49,7 +49,6 @@ const SelectLabScreen = (props: Props) => {
       {/* Select */}
       <View style={[styles.content, styles.alignCenter]}>
         <Dropdown
-          label="Lab name"
           placeholder="Select your lab"
           options={OPTIONS}
           value={lab}
@@ -67,6 +66,7 @@ const SelectLabScreen = (props: Props) => {
               pointerEvents="none"
             />
           }
+          mode="outlined"
           hideMenuHeader={true}
           CustomDropdownItem={CustomDropdownItem}
           CustomDropdownInput={CustomDropdownInput}

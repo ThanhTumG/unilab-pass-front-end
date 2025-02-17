@@ -6,6 +6,8 @@ import { Icon, Searchbar, Text } from "react-native-paper";
 // App
 import Table from "components/Table";
 import FilterAccess from "components/FilterAccess";
+import { FlatList } from "react-native";
+import Record from "components/Record";
 
 // Types
 type Props = {};
@@ -17,105 +19,105 @@ const ManageAccessScreen = (props: Props) => {
 
   const [recordData] = React.useState([
     {
-      id: 2115235,
+      id: "2115235",
       name: "Phạm Châu Thanh Tùng",
       type: "check in",
       time: "2024-12-23T08:00:00",
       status: "success",
     },
     {
-      id: 2115236,
+      id: "2115236",
       name: "Trần Thị B",
       type: "check out",
       time: "2025-01-20T04:02:15",
       status: "success",
     },
     {
-      id: 2115237,
+      id: "2115237",
       name: "Lê Văn C",
       type: "check in",
       time: "2025-01-21T16:02:15",
       status: "pending",
     },
     {
-      id: 2115238,
+      id: "2115238",
       name: "Phạm Thị D",
       type: "check out",
       time: "2025-01-25T04:02:15",
       status: "success",
     },
     {
-      id: 2115239,
+      id: "2115239",
       name: "Hoàng Văn E",
       type: "check in",
       time: "2025-01-25T04:02:15",
       status: "failed",
     },
     {
-      id: 2115240,
+      id: "2115240",
       name: "Nguyễn Thị F",
       type: "check out",
       time: "2025-01-25T04:02:15",
       status: "success",
     },
     {
-      id: 2115241,
+      id: "2115241",
       name: "Lý Văn G",
       type: "check in",
       time: "2025-01-25T04:02:15",
       status: "success",
     },
     {
-      id: 2115242,
+      id: "2115242",
       name: "Đỗ Thị H",
       type: "check out",
       time: "2025-01-25T04:02:15",
       status: "pending",
     },
     {
-      id: 2115243,
+      id: "2115243",
       name: "Võ Văn I",
       type: "check in",
       time: "2025-01-25T04:02:15",
       status: "success",
     },
     {
-      id: 2115244,
+      id: "2115244",
       name: "Bùi Thị K",
       type: "check out",
       time: "2025-01-25T04:02:15",
       status: "failed",
     },
     {
-      id: 2115245,
+      id: "2115245",
       name: "Phan Văn L",
       type: "check in",
       time: "2025-01-25T04:02:15",
       status: "success",
     },
     {
-      id: 2115246,
+      id: "2115246",
       name: "Ngô Thị M",
       type: "check out",
       time: "2025-01-25T04:02:15",
       status: "success",
     },
     {
-      id: 2115247,
+      id: "2115247",
       name: "Vũ Văn N",
       type: "check in",
       time: "2025-01-25T04:02:15",
       status: "pending",
     },
     {
-      id: 2115248,
+      id: "2115248",
       name: "Dương Thị O",
       type: "check out",
       time: "2025-01-25T04:02:15",
       status: "success",
     },
     {
-      id: 2115249,
+      id: "2115249",
       name: "Lâm Văn P",
       type: "check in",
       time: "2025-01-25T04:02:15",
@@ -151,11 +153,20 @@ const ManageAccessScreen = (props: Props) => {
       {/* </View> */}
 
       {/* Table */}
-      <Table
+      {/* <Table
         mode="access"
         data={recordData}
         columns={["id", "name", "time", "type", "status"]}
-      />
+      /> */}
+      <View style={styles.recordListContainer}>
+        <FlatList
+          data={recordData}
+          keyExtractor={(item) => item.id}
+          renderItem={({ item, index }: { item: any; index: any }) => {
+            return <Record item={item} isEven={index % 2 == 1} />;
+          }}
+        />
+      </View>
     </ImageBackground>
   );
 };
@@ -206,5 +217,14 @@ const styles = StyleSheet.create({
     minHeight: 50,
     textAlignVertical: "center",
     marginTop: -5,
+  },
+  recordListContainer: {
+    flex: 1,
+    alignSelf: "stretch",
+    backgroundColor: "#fff",
+    marginTop: 21,
+    borderTopWidth: 1,
+    borderColor: "rgba(0, 0, 0, 0.15)",
+    paddingBottom: 82,
   },
 });

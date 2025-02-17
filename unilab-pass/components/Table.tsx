@@ -1,19 +1,7 @@
 // Core
-import {
-  Dimensions,
-  ImageBackground,
-  ScrollView,
-  StyleSheet,
-  View,
-} from "react-native";
+import { Dimensions, ScrollView, StyleSheet } from "react-native";
 import React from "react";
-import {
-  Button,
-  DataTable,
-  Icon,
-  Text,
-  TouchableRipple,
-} from "react-native-paper";
+import { DataTable, Icon, Text, TouchableRipple } from "react-native-paper";
 import dayjs from "dayjs";
 import { useRouter } from "expo-router";
 

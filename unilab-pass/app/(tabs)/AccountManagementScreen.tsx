@@ -1,5 +1,5 @@
 // Core
-import { ImageBackground, StyleSheet, View } from "react-native";
+import { FlatList, ImageBackground, StyleSheet, View } from "react-native";
 import React from "react";
 import {
   Icon,
@@ -10,6 +10,8 @@ import {
 } from "react-native-paper";
 import Table from "components/Table";
 import { useRouter } from "expo-router";
+
+import MemberCard from "components/MemberCard";
 
 // Types
 type Props = {};
@@ -30,6 +32,7 @@ const ManageAccountScreen = (props: Props) => {
       dateOfBirth: "25-10-2003",
       email: "tung.phamchauthanh@hcmut.edu.vn",
       phone: "0984801203",
+      status: "active",
     },
     {
       name: "NGUYỄN VĂN A",
@@ -38,6 +41,7 @@ const ManageAccountScreen = (props: Props) => {
       dateOfBirth: "15-08-2002",
       email: "nguyenvana@hcmut.edu.vn",
       phone: "0984123456",
+      status: "active",
     },
     {
       name: "TRẦN THỊ B",
@@ -46,6 +50,7 @@ const ManageAccountScreen = (props: Props) => {
       dateOfBirth: "12-05-2001",
       email: "tranthib@hcmut.edu.vn",
       phone: "0978567890",
+      status: "active",
     },
     {
       name: "LÊ HOÀNG NAM",
@@ -54,6 +59,7 @@ const ManageAccountScreen = (props: Props) => {
       dateOfBirth: "20-11-2000",
       email: "lehoangnam@hcmut.edu.vn",
       phone: "0901234567",
+      status: "active",
     },
     {
       name: "VŨ MINH ANH",
@@ -62,6 +68,7 @@ const ManageAccountScreen = (props: Props) => {
       dateOfBirth: "05-09-2002",
       email: "vuminhanh@hcmut.edu.vn",
       phone: "0912345678",
+      status: "active",
     },
     {
       name: "ĐẶNG THẾ KIỆT",
@@ -70,6 +77,7 @@ const ManageAccountScreen = (props: Props) => {
       dateOfBirth: "30-07-2001",
       email: "dangthekiet@hcmut.edu.vn",
       phone: "0923456789",
+      status: "active",
     },
     {
       name: "HOÀNG KIM NGÂN",
@@ -78,6 +86,7 @@ const ManageAccountScreen = (props: Props) => {
       dateOfBirth: "18-04-2003",
       email: "hoangkimngan@hcmut.edu.vn",
       phone: "0934567890",
+      status: "active",
     },
     {
       name: "TRẦN VĂN DŨNG",
@@ -86,6 +95,7 @@ const ManageAccountScreen = (props: Props) => {
       dateOfBirth: "10-02-2000",
       email: "tranvandung@hcmut.edu.vn",
       phone: "0945678901",
+      status: "blocked",
     },
     {
       name: "PHAN THỊ HỒNG",
@@ -94,6 +104,7 @@ const ManageAccountScreen = (props: Props) => {
       dateOfBirth: "25-12-2002",
       email: "phanthihong@hcmut.edu.vn",
       phone: "0956789012",
+      status: "active",
     },
     {
       name: "BÙI GIA HUY",
@@ -102,6 +113,7 @@ const ManageAccountScreen = (props: Props) => {
       dateOfBirth: "08-06-2001",
       email: "buigiahuy@hcmut.edu.vn",
       phone: "0967890123",
+      status: "active",
     },
     {
       name: "LÝ THU TRANG",
@@ -110,6 +122,7 @@ const ManageAccountScreen = (props: Props) => {
       dateOfBirth: "14-03-2003",
       email: "lythutrang@hcmut.edu.vn",
       phone: "0978901234",
+      status: "active",
     },
     {
       name: "HỒ VĂN BẢO",
@@ -118,6 +131,7 @@ const ManageAccountScreen = (props: Props) => {
       dateOfBirth: "22-09-2002",
       email: "hovanbao@hcmut.edu.vn",
       phone: "0989012345",
+      status: "active",
     },
     {
       name: "NGUYỄN THỊ MAI",
@@ -126,6 +140,7 @@ const ManageAccountScreen = (props: Props) => {
       dateOfBirth: "06-07-2001",
       email: "nguyenthimai@hcmut.edu.vn",
       phone: "0990123456",
+      status: "active",
     },
     {
       name: "TRỊNH ĐỨC ANH",
@@ -134,6 +149,7 @@ const ManageAccountScreen = (props: Props) => {
       dateOfBirth: "17-01-2003",
       email: "trinhducanh@hcmut.edu.vn",
       phone: "0902345678",
+      status: "active",
     },
     {
       name: "ĐỖ MINH CHÂU",
@@ -142,6 +158,7 @@ const ManageAccountScreen = (props: Props) => {
       dateOfBirth: "03-05-2000",
       email: "dominchau@hcmut.edu.vn",
       phone: "0913456789",
+      status: "active",
     },
   ]);
 
@@ -153,7 +170,7 @@ const ManageAccountScreen = (props: Props) => {
 
   // Handle create new member
   const handleCreateNewMember = () => {
-    console.log("ngan");
+    router.replace("/(stack)/CreateMemberScreen");
   };
 
   // Template
@@ -196,11 +213,20 @@ const ManageAccountScreen = (props: Props) => {
       />
 
       {/* Table */}
-      <Table
+      {/* <Table
         mode="account"
         data={accountData}
         columns={["id", "name", "email"]}
-      />
+      /> */}
+      <View style={styles.memberListContainer}>
+        <FlatList
+          data={accountData}
+          keyExtractor={(item) => item.id}
+          renderItem={({ item, index }: { item: any; index: any }) => {
+            return <MemberCard item={item} isEven={index % 2 == 1} />;
+          }}
+        />
+      </View>
     </ImageBackground>
   );
 };
@@ -245,5 +271,14 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
     borderRadius: 25,
+  },
+  memberListContainer: {
+    flex: 1,
+    alignSelf: "stretch",
+    backgroundColor: "#fff",
+    marginTop: 21,
+    borderTopWidth: 1,
+    borderColor: "rgba(0, 0, 0, 0.15)",
+    paddingBottom: 82,
   },
 });

@@ -1,6 +1,6 @@
 // Core
 import { View, StyleSheet } from "react-native";
-import { Icon, Text, TouchableRipple } from "react-native-paper";
+import { Icon, Surface, Text, TouchableRipple } from "react-native-paper";
 import { BottomTabBarProps } from "@react-navigation/bottom-tabs";
 
 // Types
@@ -50,7 +50,7 @@ const TabBar = ({ state, descriptors, navigation }: BottomTabBarProps) => {
 
   // Template
   return (
-    <View style={[styles.tabbar, styles.alginCenter]}>
+    <Surface style={[styles.tabbar, styles.alginCenter]} elevation={5}>
       {state.routes.map((route, index) => {
         const { options } = descriptors[route.key];
         const label =
@@ -102,7 +102,7 @@ const TabBar = ({ state, descriptors, navigation }: BottomTabBarProps) => {
           </TouchableRipple>
         );
       })}
-    </View>
+    </Surface>
   );
 };
 
@@ -116,9 +116,9 @@ const styles = StyleSheet.create({
   tabbar: {
     position: "absolute",
     flexDirection: "row",
-    bottom: 13,
+    bottom: 0,
     backgroundColor: "#fff",
-    marginHorizontal: 16,
+    marginHorizontal: 0,
     paddingVertical: 15,
     borderRadius: 25,
     borderCurve: "circular",
