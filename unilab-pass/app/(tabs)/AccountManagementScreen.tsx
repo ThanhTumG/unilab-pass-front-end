@@ -8,9 +8,9 @@ import {
   Text,
   TouchableRipple,
 } from "react-native-paper";
-import Table from "components/Table";
 import { useRouter } from "expo-router";
 
+// App
 import MemberCard from "components/MemberCard";
 
 // Types

@@ -22,6 +22,7 @@
     "@react-native-community/masked-view": "^0.1.11",
     "@react-navigation/bottom-tabs": "^7.2.0",
     "@react-navigation/native": "^7.0.14",
+    "axios": "^1.7.9",
     "dayjs": "^1.11.13",
     "expo": "~52.0.23",
     "expo-blur": "~14.0.1",
@@ -54,10 +55,13 @@
     "react-native-web": "~0.19.13",
     "react-native-webview": "13.12.5",
     "react-timer-hook": "^3.0.8",
-    "zod": "^3.24.1"
+    "zod": "^3.24.1",
+    "zustand": "^5.0.3"
   },
   "devDependencies": {
     "@babel/core": "^7.25.2",
+    "@openapitools/openapi-generator-cli": "^2.16.3",
+    "@types/axios": "^0.14.4",
     "@types/jest": "^29.5.12",
     "@types/react": "~18.3.12",
     "@types/react-test-renderer": "^18.3.0",

@@ -18,6 +18,8 @@ import {
   DEFAULT_LOGIN_FORM_VALUES,
   LoginFormSchema,
 } from "../../constants/auth.constant";
+import { AuthenticationControllerApi, AuthenticationRequest } from "api/index";
+import { useAuthStore } from "stores";
 
 // Types
 type Props = {};
@@ -26,6 +28,7 @@ type Props = {};
 const LoginScreen = (props: Props) => {
   // States
   const [isHidePassword, setIsHidePassword] = useState<boolean>(true);
+  const [isLoading, setIsLoading] = useState<boolean>(false);
 
   // Router
   const router = useRouter();
@@ -40,11 +43,32 @@ const LoginScreen = (props: Props) => {
     defaultValues: DEFAULT_LOGIN_FORM_VALUES,
   });
 
+  // Store
+  const { setAppIsLoggedIn, setAppToken } = useAuthStore();
+
+  // Api
+  const authApi = new AuthenticationControllerApi();
+
   // Methods
   // Handle submit form
-  const handleOnSubmit = (data: any) => {
-    // console.log("Data:", data);
-    router.replace("/SelectLabScreen");
+  const handleOnSubmit = async (data: LoginFormType) => {
+    const param: AuthenticationRequest = {
+      email: data.email,
+      password: data.password,
+    };
+    setIsLoading(true);
+    await authApi
+      .authenticate({ authenticationRequest: param })
+      .then((response) => {
+        console.info("Successful: ", response.data.result);
+        setAppIsLoggedIn(true);
+        setAppToken(response.data.result.token);
+        router.replace("/SelectLabScreen");
+      })
+      .catch((error) => {
+        console.error("Error: ", error.response.data);
+      });
+    setIsLoading(false);
   };
 
   // Handle sign up
@@ -143,8 +167,8 @@ const LoginScreen = (props: Props) => {
           textColor="#F5F5F5"
           labelStyle={{ fontFamily: "Poppins-SemiBold", fontSize: 18 }}
           contentStyle={{ width: 300, height: 50 }}
-          // onPress={handleSubmit(handleOnSubmit)}
-          onPress={handleOnSubmit}
+          onPress={handleSubmit(handleOnSubmit)}
+          loading={isLoading}
         >
           Sign In
         </Button>

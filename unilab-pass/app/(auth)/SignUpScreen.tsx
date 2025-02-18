@@ -16,6 +16,7 @@ import {
   DEFAULT_SIGNUP_FORM_VALUES,
   SignupFormSchema,
 } from "constants/auth.constant";
+import { MyUserControllerApi, MyUserCreationRequest } from "api/index";
 
 // Types
 type Props = {};
@@ -36,6 +37,9 @@ const SignUpScreen = (props: Props) => {
   // Router
   const router = useRouter();
 
+  // Api
+  const userApi = new MyUserControllerApi();
+
   // Form
   const {
     control,
@@ -48,12 +52,27 @@ const SignUpScreen = (props: Props) => {
 
   // Methods
   // Handle submit form
-  const handleOnSubmit = (data: DataType) => {
+  const handleOnSubmit = async (data: DataType) => {
+    const param: MyUserCreationRequest = {
+      email: "thanhtumg.2510@gmail.com",
+      password: "123456789",
+      dob: "2003-10-25",
+      firstName: "Tung",
+      lastName: "Pham",
+    };
+    await userApi
+      .createMyUser({ myUserCreationRequest: param })
+      .then((response) => {
+        console.info("Successful: ", response.data.result);
+      })
+      .catch((error) => {
+        console.error("Error: ", error.response.data);
+      });
     // console.log(data);
-    router.replace({
-      pathname: "/OTPVerificationScreen",
-      params: { email: data.email },
-    });
+    // router.replace({
+    //   pathname: "/OTPVerificationScreen",
+    //   params: { email: data.email },
+    // });
   };
 
   // Template

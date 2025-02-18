@@ -9,6 +9,9 @@ import { PaperProvider, DefaultTheme } from "react-native-paper";
 import { SafeAreaView } from "react-native-safe-area-context";
 import * as SplashScreen from "expo-splash-screen";
 
+// App
+import { useAuthStore } from "stores";
+
 // Prevent the splash screen from auto-hiding before asset loading is complete.
 SplashScreen.preventAutoHideAsync();
 
@@ -23,6 +26,9 @@ export default function RootLayout() {
     "Poppins-Medium": require("../assets/fonts/Poppins-Medium.ttf"),
     "Poppins-SemiBold": require("../assets/fonts/Poppins-SemiBold.ttf"),
   });
+
+  // Store
+  const { appIsLoggedIn } = useAuthStore();
 
   // Effects
   useEffect(() => {
@@ -58,20 +64,26 @@ export default function RootLayout() {
   return (
     <SafeAreaView style={styles.safeArea}>
       <PaperProvider theme={customTheme}>
-        <Stack>
-          <Stack.Screen name="index" options={{ headerShown: false }} />
-          <Stack.Screen
-            name="OnboardingScreen"
-            options={{ headerShown: false }}
-          />
-          <Stack.Screen
-            name="SelectLabScreen"
-            options={{ headerShown: false }}
-          />
-          <Stack.Screen name="(auth)" options={{ headerShown: false }} />
-          <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-          <Stack.Screen name="(stack)" options={{ headerShown: false }} />
-        </Stack>
+        {!appIsLoggedIn ? (
+          <Stack>
+            <Stack.Screen name="(auth)" options={{ headerShown: false }} />
+          </Stack>
+        ) : (
+          <Stack>
+            <Stack.Screen name="index" options={{ headerShown: false }} />
+            <Stack.Screen
+              name="OnboardingScreen"
+              options={{ headerShown: false }}
+            />
+            <Stack.Screen
+              name="SelectLabScreen"
+              options={{ headerShown: false }}
+            />
+            <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+            <Stack.Screen name="(stack)" options={{ headerShown: false }} />
+          </Stack>
+        )}
+
         <StatusBar style="auto" />
       </PaperProvider>
     </SafeAreaView>

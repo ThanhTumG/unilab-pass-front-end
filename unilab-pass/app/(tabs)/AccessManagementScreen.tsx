@@ -2,11 +2,11 @@
 import { ImageBackground, StyleSheet, View } from "react-native";
 import React from "react";
 import { Icon, Searchbar, Text } from "react-native-paper";
+import { FlatList } from "react-native";
 
 // App
 import Table from "components/Table";
 import FilterAccess from "components/FilterAccess";
-import { FlatList } from "react-native";
 import Record from "components/Record";
 
 // Types
