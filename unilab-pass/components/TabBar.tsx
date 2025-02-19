@@ -1,49 +1,13 @@
 // Core
-import { View, StyleSheet } from "react-native";
-import { Icon, Surface, Text, TouchableRipple } from "react-native-paper";
+import { StyleSheet } from "react-native";
+import { Surface } from "react-native-paper";
 import { BottomTabBarProps } from "@react-navigation/bottom-tabs";
 
-// Types
-type IconsType = {
-  [key: string]: (props: any) => JSX.Element;
-};
+// App
+import TabBarButton from "./TabBarButton";
 
 // Component
 const TabBar = ({ state, descriptors, navigation }: BottomTabBarProps) => {
-  // Icons
-  const icons: IconsType = {
-    HomeScreen: (props) => (
-      <Icon
-        source="home-variant-outline"
-        size={28}
-        color={greyColor}
-        {...props}
-      />
-    ),
-    AccessManagementScreen: (props) => (
-      <Icon source="history" size={28} color={greyColor} {...props} />
-    ),
-    RecordActivityScreen: (props) => (
-      <Icon source="qrcode-scan" size={28} color={greyColor} {...props} />
-    ),
-    AccountManagementScreen: (props) => (
-      <Icon
-        source="account-multiple-outline"
-        size={28}
-        color={greyColor}
-        {...props}
-      />
-    ),
-    ProfileScreen: (props: any) => (
-      <Icon
-        source="account-circle-outline"
-        size={28}
-        color={greyColor}
-        {...props}
-      />
-    ),
-  };
-
   // Colors
   const primaryColor = "#1B61B5";
   const greyColor = "#6C6C6C";
@@ -75,31 +39,14 @@ const TabBar = ({ state, descriptors, navigation }: BottomTabBarProps) => {
 
         // Template
         return (
-          <TouchableRipple
+          <TabBarButton
             key={route.name}
-            style={[styles.alginCenter, styles.button]}
-            accessibilityState={isFocused ? { selected: true } : {}}
-            accessibilityLabel={options.tabBarAccessibilityLabel}
-            testID={options.tabBarButtonTestID}
+            color={isFocused ? primaryColor : greyColor}
+            isFocused={isFocused}
+            routeName={route.name}
+            label={label.toString()}
             onPress={onPress}
-            rippleColor={"#f9f9f9"}
-          >
-            <View style={[styles.alginCenter, styles.tabbarItem]}>
-              {icons[route.name]({
-                color: isFocused ? primaryColor : greyColor,
-              })}
-              <Text
-                style={{
-                  color: isFocused ? primaryColor : greyColor,
-                  textAlign: "center",
-                  fontFamily: "Poppins-Regular",
-                  fontSize: 11,
-                }}
-              >
-                {label.toString()}
-              </Text>
-            </View>
-          </TouchableRipple>
+          />
         );
       })}
     </Surface>
@@ -119,7 +66,8 @@ const styles = StyleSheet.create({
     bottom: 0,
     backgroundColor: "#fff",
     marginHorizontal: 0,
-    paddingVertical: 15,
+    paddingVertical: 10,
+    paddingHorizontal: 4,
     borderRadius: 25,
     borderCurve: "circular",
     shadowColor: "black",
@@ -127,14 +75,5 @@ const styles = StyleSheet.create({
     shadowRadius: 4,
     shadowOpacity: 0.1,
     elevation: 3,
-  },
-  tabbarItem: {
-    flex: 1,
-    gap: 2,
-  },
-  button: {
-    flex: 1,
-    // backgroundColor: "#333",
-    borderRadius: 20,
   },
 });

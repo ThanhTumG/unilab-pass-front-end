@@ -1,9 +1,9 @@
 // Core
 import { zodResolver } from "@hookform/resolvers/zod";
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { Controller, useForm } from "react-hook-form";
-import { View, StyleSheet, ImageBackground, ScrollView } from "react-native";
+import { View, StyleSheet, ScrollView } from "react-native";
 import {
   Button,
   IconButton,
@@ -11,6 +11,9 @@ import {
   Text,
   TextInput,
 } from "react-native-paper";
+import dayjs from "dayjs";
+import utc from "dayjs/plugin/utc";
+import { Dropdown } from "react-native-paper-dropdown";
 
 // App
 import useBackHandler from "utils/useBackHandler";
@@ -19,9 +22,6 @@ import {
   DEFAULT_DETAIL_USER_INFORMATION_FORM_VALUES,
   DetailUserInformationFormSchema,
 } from "constants/userInfor.constant";
-import dayjs from "dayjs";
-import utc from "dayjs/plugin/utc";
-import { Dropdown } from "react-native-paper-dropdown";
 import {
   CustomDropdownInput,
   CustomDropdownItem,
