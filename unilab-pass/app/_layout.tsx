@@ -8,6 +8,7 @@ import { StyleSheet } from "react-native";
 import { PaperProvider, DefaultTheme } from "react-native-paper";
 import { SafeAreaView } from "react-native-safe-area-context";
 import * as SplashScreen from "expo-splash-screen";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 // App
 import { useAuthStore } from "stores";
@@ -66,6 +67,7 @@ export default function RootLayout() {
       <PaperProvider theme={customTheme}>
         {!appIsLoggedIn ? (
           <Stack>
+            <Stack.Screen name="index" options={{ headerShown: false }} />
             <Stack.Screen name="(auth)" options={{ headerShown: false }} />
           </Stack>
         ) : (

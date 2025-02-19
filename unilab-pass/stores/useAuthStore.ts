@@ -1,5 +1,5 @@
 import { create } from "zustand";
-import { createJSONStorage, devtools, persist } from "zustand/middleware";
+import { devtools } from "zustand/middleware";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
 // Types
@@ -29,29 +29,30 @@ const DEFAULT_AUTH_STORE_STATES: AuthStoreStatesType = {
 // Define store
 const useAuthStore = create<AuthStoreStatesType & AuthStoreActionsType>()(
   devtools(
-    persist(
-      (set) => ({
-        // States
-        ...DEFAULT_AUTH_STORE_STATES,
+    // persist(
+    (set) => ({
+      // States
+      ...DEFAULT_AUTH_STORE_STATES,
 
-        // Methods
-        setAppIsLoggedIn: (isLoggedIn: boolean) =>
-          set(() => ({ appIsLoggedIn: isLoggedIn })),
-        setAppToken: ({ token }) =>
-          set(() => ({
-            appToken: token,
-          })),
-        removeAppToken: () => {
-          set(() => ({
-            appToken: null,
-          }));
-        },
-      }),
-      {
-        name: "app-auth-storage",
-        storage: createJSONStorage(() => AsyncStorage),
-      }
-    )
+      // Methods
+      setAppIsLoggedIn: (isLoggedIn: boolean) =>
+        set(() => ({ appIsLoggedIn: isLoggedIn })),
+      setAppToken: ({ token }) =>
+        set(() => ({
+          appToken: token,
+        })),
+      removeAppToken: () => {
+        set(() => ({
+          appToken: null,
+          appIsLoggedIn: false,
+        }));
+      },
+    })
+    // {
+    //   name: "app-auth-storage",
+    //   storage: createJSONStorage(() => AsyncStorage),
+    // }
+    // )
   )
 );
 

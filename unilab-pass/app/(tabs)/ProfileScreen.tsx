@@ -1,6 +1,6 @@
 // Core
 import { ImageBackground, StyleSheet, View } from "react-native";
-import React from "react";
+import React, { useState } from "react";
 import { useRouter } from "expo-router";
 import {
   Avatar,
@@ -10,12 +10,44 @@ import {
   TouchableRipple,
 } from "react-native-paper";
 
+// App
+import { useAuthStore } from "stores";
+import { AuthenticationControllerApi, LogoutRequest } from "api/index";
+
+// Types
 type Props = {};
 
 // Component
 const ProfileScreen = (props: Props) => {
+  // States
+  const [isLoading, setIsLoading] = useState<boolean>(false);
   // Router
   const router = useRouter();
+
+  // Store
+  const { setAppIsLoggedIn, setAppToken, appToken } = useAuthStore();
+
+  // Server
+  const authenticationControllerApi = new AuthenticationControllerApi();
+
+  // Methods
+  // Handle log out
+  const handleLogout = async () => {
+    const param: LogoutRequest = {
+      token: appToken as string,
+    };
+    setIsLoading(true);
+    await authenticationControllerApi
+      .logout({ logoutRequest: param })
+      .then((response) => {
+        console.log("Log out successfully");
+        setAppIsLoggedIn(false);
+        setAppToken({ token: null });
+        router.replace("/(auth)/LoginScreen");
+      })
+      .catch((error) => console.error(error));
+    setIsLoading(false);
+  };
 
   // Template
   return (
@@ -150,7 +182,8 @@ const ProfileScreen = (props: Props) => {
           style={{ marginTop: 47 }}
           contentStyle={{ backgroundColor: "#FF3333" }}
           labelStyle={{ fontFamily: "Poppins-Medium" }}
-          onPress={() => router.replace("/(auth)/LoginScreen")}
+          onPress={handleLogout}
+          loading={isLoading}
         >
           Log out
         </Button>

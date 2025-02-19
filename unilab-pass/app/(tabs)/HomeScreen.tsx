@@ -7,6 +7,7 @@ import { barDataItem } from "react-native-gifted-charts";
 // App
 import CustomCard from "components/CustomCard";
 import CustomBarChart from "components/CustomBarChart";
+import { useAuthStore } from "stores";
 
 // Types
 type Props = {};
@@ -37,6 +38,7 @@ const chartData: barDataItem[] = [
 
 // Component
 const HomeScreen = (props: Props) => {
+  // Store
   // Template
   return (
     <ImageBackground

@@ -1,14 +1,14 @@
 // Core
-import {
-  Image,
-  KeyboardAvoidingView,
-  Platform,
-  StyleSheet,
-  View,
-} from "react-native";
+import { Image, StyleSheet, View } from "react-native";
 import React, { useState } from "react";
 import { useRouter } from "expo-router";
-import { Button, TextInput, Text, TouchableRipple } from "react-native-paper";
+import {
+  Button,
+  TextInput,
+  Text,
+  TouchableRipple,
+  Snackbar,
+} from "react-native-paper";
 import { useForm, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 
@@ -29,6 +29,8 @@ const LoginScreen = (props: Props) => {
   // States
   const [isHidePassword, setIsHidePassword] = useState<boolean>(true);
   const [isLoading, setIsLoading] = useState<boolean>(false);
+  const [errorMessage, setErrorMessage] = useState("");
+  const [visible, setVisible] = useState(false);
 
   // Router
   const router = useRouter();
@@ -46,8 +48,8 @@ const LoginScreen = (props: Props) => {
   // Store
   const { setAppIsLoggedIn, setAppToken } = useAuthStore();
 
-  // Api
-  const authApi = new AuthenticationControllerApi();
+  // Server
+  const authenticationControllerApi = new AuthenticationControllerApi();
 
   // Methods
   // Handle submit form
@@ -57,16 +59,18 @@ const LoginScreen = (props: Props) => {
       password: data.password,
     };
     setIsLoading(true);
-    await authApi
+    await authenticationControllerApi
       .authenticate({ authenticationRequest: param })
       .then((response) => {
         console.info("Successful: ", response.data.result);
+        const token = response.data.result?.token as string;
         setAppIsLoggedIn(true);
-        setAppToken(response.data.result.token);
+        setAppToken({ token: token });
         router.replace("/SelectLabScreen");
       })
       .catch((error) => {
-        console.error("Error: ", error.response.data);
+        setErrorMessage("Email or Password is incorrect");
+        setVisible(true);
       });
     setIsLoading(false);
   };
@@ -78,10 +82,7 @@ const LoginScreen = (props: Props) => {
 
   // Template
   return (
-    <KeyboardAvoidingView
-      style={[styles.container, styles.alignCenter]}
-      behavior={Platform.OS === "ios" ? "padding" : "height"}
-    >
+    <View style={[styles.container, styles.alignCenter]}>
       {/* Logo */}
       <Image
         style={styles.logo}
@@ -200,7 +201,20 @@ const LoginScreen = (props: Props) => {
           </TouchableRipple>
         </View>
       </View>
-    </KeyboardAvoidingView>
+
+      {/* Snackbar */}
+      <Snackbar
+        visible={visible}
+        onDismiss={() => setVisible(false)}
+        duration={3000}
+        action={{
+          label: "Close",
+          onPress: () => setVisible(false),
+        }}
+      >
+        {errorMessage}
+      </Snackbar>
+    </View>
   );
 };
 

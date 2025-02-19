@@ -15,8 +15,8 @@ const App = (props: Props) => {
   const router = useRouter();
 
   // Store
-  const { appIsLoggedIn, appToken } = useAuthStore();
-  console.log(appIsLoggedIn, appToken);
+  const { appIsLoggedIn } = useAuthStore();
+
   // Effects
   useEffect(() => {
     const checkFirstLaunch = async () => {

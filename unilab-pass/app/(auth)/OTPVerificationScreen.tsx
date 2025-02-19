@@ -8,6 +8,10 @@ import { useTimer } from "react-timer-hook";
 
 // App
 import { OTP_EXPIRED_DURATION_MILLISECONDS } from "constants/auth.constant";
+import {
+  AuthenticationControllerApi,
+  VerificationCodeRequest,
+} from "api/index";
 
 // Types
 type Props = {};
@@ -16,6 +20,7 @@ type Props = {};
 const OTPVerificationScreen = (props: Props) => {
   // States
   const [otpCode, setOtpCode] = useState<string>("");
+  const [isLoading, setIsLoading] = useState<boolean>(false);
 
   // Route
   const route = useRouter();
@@ -28,6 +33,9 @@ const OTPVerificationScreen = (props: Props) => {
   // Email
   const { email } = useLocalSearchParams();
 
+  // Server
+  const authenticationControllerApi = new AuthenticationControllerApi();
+
   // Methods
   // Handle resend otp
   const handleResendOtp = () => {
@@ -39,11 +47,22 @@ const OTPVerificationScreen = (props: Props) => {
   };
 
   // Handle submit otp
-  const handleSubmitOtpForm = () => {
+  const handleSubmitOtpForm = async () => {
     if (otpCode.length != 4) return;
-    console.log(otpCode);
-    console.log(otpTimer.totalSeconds);
-    route.reload;
+
+    const param: VerificationCodeRequest = {
+      email: email as string,
+      code: otpCode,
+    };
+    setIsLoading(true);
+    await authenticationControllerApi
+      .verifyCode({ verificationCodeRequest: param })
+      .then((response) => {
+        console.log(response.data.result);
+        route.replace("/(auth)/LoginScreen");
+      })
+      .catch((error) => console.error(error));
+    setIsLoading(false);
   };
 
   // Memos
@@ -133,6 +152,7 @@ const OTPVerificationScreen = (props: Props) => {
         onPress={handleSubmitOtpForm}
         disabled={isTimerOverMemo}
         labelStyle={{ fontFamily: "Poppins-SemiBold", fontSize: 15 }}
+        loading={isLoading}
       >
         Verify
       </Button>

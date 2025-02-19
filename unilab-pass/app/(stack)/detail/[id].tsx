@@ -101,7 +101,7 @@ const UserDetailScreen = () => {
           alignItems: "center",
           backgroundColor: "#FCFCFC",
           width: "100%",
-          paddingVertical: 10,
+          paddingVertical: 20,
         }}
       >
         {/* Go back button */}
@@ -137,245 +137,235 @@ const UserDetailScreen = () => {
 
       {/* Content */}
       <ScrollView>
-        <View style={styles.container}>
-          <View style={styles.formField}>
-            {/* Form */}
-            {/* Fullname */}
-            <Controller
-              control={control}
-              name="fullName"
-              render={({ field: { onChange, onBlur, value } }) => (
-                <View>
-                  <TextInput
-                    theme={{
-                      colors: {
-                        primary: "#2B56F0",
-                        onSurfaceVariant: "#777",
-                      },
-                    }}
-                    disabled={!isEditMode}
-                    textColor="#333"
-                    mode="flat"
-                    style={styles.inputField}
-                    contentStyle={{
-                      fontFamily: "Poppins-Regular",
-                      marginTop: 8,
-                    }}
-                    label="Name"
-                    onChangeText={onChange}
-                    onBlur={onBlur}
-                    value={value}
-                    error={!!errors.fullName}
-                  />
-                  {errors.fullName && (
-                    <Text
-                      style={styles.error}
-                    >{`${errors.fullName.message}`}</Text>
-                  )}
-                </View>
-              )}
-            />
+        <View style={styles.formField}>
+          {/* Form */}
+          {/* Fullname */}
+          <Controller
+            control={control}
+            name="fullName"
+            render={({ field: { onChange, onBlur, value } }) => (
+              <View>
+                <TextInput
+                  theme={{
+                    colors: {
+                      primary: "#2B56F0",
+                      onSurfaceVariant: "#777",
+                    },
+                  }}
+                  disabled={!isEditMode}
+                  textColor="#333"
+                  mode="flat"
+                  style={styles.inputField}
+                  contentStyle={{
+                    fontFamily: "Poppins-Regular",
+                    marginTop: 8,
+                  }}
+                  label="Name"
+                  onChangeText={onChange}
+                  onBlur={onBlur}
+                  value={value}
+                  error={!!errors.fullName}
+                />
+                {errors.fullName && (
+                  <Text
+                    style={styles.error}
+                  >{`${errors.fullName.message}`}</Text>
+                )}
+              </View>
+            )}
+          />
 
-            {/* ID */}
-            <View>
-              <TextInput
-                disabled={!isEditMode}
-                textColor="#333"
-                mode="flat"
-                style={styles.inputField}
-                contentStyle={{
-                  fontFamily: "Poppins-Regular",
-                  marginTop: 8,
-                }}
-                label="ID"
-                value={id.toString()}
-              />
-            </View>
-
-            {/* Birth */}
-            <Controller
-              control={control}
-              name="birth"
-              render={({ field: { onChange, onBlur, value } }) => (
-                <View>
-                  <TextInput
-                    theme={{
-                      colors: {
-                        primary: "#2B56F0",
-                        onSurfaceVariant: "#777",
-                      },
-                    }}
-                    disabled={!isEditMode}
-                    textColor="#333"
-                    mode="flat"
-                    style={styles.inputField}
-                    contentStyle={{
-                      fontFamily: "Poppins-Regular",
-                      marginTop: 8,
-                    }}
-                    label="Birth"
-                    onChangeText={onChange}
-                    onBlur={onBlur}
-                    value={value}
-                    error={!!errors.birth}
-                  />
-                  {errors.birth && (
-                    <Text
-                      style={styles.error}
-                    >{`${errors.birth.message}`}</Text>
-                  )}
-                </View>
-              )}
-            />
-
-            {/* Gender */}
-            <Controller
-              control={control}
-              name="gender"
-              render={({ field: { onChange, onBlur, value } }) => (
-                <View>
-                  <Dropdown
-                    mode="flat"
-                    label="Gender"
-                    options={OPTIONS}
-                    value={value}
-                    onSelect={(value) => onChange(value)}
-                    menuUpIcon={
-                      <TextInput.Icon
-                        icon="menu-up"
-                        color="#333"
-                        pointerEvents="none"
-                      />
-                    }
-                    disabled={!isEditMode}
-                    error={!!errors.gender}
-                    menuDownIcon={
-                      <TextInput.Icon
-                        icon="menu-down"
-                        color="#333"
-                        pointerEvents="none"
-                      />
-                    }
-                    menuContentStyle={{
-                      marginTop: 25,
-                    }}
-                    hideMenuHeader={true}
-                    CustomDropdownItem={CustomDropdownItem}
-                    CustomDropdownInput={CustomDropdownInput}
-                  />
-                  {errors.gender && (
-                    <Text
-                      style={styles.error}
-                    >{`${errors.gender.message}`}</Text>
-                  )}
-                </View>
-              )}
-            />
-
-            {/* Email */}
-            <Controller
-              control={control}
-              name="email"
-              render={({ field: { onChange, onBlur, value } }) => (
-                <View>
-                  <TextInput
-                    theme={{
-                      colors: {
-                        primary: "#2B56F0",
-                        onSurfaceVariant: "#777",
-                      },
-                    }}
-                    disabled={!isEditMode}
-                    textColor="#333"
-                    mode="flat"
-                    style={styles.inputField}
-                    contentStyle={{
-                      fontFamily: "Poppins-Regular",
-                      marginTop: 8,
-                    }}
-                    label="Email"
-                    onChangeText={onChange}
-                    onBlur={onBlur}
-                    value={value}
-                    error={!!errors.email}
-                  />
-                  {errors.email && (
-                    <Text
-                      style={styles.error}
-                    >{`${errors.email.message}`}</Text>
-                  )}
-                </View>
-              )}
-            />
-
-            {/* Phone */}
-            <Controller
-              control={control}
-              name="phone"
-              render={({ field: { onChange, onBlur, value } }) => (
-                <View>
-                  <TextInput
-                    theme={{
-                      colors: {
-                        primary: "#2B56F0",
-                        onSurfaceVariant: "#777",
-                      },
-                    }}
-                    disabled={!isEditMode}
-                    textColor="#333"
-                    mode="flat"
-                    style={styles.inputField}
-                    contentStyle={{
-                      fontFamily: "Poppins-Regular",
-                      marginTop: 8,
-                    }}
-                    label="Phone"
-                    onChangeText={onChange}
-                    onBlur={onBlur}
-                    value={value}
-                    error={!!errors.phone}
-                  />
-                  {errors.phone && (
-                    <Text
-                      style={styles.error}
-                    >{`${errors.phone.message}`}</Text>
-                  )}
-                </View>
-              )}
-            />
-
-            {/* Permission */}
-            <View style={styles.permissionContainer}>
-              <Text
-                style={{
-                  fontSize: 13,
-                  color: isEditMode ? "#777" : "rgba(28, 27, 31, 0.38)",
-                }}
-              >
-                Permission
-              </Text>
-              <Switch value={isAllowed} onValueChange={handleToggleSwitch} />
-            </View>
-          </View>
-
-          {/* Action Button */}
-          <View style={styles.actionButtonContainer}>
-            <Button
-              labelStyle={{ fontFamily: "Poppins-Medium" }}
-              mode="contained"
-              style={[styles.actButton, { backgroundColor: "#FF6666" }]}
-            >
-              Delete Member
-            </Button>
-            <Button
-              labelStyle={{ fontFamily: "Poppins-Medium" }}
-              mode="contained"
+          {/* ID */}
+          <View>
+            <TextInput
               disabled={!isEditMode}
-              style={[styles.actButton]}
-            >
-              Apply
-            </Button>
+              textColor="#333"
+              mode="flat"
+              style={styles.inputField}
+              contentStyle={{
+                fontFamily: "Poppins-Regular",
+                marginTop: 8,
+              }}
+              label="ID"
+              value={id.toString()}
+            />
           </View>
+
+          {/* Birth */}
+          <Controller
+            control={control}
+            name="birth"
+            render={({ field: { onChange, onBlur, value } }) => (
+              <View>
+                <TextInput
+                  theme={{
+                    colors: {
+                      primary: "#2B56F0",
+                      onSurfaceVariant: "#777",
+                    },
+                  }}
+                  disabled={!isEditMode}
+                  textColor="#333"
+                  mode="flat"
+                  style={styles.inputField}
+                  contentStyle={{
+                    fontFamily: "Poppins-Regular",
+                    marginTop: 8,
+                  }}
+                  label="Birth"
+                  onChangeText={onChange}
+                  onBlur={onBlur}
+                  value={value}
+                  error={!!errors.birth}
+                />
+                {errors.birth && (
+                  <Text style={styles.error}>{`${errors.birth.message}`}</Text>
+                )}
+              </View>
+            )}
+          />
+
+          {/* Gender */}
+          <Controller
+            control={control}
+            name="gender"
+            render={({ field: { onChange, onBlur, value } }) => (
+              <View>
+                <Dropdown
+                  mode="flat"
+                  label="Gender"
+                  options={OPTIONS}
+                  value={value}
+                  onSelect={(value) => onChange(value)}
+                  menuUpIcon={
+                    <TextInput.Icon
+                      icon="menu-up"
+                      color="#333"
+                      pointerEvents="none"
+                    />
+                  }
+                  disabled={!isEditMode}
+                  error={!!errors.gender}
+                  menuDownIcon={
+                    <TextInput.Icon
+                      icon="menu-down"
+                      color="#333"
+                      pointerEvents="none"
+                    />
+                  }
+                  menuContentStyle={{
+                    marginTop: 25,
+                  }}
+                  hideMenuHeader={true}
+                  CustomDropdownItem={CustomDropdownItem}
+                  CustomDropdownInput={CustomDropdownInput}
+                />
+                {errors.gender && (
+                  <Text style={styles.error}>{`${errors.gender.message}`}</Text>
+                )}
+              </View>
+            )}
+          />
+
+          {/* Email */}
+          <Controller
+            control={control}
+            name="email"
+            render={({ field: { onChange, onBlur, value } }) => (
+              <View>
+                <TextInput
+                  theme={{
+                    colors: {
+                      primary: "#2B56F0",
+                      onSurfaceVariant: "#777",
+                    },
+                  }}
+                  disabled={!isEditMode}
+                  textColor="#333"
+                  mode="flat"
+                  style={styles.inputField}
+                  contentStyle={{
+                    fontFamily: "Poppins-Regular",
+                    marginTop: 8,
+                  }}
+                  label="Email"
+                  onChangeText={onChange}
+                  onBlur={onBlur}
+                  value={value}
+                  error={!!errors.email}
+                />
+                {errors.email && (
+                  <Text style={styles.error}>{`${errors.email.message}`}</Text>
+                )}
+              </View>
+            )}
+          />
+
+          {/* Phone */}
+          <Controller
+            control={control}
+            name="phone"
+            render={({ field: { onChange, onBlur, value } }) => (
+              <View>
+                <TextInput
+                  theme={{
+                    colors: {
+                      primary: "#2B56F0",
+                      onSurfaceVariant: "#777",
+                    },
+                  }}
+                  disabled={!isEditMode}
+                  textColor="#333"
+                  mode="flat"
+                  style={styles.inputField}
+                  contentStyle={{
+                    fontFamily: "Poppins-Regular",
+                    marginTop: 8,
+                  }}
+                  label="Phone"
+                  onChangeText={onChange}
+                  onBlur={onBlur}
+                  value={value}
+                  error={!!errors.phone}
+                />
+                {errors.phone && (
+                  <Text style={styles.error}>{`${errors.phone.message}`}</Text>
+                )}
+              </View>
+            )}
+          />
+
+          {/* Permission */}
+          <View style={styles.permissionContainer}>
+            <Text
+              style={{
+                fontSize: 13,
+                color: isEditMode ? "#777" : "rgba(28, 27, 31, 0.38)",
+              }}
+            >
+              Permission
+            </Text>
+            <Switch value={isAllowed} onValueChange={handleToggleSwitch} />
+          </View>
+        </View>
+
+        {/* Action Button */}
+        <View style={styles.actionButtonContainer}>
+          <Button
+            labelStyle={{ fontFamily: "Poppins-Medium" }}
+            mode="contained"
+            style={[styles.actButton, { backgroundColor: "#FF6666" }]}
+          >
+            Delete Member
+          </Button>
+          <Button
+            labelStyle={{ fontFamily: "Poppins-Medium" }}
+            mode="contained"
+            disabled={!isEditMode}
+            style={[styles.actButton]}
+          >
+            Apply
+          </Button>
         </View>
       </ScrollView>
     </View>
@@ -392,12 +382,6 @@ const styles = StyleSheet.create({
     justifyContent: "flex-start",
     alignItems: "center",
   },
-  container: {
-    flex: 1,
-    justifyContent: "flex-start",
-    alignItems: "center",
-    paddingBottom: 40,
-  },
   title: {
     fontFamily: "Poppins-SemiBold",
     color: "#333",
@@ -406,7 +390,7 @@ const styles = StyleSheet.create({
   formField: {
     justifyContent: "center",
     alignItems: "center",
-    marginTop: 50,
+    marginTop: 70,
     gap: 3,
   },
   inputField: {

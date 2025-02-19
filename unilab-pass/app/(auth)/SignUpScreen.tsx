@@ -1,30 +1,22 @@
 // Core
-import {
-  Image,
-  KeyboardAvoidingView,
-  Platform,
-  StyleSheet,
-  View,
-} from "react-native";
+import { StyleSheet, View } from "react-native";
 import React, { useState } from "react";
 import { Button, IconButton, Text, TextInput } from "react-native-paper";
 import { useRouter } from "expo-router";
 import { Controller, useForm } from "react-hook-form";
 import { SignupFormType } from "constants/auth.type";
 import { zodResolver } from "@hookform/resolvers/zod";
+
+// App
 import {
   DEFAULT_SIGNUP_FORM_VALUES,
   SignupFormSchema,
 } from "constants/auth.constant";
 import { MyUserControllerApi, MyUserCreationRequest } from "api/index";
+import { splitFullName } from "lib/utils";
 
 // Types
 type Props = {};
-type DataType = {
-  email: string;
-  fullName: string;
-  password: { confirm: string; default: string };
-};
 
 // Component
 const SignUpScreen = (props: Props) => {
@@ -33,12 +25,13 @@ const SignUpScreen = (props: Props) => {
     useState<boolean>(true);
   const [isHideConfirmPassword, setIsHideConfirmPassword] =
     useState<boolean>(true);
+  const [isLoading, setIsLoading] = useState<boolean>(false);
 
   // Router
   const router = useRouter();
 
-  // Api
-  const userApi = new MyUserControllerApi();
+  // Server
+  const myUserControllerApi = new MyUserControllerApi();
 
   // Form
   const {
@@ -52,35 +45,36 @@ const SignUpScreen = (props: Props) => {
 
   // Methods
   // Handle submit form
-  const handleOnSubmit = async (data: DataType) => {
+  const handleOnSubmit = async (data: SignupFormType) => {
+    const { firstName, middleName, lastName } = splitFullName(data.fullName);
     const param: MyUserCreationRequest = {
-      email: "thanhtumg.2510@gmail.com",
-      password: "123456789",
-      dob: "2003-10-25",
-      firstName: "Tung",
-      lastName: "Pham",
+      email: data.email,
+      password: data.password.default,
+      // dob: data.,
+      firstName: firstName,
+      lastName: `${lastName ? `${lastName} ` : ""}${
+        middleName ? `${middleName} ` : ""
+      }`,
     };
-    await userApi
+    setIsLoading(true);
+    await myUserControllerApi
       .createMyUser({ myUserCreationRequest: param })
       .then((response) => {
         console.info("Successful: ", response.data.result);
+        router.replace({
+          pathname: "/OTPVerificationScreen",
+          params: { email: data.email },
+        });
       })
       .catch((error) => {
         console.error("Error: ", error.response.data);
       });
-    // console.log(data);
-    // router.replace({
-    //   pathname: "/OTPVerificationScreen",
-    //   params: { email: data.email },
-    // });
+    setIsLoading(false);
   };
 
   // Template
   return (
-    <KeyboardAvoidingView
-      style={[styles.container, styles.alignCenter]}
-      behavior={Platform.OS === "ios" ? "padding" : "height"}
-    >
+    <View style={[styles.container, styles.alignCenter]}>
       {/* Go back to sign up screen */}
       <IconButton
         icon={"chevron-left"}
@@ -236,7 +230,7 @@ const SignUpScreen = (props: Props) => {
           )}
         />
 
-        {/* Sign in button */}
+        {/* Sign up button */}
         <Button
           style={[styles.submitButton, styles.alignCenter]}
           buttonColor="rgba(27, 97, 181, 0.89)"
@@ -245,12 +239,13 @@ const SignUpScreen = (props: Props) => {
           labelStyle={{ fontFamily: "Poppins-SemiBold", fontSize: 18 }}
           contentStyle={{ width: 300, height: 50 }}
           onPress={handleSubmit(handleOnSubmit)}
+          loading={isLoading}
           // onPress={handleOnSubmit}
         >
           Sign Up
         </Button>
       </View>
-    </KeyboardAvoidingView>
+    </View>
   );
 };
 

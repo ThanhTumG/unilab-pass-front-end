@@ -71,7 +71,7 @@ const DEFAULT_SIGNUP_FORM_VALUES: z.infer<typeof SignupFormSchema> = {
   password: { default: "", confirm: "" },
 };
 
-const OTP_EXPIRED_DURATION_MILLISECONDS = 1000 * 60; // 1 min
+const OTP_EXPIRED_DURATION_MILLISECONDS = 5000 * 60; // 5 mins
 
 export {
   LoginFormSchema,
