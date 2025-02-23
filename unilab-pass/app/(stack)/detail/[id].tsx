@@ -129,7 +129,7 @@ const UserDetailScreen = () => {
         <IconButton
           icon={isEditMode ? "eraser" : "square-edit-outline"}
           size={24}
-          iconColor={isEditMode ? "#808080" : "#3385FF"}
+          iconColor={isEditMode ? "#808080" : "#1B61B5"}
           onPress={handleToggleEdit}
           style={{ position: "absolute", right: 10 }}
         />

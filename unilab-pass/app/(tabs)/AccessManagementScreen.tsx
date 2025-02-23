@@ -5,7 +5,6 @@ import { Icon, Searchbar, Text } from "react-native-paper";
 import { FlatList } from "react-native";
 
 // App
-import Table from "components/Table";
 import FilterAccess from "components/FilterAccess";
 import Record from "components/Record";
 
@@ -153,11 +152,6 @@ const ManageAccessScreen = (props: Props) => {
       {/* </View> */}
 
       {/* Table */}
-      {/* <Table
-        mode="access"
-        data={recordData}
-        columns={["id", "name", "time", "type", "status"]}
-      /> */}
       <View style={styles.recordListContainer}>
         <FlatList
           data={recordData}

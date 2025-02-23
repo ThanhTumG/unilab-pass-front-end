@@ -48,11 +48,6 @@ const useAuthStore = create<AuthStoreStatesType & AuthStoreActionsType>()(
         }));
       },
     })
-    // {
-    //   name: "app-auth-storage",
-    //   storage: createJSONStorage(() => AsyncStorage),
-    // }
-    // )
   )
 );
 

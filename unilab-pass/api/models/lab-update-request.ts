@@ -14,9 +14,23 @@
 
 
 
-export * from './api/authentication-controller-api';
-export * from './api/lab-member-controller-api';
-export * from './api/laboratory-controller-api';
-export * from './api/my-user-controller-api';
-export * from './api/role-controller-api';
+/**
+ * 
+ * @export
+ * @interface LabUpdateRequest
+ */
+export interface LabUpdateRequest {
+    /**
+     * 
+     * @type {string}
+     * @memberof LabUpdateRequest
+     */
+    'name': string;
+    /**
+     * 
+     * @type {string}
+     * @memberof LabUpdateRequest
+     */
+    'location'?: string;
+}
 

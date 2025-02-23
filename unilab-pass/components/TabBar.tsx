@@ -9,7 +9,7 @@ import TabBarButton from "./TabBarButton";
 // Component
 const TabBar = ({ state, descriptors, navigation }: BottomTabBarProps) => {
   // Colors
-  const primaryColor = "#1B61B5";
+  const primaryColor = "rgba(27, 97, 181, 0.89)";
   const greyColor = "#6C6C6C";
 
   // Template
@@ -68,12 +68,8 @@ const styles = StyleSheet.create({
     marginHorizontal: 0,
     paddingVertical: 10,
     paddingHorizontal: 4,
-    borderRadius: 25,
+    borderTopRightRadius: 25,
+    borderTopLeftRadius: 25,
     borderCurve: "circular",
-    shadowColor: "black",
-    shadowOffset: { width: 0, height: 4 },
-    shadowRadius: 4,
-    shadowOpacity: 0.1,
-    elevation: 3,
   },
 });

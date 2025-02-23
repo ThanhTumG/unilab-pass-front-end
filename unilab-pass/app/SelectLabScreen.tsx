@@ -1,8 +1,14 @@
 // Core
 import { ImageBackground, StyleSheet, View } from "react-native";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useRouter } from "expo-router";
-import { Button, Icon, Text, TextInput } from "react-native-paper";
+import {
+  ActivityIndicator,
+  Button,
+  Icon,
+  Text,
+  TextInput,
+} from "react-native-paper";
 import { Dropdown } from "react-native-paper-dropdown";
 
 // App
@@ -10,33 +16,98 @@ import {
   CustomDropdownInput,
   CustomDropdownItem,
 } from "components/CustomDropdown";
+import { LabCreationRequest, LaboratoryControllerApi } from "api/index";
+import { useAuthStore, useUserStore } from "stores";
 
 // Types
 type Props = {};
-
-// Options
-const OPTIONS = [
-  { label: "Lab 1", value: "1" },
-  { label: "Lab 2", value: "2" },
-  { label: "Lab 3", value: "3" },
-];
+type LabInfo = {
+  label: string;
+  value: string;
+  location: string;
+};
 
 // Component
 const SelectLabScreen = (props: Props) => {
   // States
-  const [lab, setLab] = useState<string>();
+  const [labId, setLabId] = useState<string>();
+  const [isLoading, setIsLoading] = useState<boolean>(false);
+  const [isLoadingCreate, setIsLoadingCreate] = useState<boolean>(false);
+  const [myLabList, setMyLabList] = useState<LabInfo[]>([]);
 
   // Router
   const router = useRouter();
 
+  // Store
+  const { appToken } = useAuthStore();
+  const { setAppUser } = useUserStore();
+
+  // Server
+  const laboratoryControllerApi = new LaboratoryControllerApi();
+
   // Methods
   // Handle press homepage button
-  const handlePressHomePage = () => {
-    if (lab) router.replace("/(tabs)/HomeScreen");
+  const handlePressHomePage = async () => {
+    if (!labId) return;
+    const currentLab = myLabList.find((lab) => lab.value == labId);
+    setAppUser({
+      labId: labId,
+      labName: currentLab?.label,
+      labLocation: currentLab?.location,
+    });
+    router.replace("/(tabs)/HomeScreen");
   };
 
+  // Handle get all lab
+  const handleGetAllLab = async () => {
+    setIsLoading(true);
+    await laboratoryControllerApi
+      .getAllLabs({ headers: { Authorization: `Bearer ${appToken}` } })
+      .then((response) => {
+        const newLabLst =
+          response.data.result?.map((lab) => {
+            const obj: LabInfo = {
+              label: lab.lab?.name || "",
+              value: lab.lab?.id || "",
+              location: lab.lab?.location || "",
+            };
+            return obj;
+          }) || [];
+        console.log("Successful get lab list: ", newLabLst);
+        setMyLabList(newLabLst);
+      })
+      .catch((error) => console.log("Error get lab: ", error.response.data));
+    setIsLoading(false);
+  };
+
+  // Handle create lab
+  const handleCreateLab = async () => {
+    const param: LabCreationRequest = {
+      name: `Lab ${(myLabList?.length as number) + 1}`,
+      location: "",
+      capacity: 12,
+    };
+    const options = { headers: { Authorization: `Bearer ${appToken}` } };
+    setIsLoadingCreate(true);
+    await laboratoryControllerApi
+      .createLab({ labCreationRequest: param }, options)
+      .then((response) => {
+        console.log("Successful create new lab: ", response.data.result);
+        handleGetAllLab();
+      })
+      .catch((error) => console.log(error.response.data));
+    setIsLoadingCreate(false);
+  };
+
+  // Effects
+  useEffect(() => {
+    handleGetAllLab();
+  }, []);
+
   // Template
-  return (
+  return isLoading ? (
+    <ActivityIndicator animating={true} style={{ top: 100 }} />
+  ) : (
     <ImageBackground
       source={require("../assets/images/background.png")}
       style={[styles.background, styles.alignCenter]}
@@ -50,9 +121,9 @@ const SelectLabScreen = (props: Props) => {
       <View style={[styles.content, styles.alignCenter]}>
         <Dropdown
           placeholder="Select your lab"
-          options={OPTIONS}
-          value={lab}
-          onSelect={setLab}
+          options={myLabList}
+          value={labId}
+          onSelect={setLabId}
           menuContentStyle={{
             marginTop: 25,
           }}
@@ -72,7 +143,6 @@ const SelectLabScreen = (props: Props) => {
           CustomDropdownInput={CustomDropdownInput}
         />
 
-        {/* Create Lab Button */}
         <Text
           variant="bodyMedium"
           style={{ fontFamily: "Poppins-Regular", color: "#333" }}
@@ -80,12 +150,15 @@ const SelectLabScreen = (props: Props) => {
           Or
         </Text>
 
+        {/* Create Lab Button */}
         <Button
           mode="outlined"
           style={{ borderRadius: 5 }}
           textColor="#333"
           contentStyle={{ width: 270, height: 50 }}
-          onPress={() => console.log("create")}
+          onPress={handleCreateLab}
+          loading={isLoadingCreate}
+          disabled={isLoadingCreate}
         >
           Create new Lab
         </Button>

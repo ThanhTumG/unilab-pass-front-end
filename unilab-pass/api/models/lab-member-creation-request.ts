@@ -17,44 +17,50 @@
 /**
  * 
  * @export
- * @interface MyUserCreationRequest
+ * @interface LabMemberCreationRequest
  */
-export interface MyUserCreationRequest {
+export interface LabMemberCreationRequest {
     /**
      * 
      * @type {string}
-     * @memberof MyUserCreationRequest
+     * @memberof LabMemberCreationRequest
      */
-    'id': string;
+    'labId': string;
     /**
      * 
      * @type {string}
-     * @memberof MyUserCreationRequest
+     * @memberof LabMemberCreationRequest
      */
-    'email'?: string;
+    'userId': string;
     /**
      * 
      * @type {string}
-     * @memberof MyUserCreationRequest
-     */
-    'password': string;
-    /**
-     * 
-     * @type {string}
-     * @memberof MyUserCreationRequest
+     * @memberof LabMemberCreationRequest
      */
     'firstName'?: string;
     /**
      * 
      * @type {string}
-     * @memberof MyUserCreationRequest
+     * @memberof LabMemberCreationRequest
      */
     'lastName'?: string;
     /**
-     * Date of birth
+     * 
      * @type {string}
-     * @memberof MyUserCreationRequest
+     * @memberof LabMemberCreationRequest
+     */
+    'email'?: string;
+    /**
+     * 
+     * @type {string}
+     * @memberof LabMemberCreationRequest
      */
     'dob'?: string;
+    /**
+     * 
+     * @type {string}
+     * @memberof LabMemberCreationRequest
+     */
+    'role': string;
 }
 

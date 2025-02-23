@@ -3,7 +3,6 @@ import { StyleSheet, View, Modal } from "react-native";
 import React, { useState } from "react";
 import {
   Button,
-  IconButton,
   Text,
   Portal,
   Surface,
@@ -35,13 +34,6 @@ const FilterAccess = (props: Props) => {
   return (
     <>
       {/* Trigger */}
-      {/* <IconButton
-        mode="outlined"
-        icon={"filter-variant"}
-        containerColor="#fff"
-        iconColor="#333"
-        onPress={showModal}
-      /> */}
       <Surface style={styles.filterBtn} elevation={1}>
         <TouchableRipple
           borderless
@@ -65,7 +57,7 @@ const FilterAccess = (props: Props) => {
               setVisible(!visible);
             }}
           >
-            <View style={[styles.modelContainer]}>
+            <View style={[styles.modalContainer]}>
               {/* Model Content */}
               <View style={styles.modalView}>
                 {/* Title */}
@@ -125,7 +117,6 @@ const styles = StyleSheet.create({
   },
   container: {
     flex: 1,
-    // maxHeight: height,
     backgroundColor: "rgba(0, 0, 0, 0.25)",
   },
   filterBtn: {
@@ -135,7 +126,7 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     borderRadius: 25,
   },
-  modelContainer: {
+  modalContainer: {
     flex: 1,
     justifyContent: "flex-end",
   },

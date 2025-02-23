@@ -46,6 +46,14 @@ const DetailUserInformationFormSchema = z.object({
   permission: z.boolean(),
 });
 
+// Lab information
+const LabInformationFormSchema = z.object({
+  labName: z.string().trim().min(1, {
+    message: "Lab name is required",
+  }),
+  location: z.string(),
+});
+
 // Default form values
 const DEFAULT_DETAIL_USER_INFORMATION_FORM_VALUES: z.infer<
   typeof DetailUserInformationFormSchema
@@ -59,7 +67,16 @@ const DEFAULT_DETAIL_USER_INFORMATION_FORM_VALUES: z.infer<
   permission: true,
 };
 
+const DEFAULT_LAB_INFORMATION_FORM_VALUES: z.infer<
+  typeof LabInformationFormSchema
+> = {
+  labName: "",
+  location: "",
+};
+
 export {
   DetailUserInformationFormSchema,
+  LabInformationFormSchema,
   DEFAULT_DETAIL_USER_INFORMATION_FORM_VALUES,
+  DEFAULT_LAB_INFORMATION_FORM_VALUES,
 };

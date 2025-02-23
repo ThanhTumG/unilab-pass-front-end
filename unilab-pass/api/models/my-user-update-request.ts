@@ -25,6 +25,12 @@ export interface MyUserUpdateRequest {
      * @type {string}
      * @memberof MyUserUpdateRequest
      */
+    'id': string;
+    /**
+     * 
+     * @type {string}
+     * @memberof MyUserUpdateRequest
+     */
     'password'?: string;
     /**
      * 

@@ -48,7 +48,7 @@ export default function RootLayout() {
     colors: {
       ...DefaultTheme.colors,
       text: "#333",
-      primary: "#3385FF",
+      primary: "rgba(27, 97, 181, 0.89)",
       outline: "#6C6C6C",
       elevation: {
         level0: "transparent",

@@ -25,10 +25,6 @@ export default function Onboarding() {
   // Router
   const router = useRouter();
 
-  // const ResetCache = async () => {
-  //   await AsyncStorage.removeItem("hasSeenOnboarding");
-  // };
-
   // Methods
   // Handle Scroll Slide
   const handleScroll = useAnimatedScrollHandler({

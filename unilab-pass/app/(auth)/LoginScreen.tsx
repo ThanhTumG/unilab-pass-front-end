@@ -18,8 +18,13 @@ import {
   DEFAULT_LOGIN_FORM_VALUES,
   LoginFormSchema,
 } from "../../constants/auth.constant";
-import { AuthenticationControllerApi, AuthenticationRequest } from "api/index";
-import { useAuthStore } from "stores";
+import {
+  AuthenticationControllerApi,
+  AuthenticationRequest,
+  MyUserControllerApi,
+} from "api/index";
+import { useAuthStore, useUserStore } from "stores";
+import { getFullName } from "lib/utils";
 
 // Types
 type Props = {};
@@ -46,14 +51,18 @@ const LoginScreen = (props: Props) => {
   });
 
   // Store
-  const { setAppIsLoggedIn, setAppToken } = useAuthStore();
+  const { setAppIsLoggedIn, setAppToken, appToken } = useAuthStore();
+  const { setAppUser } = useUserStore();
 
   // Server
   const authenticationControllerApi = new AuthenticationControllerApi();
+  const myUserControllerApi = new MyUserControllerApi();
 
   // Methods
   // Handle submit form
   const handleOnSubmit = async (data: LoginFormType) => {
+    if (isLoading) return;
+
     const param: AuthenticationRequest = {
       email: data.email,
       password: data.password,
@@ -64,15 +73,36 @@ const LoginScreen = (props: Props) => {
       .then((response) => {
         console.info("Successful: ", response.data.result);
         const token = response.data.result?.token as string;
-        setAppIsLoggedIn(true);
-        setAppToken({ token: token });
-        router.replace("/SelectLabScreen");
+        handleGetMyInformation(token);
       })
       .catch((error) => {
         setErrorMessage("Email or Password is incorrect");
         setVisible(true);
       });
     setIsLoading(false);
+  };
+
+  // Handle get my information
+  const handleGetMyInformation = async (token: string) => {
+    await myUserControllerApi
+      .getMyInfo({ headers: { Authorization: `Bearer ${token}` } })
+      .then((response) => {
+        console.log("Successful get my info: ", response.data.result);
+        setAppUser({
+          userEmail: response.data.result?.email,
+          userId: response.data.result?.id,
+          userName: getFullName({
+            lastName: response.data.result?.lastName,
+            firstName: response.data.result?.firstName,
+          }),
+        });
+        setAppIsLoggedIn(true);
+        setAppToken({ token: token });
+        router.replace("/SelectLabScreen");
+      })
+      .catch((error) => {
+        console.log(error.response.data);
+      });
   };
 
   // Handle sign up
