@@ -25,13 +25,13 @@ export interface MyUserCreationRequest {
      * @type {string}
      * @memberof MyUserCreationRequest
      */
-    'id': string;
+    'id'?: string;
     /**
      * 
      * @type {string}
      * @memberof MyUserCreationRequest
      */
-    'email'?: string;
+    'email': string;
     /**
      * 
      * @type {string}

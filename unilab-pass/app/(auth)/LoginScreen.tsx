@@ -50,15 +50,37 @@ const LoginScreen = (props: Props) => {
     defaultValues: DEFAULT_LOGIN_FORM_VALUES,
   });
 
-  // Store
-  const { setAppIsLoggedIn, setAppToken, appToken } = useAuthStore();
-  const { setAppUser } = useUserStore();
-
   // Server
   const authenticationControllerApi = new AuthenticationControllerApi();
   const myUserControllerApi = new MyUserControllerApi();
 
+  // Store
+  const { setAppIsLoggedIn, setAppToken } = useAuthStore();
+  const { setAppUser } = useUserStore();
+
   // Methods
+  // Handle get my information
+  const handleGetMyInformation = async (token: string) => {
+    try {
+      const response = await myUserControllerApi.getMyInfo({
+        headers: { Authorization: `Bearer ${token}` },
+      });
+
+      setAppUser({
+        userEmail: response.data.result?.email,
+        userId: response.data.result?.id,
+        userName: getFullName({
+          lastName: response.data.result?.lastName,
+          firstName: response.data.result?.firstName,
+        }),
+      });
+      return response.data.result;
+    } catch (error) {
+      setErrorMessage("Something was wrong");
+      setVisible(true);
+    }
+  };
+
   // Handle submit form
   const handleOnSubmit = async (data: LoginFormType) => {
     if (isLoading) return;
@@ -68,41 +90,25 @@ const LoginScreen = (props: Props) => {
       password: data.password,
     };
     setIsLoading(true);
-    await authenticationControllerApi
-      .authenticate({ authenticationRequest: param })
-      .then((response) => {
-        console.info("Successful: ", response.data.result);
-        const token = response.data.result?.token as string;
-        handleGetMyInformation(token);
-      })
-      .catch((error) => {
-        setErrorMessage("Email or Password is incorrect");
-        setVisible(true);
+    try {
+      const response = await authenticationControllerApi.authenticate({
+        authenticationRequest: param,
       });
-    setIsLoading(false);
-  };
 
-  // Handle get my information
-  const handleGetMyInformation = async (token: string) => {
-    await myUserControllerApi
-      .getMyInfo({ headers: { Authorization: `Bearer ${token}` } })
-      .then((response) => {
-        console.log("Successful get my info: ", response.data.result);
-        setAppUser({
-          userEmail: response.data.result?.email,
-          userId: response.data.result?.id,
-          userName: getFullName({
-            lastName: response.data.result?.lastName,
-            firstName: response.data.result?.firstName,
-          }),
-        });
-        setAppIsLoggedIn(true);
+      const token = response.data.result?.token as string;
+      const responseGetInfo = await handleGetMyInformation(token);
+      if (responseGetInfo) {
+        console.info("Successful log in: ", response.data.result);
+        console.log("Successful get my info: ", responseGetInfo);
         setAppToken({ token: token });
+        setAppIsLoggedIn(true);
         router.replace("/SelectLabScreen");
-      })
-      .catch((error) => {
-        console.log(error.response.data);
-      });
+      }
+    } catch (error) {
+      setErrorMessage("Email or Password is incorrect");
+      setVisible(true);
+    }
+    setIsLoading(false);
   };
 
   // Handle sign up

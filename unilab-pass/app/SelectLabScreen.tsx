@@ -1,7 +1,7 @@
 // Core
 import { ImageBackground, StyleSheet, View } from "react-native";
-import React, { useEffect, useState } from "react";
-import { useRouter } from "expo-router";
+import React, { useCallback, useEffect, useState } from "react";
+import { useFocusEffect, useRouter } from "expo-router";
 import {
   ActivityIndicator,
   Button,
@@ -59,10 +59,12 @@ const SelectLabScreen = (props: Props) => {
   };
 
   // Handle get all lab
-  const handleGetAllLab = async () => {
+  const handleGetAllLab = async (token?: string) => {
+    if (isLoading) return;
+    const finalToken = token || appToken;
     setIsLoading(true);
     await laboratoryControllerApi
-      .getAllLabs({ headers: { Authorization: `Bearer ${appToken}` } })
+      .getAllLabs({ headers: { Authorization: `Bearer ${finalToken}` } })
       .then((response) => {
         const newLabLst =
           response.data.result?.map((lab) => {
@@ -72,7 +74,7 @@ const SelectLabScreen = (props: Props) => {
               location: lab.lab?.location || "",
             };
             return obj;
-          }) || [];
+          }) ?? [];
         console.log("Successful get lab list: ", newLabLst);
         setMyLabList(newLabLst);
       })
@@ -93,16 +95,19 @@ const SelectLabScreen = (props: Props) => {
       .createLab({ labCreationRequest: param }, options)
       .then((response) => {
         console.log("Successful create new lab: ", response.data.result);
-        handleGetAllLab();
+        const { appToken: latestToken } = useAuthStore.getState();
+        handleGetAllLab(latestToken ?? "");
       })
       .catch((error) => console.log(error.response.data));
     setIsLoadingCreate(false);
   };
 
   // Effects
-  useEffect(() => {
-    handleGetAllLab();
-  }, []);
+  useFocusEffect(
+    useCallback(() => {
+      if (myLabList.length === 0) handleGetAllLab();
+    }, [appToken])
+  );
 
   // Template
   return isLoading ? (
@@ -183,7 +188,7 @@ const SelectLabScreen = (props: Props) => {
               color: "#1B61B5",
             }}
           >
-            Homepage
+            Home
           </Text>
           <Icon source="chevron-right" color="#1B61B5" size={20} />
         </View>

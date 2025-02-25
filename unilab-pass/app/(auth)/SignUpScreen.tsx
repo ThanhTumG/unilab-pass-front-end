@@ -46,17 +46,15 @@ const SignUpScreen = (props: Props) => {
   // Methods
   // Handle submit form
   const handleOnSubmit = async (data: SignupFormType) => {
-    const { firstName, middleName, lastName } = splitFullName(data.fullName);
+    if (isLoading) return;
+    setIsLoading(true);
+    const { firstName, lastName } = splitFullName(data.fullName);
     const param: MyUserCreationRequest = {
       email: data.email,
       password: data.password.default,
-      // dob: data.,
       firstName: firstName,
-      lastName: `${lastName ? `${lastName} ` : ""}${
-        middleName ? `${middleName} ` : ""
-      }`,
+      lastName: lastName,
     };
-    setIsLoading(true);
     await myUserControllerApi
       .createMyUser({ myUserCreationRequest: param })
       .then((response) => {

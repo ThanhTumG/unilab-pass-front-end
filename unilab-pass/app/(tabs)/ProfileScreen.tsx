@@ -26,6 +26,7 @@ import {
 import { WarningDialog } from "components/CustomDialog";
 import { LabInformationFormType } from "constants/userInfor.type";
 import { LabInformationFormSchema } from "constants/userInfor.constant";
+import { truncateText } from "lib/utils";
 
 // Types
 type Props = {};
@@ -156,7 +157,7 @@ const ProfileScreen = (props: Props) => {
           source={require("../../assets/images/profile-avatar.png")}
         />
 
-        <Text variant="titleLarge" style={styles.adminName}>
+        <Text variant="titleLarge" style={styles.adminName} numberOfLines={2}>
           {appUserName}
         </Text>
       </View>
@@ -185,7 +186,11 @@ const ProfileScreen = (props: Props) => {
                 gap: 4,
               }}
             >
-              <Text variant="bodyMedium" style={styles.smallBody}>
+              <Text
+                variant="bodyMedium"
+                style={[styles.smallBody, { maxWidth: 100 }]}
+                numberOfLines={2}
+              >
                 {appLabName}
               </Text>
               <Text variant="bodyMedium" style={styles.smallBody}>
@@ -466,6 +471,8 @@ const styles = StyleSheet.create({
   },
   adminName: {
     fontFamily: "Poppins-SemiBold",
+    maxWidth: 200,
+    maxHeight: 60,
   },
   content: {
     flex: 1,

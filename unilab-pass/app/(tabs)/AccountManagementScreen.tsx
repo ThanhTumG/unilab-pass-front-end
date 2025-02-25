@@ -1,28 +1,61 @@
 // Core
-import { FlatList, ImageBackground, StyleSheet, View } from "react-native";
-import React from "react";
+import {
+  FlatList,
+  ImageBackground,
+  RefreshControl,
+  StyleSheet,
+  View,
+} from "react-native";
+import React, { useCallback, useState } from "react";
 import {
   Icon,
   Searchbar,
   Surface,
   Text,
   TouchableRipple,
+  useTheme,
 } from "react-native-paper";
-import { useRouter } from "expo-router";
+import { useFocusEffect, useRouter } from "expo-router";
 
 // App
 import MemberCard from "components/MemberCard";
+import { LabMemberControllerApi } from "api/index";
+import { useAuthStore, useUserStore } from "stores";
+import { getFullName } from "lib/utils";
+import axios from "axios";
 
 // Types
 type Props = {};
+type MemberType = {
+  id: string;
+  dob: string;
+  email: string;
+  fullName: string;
+};
 
 // Component
 const ManageAccountScreen = (props: Props) => {
   // States
   const [searchQuery, setSearchQuery] = React.useState("");
+  const [memberList, setMemberList] = useState<MemberType[]>();
+  const [isPendingGetMemList, setIdPendingGetMemList] =
+    useState<boolean>(false);
+
+  const API = axios.create({
+    baseURL: "https://unilabpass-backend.onrender.com/identity",
+  });
+
+  // Server
+  const labMemberControllerApi = new LabMemberControllerApi();
+
+  // Store
+  const { appLabId } = useUserStore.getState();
 
   // Router
   const router = useRouter();
+
+  // Theme
+  const theme = useTheme();
 
   const [accountData] = React.useState([
     {
@@ -40,7 +73,6 @@ const ManageAccountScreen = (props: Props) => {
       gender: "Male",
       dateOfBirth: "15-08-2002",
       email: "nguyenvana@hcmut.edu.vn",
-      phone: "0984123456",
       status: "active",
     },
     {
@@ -163,15 +195,62 @@ const ManageAccountScreen = (props: Props) => {
   ]);
 
   // Method
-  // Handle detail account
-  // const handleShowDetailAccount = (id: string) => {
-  //   router.replace(`/`);
-  // };
+  // Handle get detail account
+  const handleViewDetailMember = (id: string) => {
+    router.replace(`/(stack)/detail/${id}`);
+  };
 
   // Handle create new member
   const handleCreateNewMember = () => {
     router.replace("/(stack)/CreateMemberScreen");
   };
+
+  // Handle get members
+  const handleGetMember = useCallback(async () => {
+    const { appToken } = useAuthStore.getState();
+
+    if (isPendingGetMemList) return;
+    setIdPendingGetMemList(true);
+    try {
+      const response = await labMemberControllerApi.getLabMembers(
+        { labId: appLabId ?? "" },
+        { headers: { Authorization: `Bearer ${appToken}` } }
+      );
+      const newLabMemberList: MemberType[] =
+        response.data.result?.map((data) => {
+          const member = data.myUserResponse;
+          const Obj: MemberType = {
+            id: member?.id ?? "",
+            dob: member?.dob ?? "",
+            email: member?.email ?? "",
+            fullName: getFullName({
+              lastName: member?.lastName,
+              firstName: member?.firstName,
+            }),
+          };
+          return Obj;
+        }) ?? [];
+      console.log("Successful get members: ", newLabMemberList);
+      setMemberList(newLabMemberList);
+    } catch (error: any) {
+      console.error(error.response.data);
+    } finally {
+      setIdPendingGetMemList(false);
+    }
+  }, [appLabId]);
+
+  // Handle refresh
+  const onRefresh = useCallback(() => {
+    console.log("reset");
+    handleGetMember();
+  }, [handleGetMember]);
+
+  // Effects
+  useFocusEffect(
+    useCallback(() => {
+      handleGetMember();
+    }, [handleGetMember])
+  );
 
   // Template
   return (
@@ -201,7 +280,6 @@ const ManageAccountScreen = (props: Props) => {
           />
         </TouchableRipple>
       </Surface>
-
       {/* Search bar */}
       <Searchbar
         placeholder="Search by ID or Name"
@@ -211,19 +289,27 @@ const ManageAccountScreen = (props: Props) => {
         inputStyle={styles.searchInput}
         value={searchQuery}
       />
-
-      {/* Table */}
-      {/* <Table
-        mode="account"
-        data={accountData}
-        columns={["id", "name", "email"]}
-      /> */}
+      {/* Data */}
       <View style={styles.memberListContainer}>
         <FlatList
-          data={accountData}
+          data={memberList}
           keyExtractor={(item) => item.id}
+          refreshControl={
+            <RefreshControl
+              refreshing={isPendingGetMemList}
+              onRefresh={onRefresh}
+              colors={[theme.colors.primary]}
+              tintColor={theme.colors.primary}
+            />
+          }
           renderItem={({ item, index }: { item: any; index: any }) => {
-            return <MemberCard item={item} isEven={index % 2 == 1} />;
+            return (
+              <MemberCard
+                item={item}
+                isEven={index % 2 == 1}
+                onPress={handleViewDetailMember}
+              />
+            );
           }}
         />
       </View>

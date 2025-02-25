@@ -46,6 +46,7 @@ const SignupFormSchema = z.object({
     .min(1, {
       message: "Name is required",
     })
+    .max(100, { message: "Name is too long" })
     .regex(/^[\p{L}]+(?:\s[\p{L}]+)*$/u, {
       message: "Name must not contain special character",
     }),

@@ -8,16 +8,17 @@ import { useRouter } from "expo-router";
 // Types
 type Props = {
   item: {
-    name: string;
+    fullName: string;
     id: string;
     status: string;
     lastRecord: string;
   };
+  onPress?: (id: string) => any;
   isEven: boolean;
 };
 
 // Component
-const MemberCard = ({ item, isEven }: Props) => {
+const MemberCard = ({ item, isEven, onPress }: Props) => {
   // Router
   const router = useRouter();
 
@@ -27,7 +28,9 @@ const MemberCard = ({ item, isEven }: Props) => {
       style={{
         borderRadius: 0,
       }}
-      onPress={() => router.replace(`/(stack)/detail/${item.id}`)}
+      onPress={() => {
+        onPress && onPress(item.id);
+      }}
     >
       <Card.Content
         style={{
@@ -39,7 +42,7 @@ const MemberCard = ({ item, isEven }: Props) => {
       >
         <View style={{ gap: 2 }}>
           <Text variant="bodyMedium" style={styles.name}>
-            {item.name}
+            {item.fullName}
           </Text>
           <Text variant="bodySmall" style={styles.id}>
             {item.id}

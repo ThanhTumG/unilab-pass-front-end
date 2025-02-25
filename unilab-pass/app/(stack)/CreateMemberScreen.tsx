@@ -2,29 +2,37 @@
 import { ImageBackground, ScrollView, StyleSheet, View } from "react-native";
 import React, { useState } from "react";
 import { useRouter } from "expo-router";
-
-// App
-import useBackHandler from "utils/useBackHandler";
-import { Controller, useForm } from "react-hook-form";
-import { DetailUserInformationFormType } from "constants/userInfor.type";
 import { zodResolver } from "@hookform/resolvers/zod";
-import {
-  DEFAULT_DETAIL_USER_INFORMATION_FORM_VALUES,
-  DetailUserInformationFormSchema,
-} from "constants/userInfor.constant";
+import { Controller, useForm } from "react-hook-form";
 import {
   Button,
   Icon,
   IconButton,
+  Snackbar,
   Text,
   TextInput,
   TouchableRipple,
 } from "react-native-paper";
 import { Dropdown } from "react-native-paper-dropdown";
+
+// App
+import useBackHandler from "utils/useBackHandler";
+import { DetailUserInformationFormType } from "constants/userInfor.type";
+import {
+  DEFAULT_DETAIL_USER_INFORMATION_FORM_VALUES,
+  DetailUserInformationFormSchema,
+} from "constants/userInfor.constant";
+
 import {
   CustomDropdownInput,
   CustomDropdownItem,
 } from "components/CustomDropdown";
+import { useAuthStore, useUserStore } from "stores";
+import {
+  LabMemberControllerApi,
+  LabMemberControllerApiAddLabMemberRequest,
+} from "api/index";
+import { splitFullName } from "lib/utils";
 
 // Types
 type Props = {};
@@ -38,16 +46,25 @@ const OPTIONS = [
 // Component
 const CreateMemberScreen = (props: Props) => {
   // States
-  const [gender, setGender] = useState<string | undefined>(
-    DEFAULT_DETAIL_USER_INFORMATION_FORM_VALUES.gender
-  );
+  const [isPendingCreate, setIsPendingCreate] = useState<boolean>(false);
+  const [errorMessage, setErrorMessage] = useState("");
+  const [isSnackBarVisible, setIsSnackBarVisible] = useState(false);
+
   // Router
   const router = useRouter();
+
+  // Server
+  const labMemberControllerApi = new LabMemberControllerApi();
+
+  // Store
+  const { appToken } = useAuthStore();
+  const { appLabId } = useUserStore();
 
   // Form
   const {
     control,
     handleSubmit,
+    reset,
     formState: { errors },
   } = useForm<DetailUserInformationFormType>({
     resolver: zodResolver(DetailUserInformationFormSchema),
@@ -62,8 +79,48 @@ const CreateMemberScreen = (props: Props) => {
   });
 
   // handle submit form
-  const handleSubmitForm = (data: DetailUserInformationFormType) => {
-    console.log(data);
+  const handleSubmitForm = async (data: DetailUserInformationFormType) => {
+    if (isPendingCreate) return;
+    setIsPendingCreate(true);
+    const { firstName, lastName } = splitFullName(data.fullName);
+    // const param: LabMemberControllerApiAddLabMemberRequest = {
+    //   request: {
+    //     labId: appLabId ?? "",
+    //     userId: data.id,
+    //     dob: data.birth,
+    //     email: data.email,
+    //     firstName: firstName,
+    //     lastName: `${lastName ? `${lastName} ` : ""}${
+    //       middleName ? `${middleName} ` : ""
+    //     }`,
+    //     role: "MEMBER",
+    //   },
+    // };
+    console.log(appLabId);
+    await labMemberControllerApi
+      .addLabMember(
+        {
+          request: {
+            labId: appLabId ?? "",
+            userId: data.id,
+            dob: data.birth,
+            email: data.email,
+            firstName: firstName,
+            lastName: lastName,
+            role: "MEMBER",
+          },
+        },
+        { headers: { Authorization: `Bearer ${appToken}` } }
+      )
+      .then((response) => {
+        console.log("Successful create member: ", response.data.result);
+        reset();
+      })
+      .catch((error) => {
+        setErrorMessage(error.response.data.message);
+        setIsSnackBarVisible(true);
+      });
+    setIsPendingCreate(false);
   };
 
   // Template
@@ -300,44 +357,9 @@ const CreateMemberScreen = (props: Props) => {
                 </View>
               )}
             />
-
-            {/* Phone */}
-            <Controller
-              control={control}
-              name="phone"
-              render={({ field: { onChange, onBlur, value } }) => (
-                <View>
-                  <TextInput
-                    theme={{
-                      colors: {
-                        primary: "#2B56F0",
-                        onSurfaceVariant: "#777",
-                      },
-                    }}
-                    textColor="#333"
-                    mode="flat"
-                    style={styles.inputField}
-                    contentStyle={{
-                      fontFamily: "Poppins-Regular",
-                      marginTop: 8,
-                    }}
-                    label="Phone"
-                    onChangeText={onChange}
-                    onBlur={onBlur}
-                    value={value}
-                    error={!!errors.phone}
-                  />
-                  {errors.phone && (
-                    <Text
-                      style={styles.error}
-                    >{`${errors.phone.message}`}</Text>
-                  )}
-                </View>
-              )}
-            />
           </View>
 
-          <View style={{ marginTop: 20, gap: 10 }}>
+          <View style={{ marginTop: 37, gap: 10 }}>
             <Text
               variant="titleMedium"
               style={{ fontFamily: "Poppins-SemiBold" }}
@@ -377,6 +399,19 @@ const CreateMemberScreen = (props: Props) => {
           </Button>
         </View>
       </ScrollView>
+
+      {/* Snackbar */}
+      <Snackbar
+        visible={isSnackBarVisible}
+        onDismiss={() => setIsSnackBarVisible(false)}
+        duration={3000}
+        action={{
+          label: "Close",
+          onPress: () => setIsSnackBarVisible(false),
+        }}
+      >
+        {errorMessage}
+      </Snackbar>
     </View>
   );
 };
@@ -389,7 +424,6 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: "flex-start",
     alignItems: "center",
-    paddingBottom: 40,
   },
   title: {
     fontFamily: "Poppins-SemiBold",
@@ -420,7 +454,7 @@ const styles = StyleSheet.create({
 
   faceAuth: {
     width: 300,
-    height: 70,
+    height: 100,
     justifyContent: "center",
     alignItems: "center",
     borderWidth: 2,
@@ -429,7 +463,7 @@ const styles = StyleSheet.create({
     borderRadius: 5,
   },
   actButton: {
-    marginTop: 37,
+    marginTop: 80,
     borderRadius: 5,
     minWidth: 300,
     minHeight: 40,

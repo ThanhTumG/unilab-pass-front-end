@@ -1,15 +1,17 @@
 // Core
 import { zodResolver } from "@hookform/resolvers/zod";
-import React, { useState } from "react";
-import { useLocalSearchParams, useRouter } from "expo-router";
+import React, { useCallback, useState } from "react";
+import { useFocusEffect, useLocalSearchParams, useRouter } from "expo-router";
 import { Controller, useForm } from "react-hook-form";
-import { View, StyleSheet, ScrollView } from "react-native";
+import { View, StyleSheet, ScrollView, RefreshControl } from "react-native";
 import {
+  ActivityIndicator,
   Button,
   IconButton,
   Switch,
   Text,
   TextInput,
+  useTheme,
 } from "react-native-paper";
 import dayjs from "dayjs";
 import utc from "dayjs/plugin/utc";
@@ -26,6 +28,14 @@ import {
   CustomDropdownInput,
   CustomDropdownItem,
 } from "components/CustomDropdown";
+import {
+  LabMemberControllerApi,
+  LabMemberControllerApiDeleteMemberRequest,
+  MyUserControllerApi,
+  MyUserControllerApiUpdateMyUserRequest,
+} from "api/index";
+import { useAuthStore, useUserStore } from "stores";
+import { getFullName, splitFullName } from "lib/utils";
 
 // UTC time
 dayjs.extend(utc);
@@ -40,9 +50,9 @@ const OPTIONS = [
 const UserDetailScreen = () => {
   // States
   const [isEditMode, setIsEditMode] = useState<boolean>(false);
-  const [gender, setGender] = useState<string | undefined>(
-    DEFAULT_DETAIL_USER_INFORMATION_FORM_VALUES.gender
-  );
+  const [isPendingGetMem, setIsPendingGetMem] = useState<boolean>(false);
+  const [isPendingUpdateMem, setIsPendingUpdateMem] = useState<boolean>(false);
+  const [isPendingDeleteMem, setIsPendingDeleteMem] = useState<boolean>(false);
   const [isAllowed, setIsAllowed] = useState<boolean>(
     DEFAULT_DETAIL_USER_INFORMATION_FORM_VALUES.permission
   );
@@ -53,22 +63,27 @@ const UserDetailScreen = () => {
   // Router
   const router = useRouter();
 
+  // Theme
+  const theme = useTheme();
+
+  // Server
+  const myUserControllerApi = new MyUserControllerApi();
+  const labMemberControllerApi = new LabMemberControllerApi();
+
+  // Store
+  const { appToken } = useAuthStore();
+  const { appLabId } = useUserStore();
+
   // Form
   const {
     control,
     handleSubmit,
+    getValues,
+    reset,
     formState: { errors },
   } = useForm<DetailUserInformationFormType>({
     resolver: zodResolver(DetailUserInformationFormSchema),
-    defaultValues: {
-      fullName: "Thanh Tùng",
-      id: id as string,
-      birth: "2003-10-25",
-      email: "thanhtumg.2510@gmail.com",
-      gender: "male",
-      phone: "0986801203",
-      permission: DEFAULT_DETAIL_USER_INFORMATION_FORM_VALUES.permission,
-    },
+    defaultValues: DEFAULT_DETAIL_USER_INFORMATION_FORM_VALUES,
   });
 
   // Methods
@@ -87,6 +102,93 @@ const UserDetailScreen = () => {
   const handleToggleEdit = () => {
     setIsEditMode(!isEditMode);
   };
+
+  // Handle get detail member
+  const handleGetDetailMember = useCallback(async () => {
+    if (isPendingGetMem) return;
+    setIsPendingGetMem(true);
+    try {
+      const response = await myUserControllerApi.getMyUser(
+        { userId: id as string },
+        { headers: { Authorization: `Bearer ${appToken}` } }
+      );
+
+      console.log("Successful get detail info: ", response.data.result);
+      const result = response.data.result;
+      reset({
+        fullName: getFullName({
+          firstName: result?.firstName,
+          lastName: result?.lastName,
+        }),
+        id: result?.id,
+        birth: result?.dob,
+        email: result?.email,
+        gender: "male",
+        permission: true,
+      });
+    } catch (error: any) {
+      console.error(error.response.data);
+    }
+    setIsPendingGetMem(false);
+  }, [appToken]);
+
+  // Handle delete member
+  const handleDeleteMem = async () => {
+    if (isPendingDeleteMem) return;
+    setIsPendingDeleteMem(true);
+    try {
+      const param: LabMemberControllerApiDeleteMemberRequest = {
+        labId: appLabId ?? "",
+        userId: id as string,
+      };
+      const response = await labMemberControllerApi.deleteMember(param, {
+        headers: { Authorization: `Bearer ${appToken}` },
+      });
+
+      console.log("Success delete member: ", response.data.result);
+      router.replace("/(tabs)/AccountManagementScreen");
+    } catch (error: any) {
+      console.error(error.response.data);
+    }
+    setIsPendingDeleteMem(false);
+  };
+
+  // Handle update member
+  const handleUpdateMem = async (data: DetailUserInformationFormType) => {
+    try {
+      if (isPendingUpdateMem) return;
+      setIsPendingUpdateMem(true);
+      const { firstName, lastName } = splitFullName(data.fullName);
+      const param: MyUserControllerApiUpdateMyUserRequest = {
+        userId: id as string,
+        myUserUpdateRequest: {
+          id: id as string,
+          dob: data.email,
+          firstName: firstName,
+          lastName: lastName,
+        },
+      };
+      const response = await myUserControllerApi.updateMyUser(param, {
+        headers: { Authorization: `Bearer ${appToken}` },
+      });
+      console.log("Successful update member: ", response.data.result);
+    } catch (error: any) {
+      console.error(error.response.data);
+    }
+    setIsPendingUpdateMem(false);
+  };
+
+  // Handle refresh
+  const onRefresh = useCallback(() => {
+    handleGetDetailMember();
+  }, [handleGetDetailMember]);
+
+  // Effects
+  useFocusEffect(
+    useCallback(() => {
+      handleGetDetailMember();
+    }, [handleGetDetailMember])
+  );
 
   // Template
   return (
@@ -136,7 +238,17 @@ const UserDetailScreen = () => {
       </View>
 
       {/* Content */}
-      <ScrollView>
+      <ScrollView
+        style={{ marginTop: 80 }}
+        refreshControl={
+          <RefreshControl
+            colors={[theme.colors.primary]}
+            tintColor={theme.colors.primary}
+            refreshing={isPendingGetMem}
+            onRefresh={onRefresh}
+          />
+        }
+      >
         <View style={styles.formField}>
           {/* Form */}
           {/* Fullname */}
@@ -187,7 +299,7 @@ const UserDetailScreen = () => {
                 marginTop: 8,
               }}
               label="ID"
-              value={id.toString()}
+              value={getValues().id}
             />
           </View>
 
@@ -301,40 +413,6 @@ const UserDetailScreen = () => {
             )}
           />
 
-          {/* Phone */}
-          <Controller
-            control={control}
-            name="phone"
-            render={({ field: { onChange, onBlur, value } }) => (
-              <View>
-                <TextInput
-                  theme={{
-                    colors: {
-                      primary: "#2B56F0",
-                      onSurfaceVariant: "#777",
-                    },
-                  }}
-                  disabled={!isEditMode}
-                  textColor="#333"
-                  mode="flat"
-                  style={styles.inputField}
-                  contentStyle={{
-                    fontFamily: "Poppins-Regular",
-                    marginTop: 8,
-                  }}
-                  label="Phone"
-                  onChangeText={onChange}
-                  onBlur={onBlur}
-                  value={value}
-                  error={!!errors.phone}
-                />
-                {errors.phone && (
-                  <Text style={styles.error}>{`${errors.phone.message}`}</Text>
-                )}
-              </View>
-            )}
-          />
-
           {/* Permission */}
           <View style={styles.permissionContainer}>
             <Text
@@ -355,14 +433,19 @@ const UserDetailScreen = () => {
             labelStyle={{ fontFamily: "Poppins-Medium" }}
             mode="contained"
             style={[styles.actButton, { backgroundColor: "#FF6666" }]}
+            onPress={handleDeleteMem}
+            loading={isPendingDeleteMem}
+            disabled={isPendingDeleteMem}
           >
-            Delete Member
+            Delete
           </Button>
           <Button
             labelStyle={{ fontFamily: "Poppins-Medium" }}
             mode="contained"
             disabled={!isEditMode}
             style={[styles.actButton]}
+            onPress={handleSubmit(handleUpdateMem)}
+            loading={isPendingUpdateMem}
           >
             Apply
           </Button>
@@ -390,7 +473,6 @@ const styles = StyleSheet.create({
   formField: {
     justifyContent: "center",
     alignItems: "center",
-    marginTop: 70,
     gap: 3,
   },
   inputField: {
@@ -417,12 +499,12 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     justifyContent: "center",
     alignItems: "center",
-    gap: 20,
+    gap: 60,
     marginTop: 60,
   },
   actButton: {
     borderRadius: 5,
-    minWidth: 150,
+    width: 120,
     minHeight: 40,
   },
 });

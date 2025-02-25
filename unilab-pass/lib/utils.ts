@@ -1,24 +1,19 @@
 // Split full name
 export function splitFullName(fullName: string) {
   const parts = fullName.trim().split(/\s+/);
+  const len = parts.length;
   let lastName = "";
-  let middleName = "";
   let firstName = "";
 
-  if (parts.length > 0) {
-    lastName = parts[0];
-  }
-
-  if (parts.length === 2) {
-    firstName = parts[1];
-  } else if (parts.length > 2) {
-    firstName = parts[parts.length - 1];
-    middleName = parts.slice(1, -1).join(" ");
+  if (parts.length == 1) {
+    firstName = parts[0];
+  } else {
+    firstName = parts[len - 1];
+    lastName = parts.slice(0, -1).join(" ").trim();
   }
 
   return {
     firstName,
-    middleName,
     lastName,
   };
 }
@@ -26,14 +21,16 @@ export function splitFullName(fullName: string) {
 // Get full name
 export function getFullName({
   lastName = "",
-  middleName = "",
   firstName = "",
 }: {
   firstName?: string;
   middleName?: string;
   lastName?: string;
 }) {
-  return `${lastName ? `${lastName} ` : ""}${
-    middleName ? `${middleName} ` : ""
-  }${firstName}`;
+  return `${lastName ? `${lastName} ` : ""}${firstName}`;
 }
+
+// Truncate Text
+export const truncateText = (text: string, maxLength: number) => {
+  return text.length > maxLength ? text.substring(0, maxLength) + "..." : text;
+};

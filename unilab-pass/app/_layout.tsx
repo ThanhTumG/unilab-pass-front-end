@@ -1,17 +1,17 @@
 // Core
 import "react-native-reanimated";
 import { useFonts } from "expo-font";
-import { Stack } from "expo-router";
+import { Stack, useRouter } from "expo-router";
 import { StatusBar } from "expo-status-bar";
 import { useEffect } from "react";
 import { StyleSheet } from "react-native";
 import { PaperProvider, DefaultTheme } from "react-native-paper";
 import { SafeAreaView } from "react-native-safe-area-context";
 import * as SplashScreen from "expo-splash-screen";
-import AsyncStorage from "@react-native-async-storage/async-storage";
 
 // App
 import { useAuthStore } from "stores";
+import eventBus from "utils/eventBus";
 
 // Prevent the splash screen from auto-hiding before asset loading is complete.
 SplashScreen.preventAutoHideAsync();
@@ -29,7 +29,9 @@ export default function RootLayout() {
   });
 
   // Store
-  const { appIsLoggedIn } = useAuthStore();
+  const { appIsLoggedIn, removeAppToken } = useAuthStore();
+
+  const router = useRouter();
 
   // Effects
   useEffect(() => {
@@ -37,6 +39,19 @@ export default function RootLayout() {
       SplashScreen.hideAsync();
     }
   }, [loaded]);
+
+  useEffect(() => {
+    const handleLogout = () => {
+      console.log("logout");
+      removeAppToken();
+      router.replace("/(auth)/LoginScreen");
+    };
+    eventBus.on("logout", handleLogout);
+
+    return () => {
+      eventBus.off("logout", handleLogout);
+    };
+  }, []);
 
   if (!loaded) {
     return null;

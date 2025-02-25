@@ -18,6 +18,7 @@ const DetailUserInformationFormSchema = z.object({
     .min(1, {
       message: "Name is required",
     })
+    .max(100, { message: "Name is too long" })
     .regex(/^[\p{L}]+(?:\s[\p{L}]+)*$/u, {
       message: "Name must not contain special character",
     }),
@@ -34,23 +35,18 @@ const DetailUserInformationFormSchema = z.object({
   birth: z.string().refine((value) => validate(value, "YYYY-MM-DD"), {
     message: "Invalid Date",
   }),
-  phone: z
-    .string()
-    .min(1, {
-      message: "Phone is required",
-    })
-    .length(10, {
-      message: "Invalid phone number",
-    })
-    .regex(/^\d{10}$/, { message: "Invalid phone number" }),
   permission: z.boolean(),
 });
 
 // Lab information
 const LabInformationFormSchema = z.object({
-  labName: z.string().trim().min(1, {
-    message: "Lab name is required",
-  }),
+  labName: z
+    .string()
+    .trim()
+    .min(1, {
+      message: "Lab name is required",
+    })
+    .max(100, { message: "Name is too long" }),
   location: z.string(),
 });
 
@@ -62,7 +58,6 @@ const DEFAULT_DETAIL_USER_INFORMATION_FORM_VALUES: z.infer<
   email: "",
   id: "",
   gender: "",
-  phone: "",
   birth: "",
   permission: true,
 };
