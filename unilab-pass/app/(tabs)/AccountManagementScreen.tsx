@@ -22,15 +22,15 @@ import MemberCard from "components/MemberCard";
 import { LabMemberControllerApi } from "api/index";
 import { useAuthStore, useUserStore } from "stores";
 import { getFullName } from "lib/utils";
-import axios from "axios";
 
 // Types
 type Props = {};
 type MemberType = {
   id: string;
-  dob: string;
-  email: string;
+  gender: string;
   fullName: string;
+  lastRecord: string;
+  status: string;
 };
 
 // Component
@@ -40,10 +40,6 @@ const ManageAccountScreen = (props: Props) => {
   const [memberList, setMemberList] = useState<MemberType[]>();
   const [isPendingGetMemList, setIdPendingGetMemList] =
     useState<boolean>(false);
-
-  const API = axios.create({
-    baseURL: "https://unilabpass-backend.onrender.com/identity",
-  });
 
   // Server
   const labMemberControllerApi = new LabMemberControllerApi();
@@ -216,16 +212,17 @@ const ManageAccountScreen = (props: Props) => {
         { labId: appLabId ?? "" },
         { headers: { Authorization: `Bearer ${appToken}` } }
       );
+      console.log(response.data.result);
       const newLabMemberList: MemberType[] =
         response.data.result?.map((data) => {
-          const member = data.myUserResponse;
           const Obj: MemberType = {
-            id: member?.id ?? "",
-            dob: member?.dob ?? "",
-            email: member?.email ?? "",
+            id: data?.id ?? "",
+            gender: data.gender ?? "",
+            status: data.status ?? "",
+            lastRecord: data.lastRecord ?? "",
             fullName: getFullName({
-              lastName: member?.lastName,
-              firstName: member?.firstName,
+              lastName: data?.lastName,
+              firstName: data?.firstName,
             }),
           };
           return Obj;
@@ -241,7 +238,6 @@ const ManageAccountScreen = (props: Props) => {
 
   // Handle refresh
   const onRefresh = useCallback(() => {
-    console.log("reset");
     handleGetMember();
   }, [handleGetMember]);
 
@@ -260,7 +256,7 @@ const ManageAccountScreen = (props: Props) => {
     >
       {/* Title */}
       <Text variant="titleSmall" style={styles.title}>
-        Account Management
+        Member Management
       </Text>
 
       {/* Add member button */}

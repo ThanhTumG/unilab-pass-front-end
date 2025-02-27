@@ -49,6 +49,12 @@ export interface MyUserUpdateRequest {
      * @type {string}
      * @memberof MyUserUpdateRequest
      */
+    'gender'?: string;
+    /**
+     * 
+     * @type {string}
+     * @memberof MyUserUpdateRequest
+     */
     'dob'?: string;
     /**
      * 

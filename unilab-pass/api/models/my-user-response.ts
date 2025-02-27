@@ -55,6 +55,12 @@ export interface MyUserResponse {
     'dob'?: string;
     /**
      * 
+     * @type {string}
+     * @memberof MyUserResponse
+     */
+    'gender'?: string;
+    /**
+     * 
      * @type {Set<RoleResponse>}
      * @memberof MyUserResponse
      */

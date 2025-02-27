@@ -39,16 +39,16 @@ type Props = {};
 
 // Options
 const OPTIONS = [
-  { label: "Male", value: "male" },
-  { label: "Female", value: "female" },
+  { label: "Male", value: "MALE" },
+  { label: "Female", value: "FEMALE" },
 ];
 
 // Component
 const CreateMemberScreen = (props: Props) => {
   // States
   const [isPendingCreate, setIsPendingCreate] = useState<boolean>(false);
-  const [errorMessage, setErrorMessage] = useState("");
-  const [isSnackBarVisible, setIsSnackBarVisible] = useState(false);
+  const [alertMessage, setAlertMessage] = useState("");
+  const [isAlert, setIsAlert] = useState(false);
 
   // Router
   const router = useRouter();
@@ -83,42 +83,29 @@ const CreateMemberScreen = (props: Props) => {
     if (isPendingCreate) return;
     setIsPendingCreate(true);
     const { firstName, lastName } = splitFullName(data.fullName);
-    // const param: LabMemberControllerApiAddLabMemberRequest = {
-    //   request: {
-    //     labId: appLabId ?? "",
-    //     userId: data.id,
-    //     dob: data.birth,
-    //     email: data.email,
-    //     firstName: firstName,
-    //     lastName: `${lastName ? `${lastName} ` : ""}${
-    //       middleName ? `${middleName} ` : ""
-    //     }`,
-    //     role: "MEMBER",
-    //   },
-    // };
-    console.log(appLabId);
+    const param: LabMemberControllerApiAddLabMemberRequest = {
+      request: {
+        labId: appLabId ?? "",
+        userId: data.id,
+        dob: data.birth,
+        gender: data.gender,
+        email: data.email,
+        firstName: firstName,
+        lastName: lastName,
+        role: "MEMBER",
+      },
+    };
     await labMemberControllerApi
-      .addLabMember(
-        {
-          request: {
-            labId: appLabId ?? "",
-            userId: data.id,
-            dob: data.birth,
-            email: data.email,
-            firstName: firstName,
-            lastName: lastName,
-            role: "MEMBER",
-          },
-        },
-        { headers: { Authorization: `Bearer ${appToken}` } }
-      )
+      .addLabMember(param, { headers: { Authorization: `Bearer ${appToken}` } })
       .then((response) => {
         console.log("Successful create member: ", response.data.result);
+        setAlertMessage("Successful create member");
+        setIsAlert(true);
         reset();
       })
       .catch((error) => {
-        setErrorMessage(error.response.data.message);
-        setIsSnackBarVisible(true);
+        setAlertMessage(error.response.data.message);
+        setIsAlert(true);
       });
     setIsPendingCreate(false);
   };
@@ -163,7 +150,7 @@ const CreateMemberScreen = (props: Props) => {
       </View>
 
       {/* Content */}
-      <ScrollView>
+      <ScrollView style={styles.scrollView}>
         <View style={styles.container}>
           <View style={styles.formField}>
             <Text
@@ -190,7 +177,7 @@ const CreateMemberScreen = (props: Props) => {
                       },
                     }}
                     textColor="#333"
-                    mode="flat"
+                    mode="outlined"
                     style={styles.inputField}
                     contentStyle={{
                       fontFamily: "Poppins-Regular",
@@ -225,7 +212,7 @@ const CreateMemberScreen = (props: Props) => {
                       },
                     }}
                     textColor="#333"
-                    mode="flat"
+                    mode="outlined"
                     style={styles.inputField}
                     contentStyle={{
                       fontFamily: "Poppins-Regular",
@@ -259,7 +246,7 @@ const CreateMemberScreen = (props: Props) => {
                     }}
                     placeholder="YYYY-MM-DD"
                     textColor="#333"
-                    mode="flat"
+                    mode="outlined"
                     style={styles.inputField}
                     contentStyle={{
                       fontFamily: "Poppins-Regular",
@@ -280,15 +267,50 @@ const CreateMemberScreen = (props: Props) => {
               )}
             />
 
+            {/* Email */}
+            <Controller
+              control={control}
+              name="email"
+              render={({ field: { onChange, onBlur, value } }) => (
+                <View>
+                  <TextInput
+                    theme={{
+                      colors: {
+                        primary: "#2B56F0",
+                        onSurfaceVariant: "#777",
+                      },
+                    }}
+                    textColor="#333"
+                    mode="outlined"
+                    style={styles.inputField}
+                    contentStyle={{
+                      fontFamily: "Poppins-Regular",
+                      marginTop: 8,
+                    }}
+                    label="Email"
+                    onChangeText={onChange}
+                    onBlur={onBlur}
+                    value={value}
+                    error={!!errors.email}
+                  />
+                  {errors.email && (
+                    <Text
+                      style={styles.error}
+                    >{`${errors.email.message}`}</Text>
+                  )}
+                </View>
+              )}
+            />
+
             {/* Gender */}
             <Controller
               control={control}
               name="gender"
-              render={({ field: { onChange, onBlur, value } }) => (
-                <View>
+              render={({ field: { onChange, value } }) => (
+                <View style={{ marginTop: 8 }}>
                   <Dropdown
-                    mode="flat"
-                    label="Gender"
+                    mode="outlined"
+                    placeholder="Gender"
                     options={OPTIONS}
                     value={value}
                     onSelect={(value) => onChange(value)}
@@ -322,44 +344,9 @@ const CreateMemberScreen = (props: Props) => {
                 </View>
               )}
             />
-
-            {/* Email */}
-            <Controller
-              control={control}
-              name="email"
-              render={({ field: { onChange, onBlur, value } }) => (
-                <View>
-                  <TextInput
-                    theme={{
-                      colors: {
-                        primary: "#2B56F0",
-                        onSurfaceVariant: "#777",
-                      },
-                    }}
-                    textColor="#333"
-                    mode="flat"
-                    style={styles.inputField}
-                    contentStyle={{
-                      fontFamily: "Poppins-Regular",
-                      marginTop: 8,
-                    }}
-                    label="Email"
-                    onChangeText={onChange}
-                    onBlur={onBlur}
-                    value={value}
-                    error={!!errors.email}
-                  />
-                  {errors.email && (
-                    <Text
-                      style={styles.error}
-                    >{`${errors.email.message}`}</Text>
-                  )}
-                </View>
-              )}
-            />
           </View>
 
-          <View style={{ marginTop: 37, gap: 10 }}>
+          {/* <View style={{ marginTop: 37, gap: 10 }}>
             <Text
               variant="titleMedium"
               style={{ fontFamily: "Poppins-SemiBold" }}
@@ -386,7 +373,7 @@ const CreateMemberScreen = (props: Props) => {
                 </Text>
               </View>
             </TouchableRipple>
-          </View>
+          </View> */}
 
           {/* Action Button */}
           <Button
@@ -394,6 +381,7 @@ const CreateMemberScreen = (props: Props) => {
             mode="contained"
             style={styles.actButton}
             onPress={handleSubmit(handleSubmitForm)}
+            loading={isPendingCreate}
           >
             Create
           </Button>
@@ -402,15 +390,15 @@ const CreateMemberScreen = (props: Props) => {
 
       {/* Snackbar */}
       <Snackbar
-        visible={isSnackBarVisible}
-        onDismiss={() => setIsSnackBarVisible(false)}
+        visible={isAlert}
+        onDismiss={() => setIsAlert(false)}
         duration={3000}
         action={{
           label: "Close",
-          onPress: () => setIsSnackBarVisible(false),
+          onPress: () => setIsAlert(false),
         }}
       >
-        {errorMessage}
+        {alertMessage}
       </Snackbar>
     </View>
   );
@@ -422,8 +410,13 @@ export default CreateMemberScreen;
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    justifyContent: "flex-start",
+    justifyContent: "space-between",
     alignItems: "center",
+    minHeight: "100%",
+  },
+  scrollView: {
+    marginTop: 80,
+    paddingBottom: 30,
   },
   title: {
     fontFamily: "Poppins-SemiBold",
@@ -437,8 +430,7 @@ const styles = StyleSheet.create({
   formField: {
     justifyContent: "center",
     alignItems: "center",
-    marginTop: 80,
-    gap: 3,
+    gap: 10,
   },
   inputField: {
     maxHeight: 77,

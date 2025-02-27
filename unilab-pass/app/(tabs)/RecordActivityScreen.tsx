@@ -1,67 +1,57 @@
 // Core
-import {
-  ImageBackground,
-  StyleSheet,
-  TouchableOpacity,
-  View,
-} from "react-native";
-import React, { useState } from "react";
+import { ImageBackground, StyleSheet, View } from "react-native";
+import React from "react";
 import { Button, Text } from "react-native-paper";
-import { CameraView, CameraType, useCameraPermissions } from "expo-camera";
+import { useRouter } from "expo-router";
 
 // Types
 type Props = {};
 
 // Component
 const RecordActivityScreen = (props: Props) => {
-  // States
-  const [facing, setFacing] = useState<CameraType>("back");
-  const [permission, requestPermission] = useCameraPermissions();
+  // Route
+  const router = useRouter();
 
-  if (!permission) {
-    // Camera permissions are still loading.
-    return <View />;
-  }
-
-  if (!permission.granted) {
-    // Camera permissions are not granted yet.
-    return (
-      <View style={styles.container}>
-        <Text style={styles.message}>
-          We need your permission to show the camera
-        </Text>
-        <Button onPress={requestPermission}>grant permission</Button>
-      </View>
-    );
-  }
-
-  function toggleCameraFacing() {
-    setFacing((current) => (current === "back" ? "front" : "back"));
-  }
+  // Methods
+  // Handle route scan screen
+  const handleRouteScanScreen = (isCheckIn: boolean) => {
+    router.replace({
+      pathname: "/(stack)/ScanScreen",
+      params: { recordType: isCheckIn ? "check in" : "check out" },
+    });
+  };
 
   // Template
   return (
     <ImageBackground
-      source={require("../../assets/images/background-with-icon.png")}
+      source={require("../../assets/images/background-without-logo.png")}
       style={[styles.background]}
     >
-      <View style={styles.container}>
-        <CameraView
-          style={styles.camera}
-          barcodeScannerSettings={{
-            barcodeTypes: ["qr"],
-          }}
-          facing={facing}
+      {/* Title */}
+      <Text variant="headlineLarge" style={styles.title}>
+        Select Record Type
+      </Text>
+
+      {/* Action button */}
+      <View style={[styles.actionBtnContainer, styles.alignCenter]}>
+        <Button
+          mode="outlined"
+          style={{ borderRadius: 5 }}
+          textColor="#333"
+          contentStyle={{ width: 270, height: 50 }}
+          onPress={() => handleRouteScanScreen(true)}
         >
-          <View style={styles.buttonContainer}>
-            <TouchableOpacity
-              style={styles.button}
-              onPress={toggleCameraFacing}
-            >
-              <Text style={styles.text}>Flip Camera</Text>
-            </TouchableOpacity>
-          </View>
-        </CameraView>
+          Check In
+        </Button>
+        <Button
+          mode="outlined"
+          style={{ borderRadius: 5 }}
+          textColor="#333"
+          contentStyle={{ width: 270, height: 50 }}
+          onPress={() => handleRouteScanScreen(false)}
+        >
+          Check Out
+        </Button>
       </View>
     </ImageBackground>
   );
@@ -80,35 +70,14 @@ const styles = StyleSheet.create({
     resizeMode: "cover",
     justifyContent: "flex-start",
     alignItems: "center",
-    paddingTop: 100,
+    paddingTop: 150,
   },
-  container: {
-    flex: 1,
-    alignSelf: "stretch",
-    justifyContent: "flex-start",
+  title: {
+    fontFamily: "Poppins-Bold",
+    color: "#1B61B5",
   },
-  message: {
-    textAlign: "center",
-    paddingBottom: 10,
-  },
-  camera: {
-    flex: 1,
-    maxHeight: 400,
-  },
-  buttonContainer: {
-    flex: 1,
-    flexDirection: "row",
-    backgroundColor: "transparent",
-    margin: 64,
-  },
-  button: {
-    flex: 1,
-    alignSelf: "flex-end",
-    alignItems: "center",
-  },
-  text: {
-    fontSize: 24,
-    fontWeight: "bold",
-    color: "white",
+  actionBtnContainer: {
+    marginTop: 90,
+    gap: 37,
   },
 });

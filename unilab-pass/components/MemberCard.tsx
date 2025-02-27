@@ -48,9 +48,14 @@ const MemberCard = ({ item, isEven, onPress }: Props) => {
             {item.id}
           </Text>
           <Text variant="bodySmall" style={styles.time}>
-            {dayjs(String("2025-01-21T16:02:15"), "hh:mm A DD/MM/YYYY").format(
-              "DD/MM/YY HH:mm"
-            )}
+            {`Last record: ${
+              item.lastRecord
+                ? dayjs(
+                    String("2025-01-21T16:02:15"),
+                    "hh:mm A DD/MM/YYYY"
+                  ).format("DD/MM/YY HH:mm")
+                : "Not found"
+            }`}
           </Text>
         </View>
         <View
@@ -63,17 +68,17 @@ const MemberCard = ({ item, isEven, onPress }: Props) => {
             height: 33,
             alignSelf: "center",
             backgroundColor: `${
-              item.status == "active"
+              item.status == "ACTIVE"
                 ? "rgba(204, 255, 204, .75)"
                 : "rgba(255, 230, 230, .75)"
             }`,
-            borderColor: `${item.status == "active" ? "#00CC00" : "#FF0000"}`,
+            borderColor: `${item.status == "ACTIVE" ? "#00CC00" : "#FF0000"}`,
           }}
         >
           <Text
             variant="bodySmall"
             style={{
-              color: `${item.status == "active" ? "#00CC00" : "#FF0000"}`,
+              color: `${item.status == "ACTIVE" ? "#00CC00" : "#FF0000"}`,
               textTransform: "capitalize",
               fontFamily: "Poppins-Regular",
             }}

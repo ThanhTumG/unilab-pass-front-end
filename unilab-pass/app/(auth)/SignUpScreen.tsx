@@ -4,7 +4,6 @@ import React, { useState } from "react";
 import { Button, IconButton, Text, TextInput } from "react-native-paper";
 import { useRouter } from "expo-router";
 import { Controller, useForm } from "react-hook-form";
-import { SignupFormType } from "constants/auth.type";
 import { zodResolver } from "@hookform/resolvers/zod";
 
 // App
@@ -14,6 +13,7 @@ import {
 } from "constants/auth.constant";
 import { MyUserControllerApi, MyUserCreationRequest } from "api/index";
 import { splitFullName } from "lib/utils";
+import { SignupFormType } from "constants/auth.type";
 
 // Types
 type Props = {};
@@ -238,7 +238,6 @@ const SignUpScreen = (props: Props) => {
           contentStyle={{ width: 300, height: 50 }}
           onPress={handleSubmit(handleOnSubmit)}
           loading={isLoading}
-          // onPress={handleOnSubmit}
         >
           Sign Up
         </Button>

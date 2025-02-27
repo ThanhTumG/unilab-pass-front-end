@@ -1,8 +1,5 @@
 import axios from "axios";
-import AsyncStorage from "@react-native-async-storage/async-storage";
-import { useRouter } from "expo-router";
 import { useAuthStore } from "../stores";
-import eventBus from "../utils/eventBus";
 
 const handleSetToken = (token: string) => {
   const { setAppToken } = useAuthStore();

@@ -8,6 +8,7 @@ import {
   ActivityIndicator,
   Button,
   IconButton,
+  Snackbar,
   Switch,
   Text,
   TextInput,
@@ -36,26 +37,31 @@ import {
 } from "api/index";
 import { useAuthStore, useUserStore } from "stores";
 import { getFullName, splitFullName } from "lib/utils";
+import { WarningDialog } from "components/CustomDialog";
 
 // UTC time
 dayjs.extend(utc);
 
 // Options
 const OPTIONS = [
-  { label: "Male", value: "male" },
-  { label: "Female", value: "female" },
+  { label: "Male", value: "MALE" },
+  { label: "Female", value: "FEMALE" },
 ];
 
 // Component
 const UserDetailScreen = () => {
   // States
   const [isEditMode, setIsEditMode] = useState<boolean>(false);
-  const [isPendingGetMem, setIsPendingGetMem] = useState<boolean>(false);
-  const [isPendingUpdateMem, setIsPendingUpdateMem] = useState<boolean>(false);
-  const [isPendingDeleteMem, setIsPendingDeleteMem] = useState<boolean>(false);
-  const [isAllowed, setIsAllowed] = useState<boolean>(
-    DEFAULT_DETAIL_USER_INFORMATION_FORM_VALUES.permission
-  );
+  const [loading, setLoading] = useState({
+    getMem: false,
+    updateMem: false,
+    updateStatus: false,
+    deleteMem: false,
+  });
+  const [isWarnDialog, setIsWarnDialog] = useState<boolean>(false);
+  const [isActive, setIsActive] = useState<boolean>();
+  const [alertMessage, setAlertMessage] = useState("");
+  const [isAlert, setIsAlert] = useState(false);
 
   // Param
   const { id } = useLocalSearchParams();
@@ -67,8 +73,8 @@ const UserDetailScreen = () => {
   const theme = useTheme();
 
   // Server
-  const myUserControllerApi = new MyUserControllerApi();
   const labMemberControllerApi = new LabMemberControllerApi();
+  const myUserControllerApi = new MyUserControllerApi();
 
   // Store
   const { appToken } = useAuthStore();
@@ -79,6 +85,7 @@ const UserDetailScreen = () => {
     control,
     handleSubmit,
     getValues,
+    setValue,
     reset,
     formState: { errors },
   } = useForm<DetailUserInformationFormType>({
@@ -93,49 +100,47 @@ const UserDetailScreen = () => {
     return true;
   });
 
-  // handle toggle switch
-  const handleToggleSwitch = () => {
-    if (isEditMode) setIsAllowed(!isAllowed);
-  };
-
   // handle toggle edit mode
   const handleToggleEdit = () => {
+    if (isEditMode) reset();
     setIsEditMode(!isEditMode);
   };
 
   // Handle get detail member
   const handleGetDetailMember = useCallback(async () => {
-    if (isPendingGetMem) return;
-    setIsPendingGetMem(true);
+    if (loading.getMem) return;
+    setLoading((prev) => ({ ...prev, getMem: true }));
     try {
-      const response = await myUserControllerApi.getMyUser(
-        { userId: id as string },
+      const response = await labMemberControllerApi.getLabMemberDetailInfo(
+        { labId: appLabId ?? "", memberId: id as string },
         { headers: { Authorization: `Bearer ${appToken}` } }
       );
 
       console.log("Successful get detail info: ", response.data.result);
-      const result = response.data.result;
+      const memberInfo = response.data.result?.myUserResponse;
       reset({
         fullName: getFullName({
-          firstName: result?.firstName,
-          lastName: result?.lastName,
+          firstName: memberInfo?.firstName,
+          lastName: memberInfo?.lastName,
         }),
-        id: result?.id,
-        birth: result?.dob,
-        email: result?.email,
-        gender: "male",
-        permission: true,
+        id: memberInfo?.id,
+        birth: memberInfo?.dob,
+        email: memberInfo?.email,
+        gender: memberInfo?.gender,
+        permission: response.data.result?.status === "ACTIVE",
       });
+      setIsActive(response.data.result?.status === "ACTIVE");
     } catch (error: any) {
       console.error(error.response.data);
     }
-    setIsPendingGetMem(false);
+    setLoading((prev) => ({ ...prev, getMem: false }));
   }, [appToken]);
 
   // Handle delete member
   const handleDeleteMem = async () => {
-    if (isPendingDeleteMem) return;
-    setIsPendingDeleteMem(true);
+    if (loading.deleteMem) return;
+    setLoading((prev) => ({ ...prev, deleteMem: true }));
+
     try {
       const param: LabMemberControllerApiDeleteMemberRequest = {
         labId: appLabId ?? "",
@@ -150,38 +155,79 @@ const UserDetailScreen = () => {
     } catch (error: any) {
       console.error(error.response.data);
     }
-    setIsPendingDeleteMem(false);
+    setLoading((prev) => ({ ...prev, deleteMem: false }));
   };
 
-  // Handle update member
+  // Handle update member info
   const handleUpdateMem = async (data: DetailUserInformationFormType) => {
     try {
-      if (isPendingUpdateMem) return;
-      setIsPendingUpdateMem(true);
+      if (loading.updateMem) return;
+      setLoading((prev) => ({ ...prev, updateMem: true }));
+
       const { firstName, lastName } = splitFullName(data.fullName);
       const param: MyUserControllerApiUpdateMyUserRequest = {
         userId: id as string,
         myUserUpdateRequest: {
           id: id as string,
-          dob: data.email,
           firstName: firstName,
           lastName: lastName,
+          dob: data.birth,
+          gender: data.gender,
+          roles: [],
         },
       };
+      console.log(param);
       const response = await myUserControllerApi.updateMyUser(param, {
         headers: { Authorization: `Bearer ${appToken}` },
       });
-      console.log("Successful update member: ", response.data.result);
+
+      console.log("Successful update member info: ", response.data.result);
+      setValue("permission", data.permission);
+      setIsEditMode(false);
     } catch (error: any) {
-      console.error(error.response.data);
+      // console.error(error.response.data);
+      setAlertMessage(error.response.data.message);
+      setIsAlert(true);
     }
-    setIsPendingUpdateMem(false);
+    setLoading((prev) => ({ ...prev, updateMem: false }));
+  };
+
+  // Handle update permission
+  const handleSetPermission = async () => {
+    if (loading.updateStatus) return;
+    setLoading((prev) => ({ ...prev, updateStatus: true }));
+
+    try {
+      const response = await labMemberControllerApi.updateLabMemberStatus(
+        {
+          labMemberUpdateRequest: {
+            labMemberKey: { labId: appLabId ?? "", myUserId: id as string },
+            memberStatus: isActive ? "BLOCKED" : "ACTIVE",
+          },
+        },
+        {
+          headers: { Authorization: `Bearer ${appToken}` },
+        }
+      );
+
+      console.log("Successful update status:", response.data);
+      setIsActive(!isActive);
+      setLoading((prev) => ({ ...prev, updateStatus: false }));
+      setAlertMessage("Successful update status");
+      setIsAlert(true);
+    } catch {
+      (error: any) => {
+        setAlertMessage(error.response.data.message);
+        setIsAlert(true);
+      };
+    }
   };
 
   // Handle refresh
   const onRefresh = useCallback(() => {
+    if (isEditMode) return;
     handleGetDetailMember();
-  }, [handleGetDetailMember]);
+  }, [handleGetDetailMember, isEditMode]);
 
   // Effects
   useFocusEffect(
@@ -225,7 +271,7 @@ const UserDetailScreen = () => {
             alignItems: "center",
           }}
         >
-          Details Information
+          Detail Information
         </Text>
 
         <IconButton
@@ -239,218 +285,254 @@ const UserDetailScreen = () => {
 
       {/* Content */}
       <ScrollView
-        style={{ marginTop: 80 }}
+        style={styles.scrollView}
         refreshControl={
           <RefreshControl
             colors={[theme.colors.primary]}
             tintColor={theme.colors.primary}
-            refreshing={isPendingGetMem}
+            refreshing={loading.getMem}
             onRefresh={onRefresh}
           />
         }
       >
-        <View style={styles.formField}>
-          {/* Form */}
-          {/* Fullname */}
-          <Controller
-            control={control}
-            name="fullName"
-            render={({ field: { onChange, onBlur, value } }) => (
-              <View>
-                <TextInput
-                  theme={{
-                    colors: {
-                      primary: "#2B56F0",
-                      onSurfaceVariant: "#777",
-                    },
-                  }}
-                  disabled={!isEditMode}
-                  textColor="#333"
-                  mode="flat"
-                  style={styles.inputField}
-                  contentStyle={{
-                    fontFamily: "Poppins-Regular",
-                    marginTop: 8,
-                  }}
-                  label="Name"
-                  onChangeText={onChange}
-                  onBlur={onBlur}
-                  value={value}
-                  error={!!errors.fullName}
-                />
-                {errors.fullName && (
-                  <Text
-                    style={styles.error}
-                  >{`${errors.fullName.message}`}</Text>
-                )}
-              </View>
-            )}
-          />
-
-          {/* ID */}
-          <View>
-            <TextInput
-              disabled={!isEditMode}
-              textColor="#333"
-              mode="flat"
-              style={styles.inputField}
-              contentStyle={{
-                fontFamily: "Poppins-Regular",
-                marginTop: 8,
-              }}
-              label="ID"
-              value={getValues().id}
+        <View style={styles.container}>
+          <View style={styles.formField}>
+            {/* Form */}
+            {/* Fullname */}
+            <Controller
+              control={control}
+              name="fullName"
+              render={({ field: { onChange, onBlur, value } }) => (
+                <View>
+                  <TextInput
+                    theme={{
+                      colors: {
+                        primary: "#2B56F0",
+                        onSurfaceVariant: "#777",
+                      },
+                    }}
+                    disabled={!isEditMode}
+                    textColor="#333"
+                    mode="outlined"
+                    style={styles.inputField}
+                    contentStyle={{
+                      fontFamily: "Poppins-Regular",
+                      marginTop: 8,
+                    }}
+                    label="Name"
+                    onChangeText={onChange}
+                    onBlur={onBlur}
+                    value={value}
+                    error={!!errors.fullName}
+                  />
+                  {errors.fullName && (
+                    <Text
+                      style={styles.error}
+                    >{`${errors.fullName.message}`}</Text>
+                  )}
+                </View>
+              )}
             />
+
+            {/* ID */}
+            <View>
+              <TextInput
+                disabled={!isEditMode}
+                textColor="#333"
+                mode="outlined"
+                style={styles.inputField}
+                contentStyle={{
+                  fontFamily: "Poppins-Regular",
+                  marginTop: 8,
+                }}
+                label="ID"
+                value={getValues().id}
+              />
+            </View>
+
+            {/* Birth */}
+            <Controller
+              control={control}
+              name="birth"
+              render={({ field: { onChange, onBlur, value } }) => (
+                <View>
+                  <TextInput
+                    theme={{
+                      colors: {
+                        primary: "#2B56F0",
+                        onSurfaceVariant: "#777",
+                      },
+                    }}
+                    disabled={!isEditMode}
+                    textColor="#333"
+                    mode="outlined"
+                    style={styles.inputField}
+                    contentStyle={{
+                      fontFamily: "Poppins-Regular",
+                      marginTop: 8,
+                    }}
+                    label="Birth"
+                    onChangeText={onChange}
+                    onBlur={onBlur}
+                    value={value}
+                    error={!!errors.birth}
+                  />
+                  {errors.birth && (
+                    <Text
+                      style={styles.error}
+                    >{`${errors.birth.message}`}</Text>
+                  )}
+                </View>
+              )}
+            />
+
+            {/* Gender */}
+            <Controller
+              control={control}
+              name="gender"
+              render={({ field: { onChange, onBlur, value } }) => (
+                <View>
+                  <Dropdown
+                    mode="outlined"
+                    // label="Gender"
+                    placeholder="Gender"
+                    options={OPTIONS}
+                    value={value}
+                    onSelect={(value) => onChange(value)}
+                    menuUpIcon={
+                      <TextInput.Icon
+                        icon="menu-up"
+                        color="#333"
+                        pointerEvents="none"
+                      />
+                    }
+                    disabled={!isEditMode}
+                    error={!!errors.gender}
+                    menuDownIcon={
+                      <TextInput.Icon
+                        icon="menu-down"
+                        color="#333"
+                        pointerEvents="none"
+                      />
+                    }
+                    menuContentStyle={{
+                      marginTop: 25,
+                    }}
+                    hideMenuHeader={true}
+                    CustomDropdownItem={CustomDropdownItem}
+                    CustomDropdownInput={CustomDropdownInput}
+                  />
+                  {errors.gender && (
+                    <Text
+                      style={styles.error}
+                    >{`${errors.gender.message}`}</Text>
+                  )}
+                </View>
+              )}
+            />
+
+            {/* Email */}
+            <Controller
+              control={control}
+              name="email"
+              render={({ field: { onChange, onBlur, value } }) => (
+                <View>
+                  <TextInput
+                    theme={{
+                      colors: {
+                        primary: "#2B56F0",
+                        onSurfaceVariant: "#777",
+                      },
+                    }}
+                    disabled={!isEditMode}
+                    textColor="#333"
+                    mode="outlined"
+                    style={styles.inputField}
+                    contentStyle={{
+                      fontFamily: "Poppins-Regular",
+                      marginTop: 8,
+                    }}
+                    label="Email"
+                    onChangeText={onChange}
+                    onBlur={onBlur}
+                    value={value}
+                    error={!!errors.email}
+                  />
+                  {errors.email && (
+                    <Text
+                      style={styles.error}
+                    >{`${errors.email.message}`}</Text>
+                  )}
+                </View>
+              )}
+            />
+
+            {/* Permission */}
+            <View style={styles.permissionContainer}>
+              <Text
+                style={{
+                  fontSize: 13,
+                  color: isEditMode ? "#777" : "rgba(28, 27, 31, 0.38)",
+                }}
+              >
+                Status
+              </Text>
+              {loading.updateStatus ? (
+                <ActivityIndicator
+                  animating={true}
+                  size={16}
+                  style={{ marginLeft: 10 }}
+                />
+              ) : (
+                <Switch value={isActive} onValueChange={handleSetPermission} />
+              )}
+            </View>
           </View>
 
-          {/* Birth */}
-          <Controller
-            control={control}
-            name="birth"
-            render={({ field: { onChange, onBlur, value } }) => (
-              <View>
-                <TextInput
-                  theme={{
-                    colors: {
-                      primary: "#2B56F0",
-                      onSurfaceVariant: "#777",
-                    },
-                  }}
-                  disabled={!isEditMode}
-                  textColor="#333"
-                  mode="flat"
-                  style={styles.inputField}
-                  contentStyle={{
-                    fontFamily: "Poppins-Regular",
-                    marginTop: 8,
-                  }}
-                  label="Birth"
-                  onChangeText={onChange}
-                  onBlur={onBlur}
-                  value={value}
-                  error={!!errors.birth}
-                />
-                {errors.birth && (
-                  <Text style={styles.error}>{`${errors.birth.message}`}</Text>
-                )}
-              </View>
-            )}
-          />
-
-          {/* Gender */}
-          <Controller
-            control={control}
-            name="gender"
-            render={({ field: { onChange, onBlur, value } }) => (
-              <View>
-                <Dropdown
-                  mode="flat"
-                  label="Gender"
-                  options={OPTIONS}
-                  value={value}
-                  onSelect={(value) => onChange(value)}
-                  menuUpIcon={
-                    <TextInput.Icon
-                      icon="menu-up"
-                      color="#333"
-                      pointerEvents="none"
-                    />
-                  }
-                  disabled={!isEditMode}
-                  error={!!errors.gender}
-                  menuDownIcon={
-                    <TextInput.Icon
-                      icon="menu-down"
-                      color="#333"
-                      pointerEvents="none"
-                    />
-                  }
-                  menuContentStyle={{
-                    marginTop: 25,
-                  }}
-                  hideMenuHeader={true}
-                  CustomDropdownItem={CustomDropdownItem}
-                  CustomDropdownInput={CustomDropdownInput}
-                />
-                {errors.gender && (
-                  <Text style={styles.error}>{`${errors.gender.message}`}</Text>
-                )}
-              </View>
-            )}
-          />
-
-          {/* Email */}
-          <Controller
-            control={control}
-            name="email"
-            render={({ field: { onChange, onBlur, value } }) => (
-              <View>
-                <TextInput
-                  theme={{
-                    colors: {
-                      primary: "#2B56F0",
-                      onSurfaceVariant: "#777",
-                    },
-                  }}
-                  disabled={!isEditMode}
-                  textColor="#333"
-                  mode="flat"
-                  style={styles.inputField}
-                  contentStyle={{
-                    fontFamily: "Poppins-Regular",
-                    marginTop: 8,
-                  }}
-                  label="Email"
-                  onChangeText={onChange}
-                  onBlur={onBlur}
-                  value={value}
-                  error={!!errors.email}
-                />
-                {errors.email && (
-                  <Text style={styles.error}>{`${errors.email.message}`}</Text>
-                )}
-              </View>
-            )}
-          />
-
-          {/* Permission */}
-          <View style={styles.permissionContainer}>
-            <Text
-              style={{
-                fontSize: 13,
-                color: isEditMode ? "#777" : "rgba(28, 27, 31, 0.38)",
-              }}
+          {/* Action Button */}
+          <View style={styles.actionButtonContainer}>
+            <Button
+              labelStyle={{ fontFamily: "Poppins-Medium" }}
+              mode="contained"
+              style={[styles.actButton, { backgroundColor: "#FF6666" }]}
+              onPress={() => setIsWarnDialog(true)}
             >
-              Permission
-            </Text>
-            <Switch value={isAllowed} onValueChange={handleToggleSwitch} />
+              Delete
+            </Button>
+            <Button
+              labelStyle={{ fontFamily: "Poppins-Medium" }}
+              mode="contained"
+              disabled={!isEditMode}
+              style={[styles.actButton]}
+              onPress={handleSubmit(handleUpdateMem)}
+              loading={loading.updateMem}
+            >
+              Apply
+            </Button>
           </View>
-        </View>
-
-        {/* Action Button */}
-        <View style={styles.actionButtonContainer}>
-          <Button
-            labelStyle={{ fontFamily: "Poppins-Medium" }}
-            mode="contained"
-            style={[styles.actButton, { backgroundColor: "#FF6666" }]}
-            onPress={handleDeleteMem}
-            loading={isPendingDeleteMem}
-            disabled={isPendingDeleteMem}
-          >
-            Delete
-          </Button>
-          <Button
-            labelStyle={{ fontFamily: "Poppins-Medium" }}
-            mode="contained"
-            disabled={!isEditMode}
-            style={[styles.actButton]}
-            onPress={handleSubmit(handleUpdateMem)}
-            loading={isPendingUpdateMem}
-          >
-            Apply
-          </Button>
         </View>
       </ScrollView>
+
+      {/* Alert Dialog */}
+      <WarningDialog
+        title="Confirm delete member?"
+        visible={isWarnDialog}
+        setVisible={setIsWarnDialog}
+        onConfirm={handleDeleteMem}
+      />
+
+      {/* Snackbar */}
+      <Snackbar
+        visible={isAlert}
+        onDismiss={() => setIsAlert(false)}
+        duration={3000}
+        action={{
+          label: "Close",
+          onPress: () => setIsAlert(false),
+        }}
+      >
+        {alertMessage}
+      </Snackbar>
     </View>
   );
 };
@@ -459,11 +541,17 @@ export default UserDetailScreen;
 
 // Styles
 const styles = StyleSheet.create({
-  background: {
+  container: {
     flex: 1,
-    resizeMode: "cover",
-    justifyContent: "flex-start",
+    justifyContent: "space-between",
     alignItems: "center",
+    marginTop: 15,
+    paddingBottom: 30,
+    minHeight: "100%",
+  },
+  scrollView: {
+    marginTop: 80,
+    paddingBottom: 30,
   },
   title: {
     fontFamily: "Poppins-SemiBold",
@@ -473,7 +561,7 @@ const styles = StyleSheet.create({
   formField: {
     justifyContent: "center",
     alignItems: "center",
-    gap: 3,
+    gap: 10,
   },
   inputField: {
     maxHeight: 77,
@@ -492,7 +580,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
     gap: 10,
     paddingLeft: 16,
-    maxHeight: 77,
+    height: 50,
     width: 300,
   },
   actionButtonContainer: {

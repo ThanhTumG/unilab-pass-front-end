@@ -1,6 +1,6 @@
 // Core
 import { ImageBackground, StyleSheet, View } from "react-native";
-import React, { useCallback, useEffect, useState } from "react";
+import React, { useCallback, useState } from "react";
 import { useFocusEffect, useRouter } from "expo-router";
 import {
   ActivityIndicator,
@@ -69,9 +69,9 @@ const SelectLabScreen = (props: Props) => {
         const newLabLst =
           response.data.result?.map((lab) => {
             const obj: LabInfo = {
-              label: lab.lab?.name || "",
-              value: lab.lab?.id || "",
-              location: lab.lab?.location || "",
+              label: lab.name || "",
+              value: lab.id || "",
+              location: lab.location || "",
             };
             return obj;
           }) ?? [];
@@ -115,7 +115,7 @@ const SelectLabScreen = (props: Props) => {
   ) : (
     <ImageBackground
       source={require("../assets/images/background.png")}
-      style={[styles.background, styles.alignCenter]}
+      style={styles.background}
     >
       {/* Title */}
       <Text variant="headlineLarge" style={styles.title}>
@@ -208,7 +208,9 @@ const styles = StyleSheet.create({
   background: {
     flex: 1,
     resizeMode: "cover",
-    paddingBottom: 170,
+    paddingVertical: 150,
+    justifyContent: "flex-start",
+    alignItems: "center",
   },
   title: {
     fontFamily: "Poppins-Bold",

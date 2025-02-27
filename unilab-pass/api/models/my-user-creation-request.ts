@@ -56,5 +56,11 @@ export interface MyUserCreationRequest {
      * @memberof MyUserCreationRequest
      */
     'dob'?: string;
+    /**
+     * 
+     * @type {string}
+     * @memberof MyUserCreationRequest
+     */
+    'gender'?: string;
 }
 

@@ -26,7 +26,6 @@ import {
 import { WarningDialog } from "components/CustomDialog";
 import { LabInformationFormType } from "constants/userInfor.type";
 import { LabInformationFormSchema } from "constants/userInfor.constant";
-import { truncateText } from "lib/utils";
 
 // Types
 type Props = {};
@@ -201,6 +200,7 @@ const ProfileScreen = (props: Props) => {
                   justifyContent: "center",
                 }}
                 onPress={() => setVisible(true)}
+                rippleColor={"#fcfcfc"}
               >
                 <Text
                   variant="bodyMedium"
@@ -213,12 +213,16 @@ const ProfileScreen = (props: Props) => {
             <View>
               <TouchableRipple
                 onPress={() => router.replace("/SelectLabScreen")}
+                rippleColor={"#fcfcfc"}
               >
                 <Text variant="bodyMedium" style={[styles.smallAction]}>
                   Switch Lab
                 </Text>
               </TouchableRipple>
-              <TouchableRipple onPress={() => setIsWarnDialog(true)}>
+              <TouchableRipple
+                rippleColor={"#fcfcfc"}
+                onPress={() => setIsWarnDialog(true)}
+              >
                 <Text
                   variant="bodyMedium"
                   style={[styles.smallAction, { color: "#FF3333" }]}

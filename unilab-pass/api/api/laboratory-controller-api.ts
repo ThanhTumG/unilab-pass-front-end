@@ -24,7 +24,7 @@ import { BASE_PATH, COLLECTION_FORMATS, type RequestArgs, BaseAPI, RequiredError
 // @ts-ignore
 import type { CustomApiResponseLabResponse } from '../models';
 // @ts-ignore
-import type { CustomApiResponseListLabMemberResponse } from '../models';
+import type { CustomApiResponseListLabResponse } from '../models';
 // @ts-ignore
 import type { CustomApiResponseString } from '../models';
 // @ts-ignore
@@ -237,7 +237,7 @@ export const LaboratoryControllerApiFp = function(configuration?: Configuration)
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async getAllLabs(options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<CustomApiResponseListLabMemberResponse>> {
+        async getAllLabs(options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<CustomApiResponseListLabResponse>> {
             const localVarAxiosArgs = await localVarAxiosParamCreator.getAllLabs(options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
             const localVarOperationServerBasePath = operationServerMap['LaboratoryControllerApi.getAllLabs']?.[localVarOperationServerIndex]?.url;
@@ -293,7 +293,7 @@ export const LaboratoryControllerApiFactory = function (configuration?: Configur
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        getAllLabs(options?: RawAxiosRequestConfig): AxiosPromise<CustomApiResponseListLabMemberResponse> {
+        getAllLabs(options?: RawAxiosRequestConfig): AxiosPromise<CustomApiResponseListLabResponse> {
             return localVarFp.getAllLabs(options).then((request) => request(axios, basePath));
         },
         /**

@@ -13,15 +13,6 @@
  */
 
 
-// May contain unused imports in some cases
-// @ts-ignore
-import type { Lab } from './lab';
-// May contain unused imports in some cases
-// @ts-ignore
-import type { MyUserResponse } from './my-user-response';
-// May contain unused imports in some cases
-// @ts-ignore
-import type { Role } from './role';
 
 /**
  * 
@@ -31,35 +22,47 @@ import type { Role } from './role';
 export interface LabMemberResponse {
     /**
      * 
-     * @type {MyUserResponse}
+     * @type {string}
      * @memberof LabMemberResponse
      */
-    'myUserResponse'?: MyUserResponse;
-    /**
-     * 
-     * @type {Role}
-     * @memberof LabMemberResponse
-     */
-    'role'?: Role;
+    'id'?: string;
     /**
      * 
      * @type {string}
      * @memberof LabMemberResponse
      */
-    'memberStatus'?: LabMemberResponseMemberStatusEnum;
+    'firstName'?: string;
     /**
      * 
-     * @type {Lab}
+     * @type {string}
      * @memberof LabMemberResponse
      */
-    'lab'?: Lab;
+    'lastName'?: string;
+    /**
+     * 
+     * @type {string}
+     * @memberof LabMemberResponse
+     */
+    'gender'?: string;
+    /**
+     * 
+     * @type {string}
+     * @memberof LabMemberResponse
+     */
+    'status'?: LabMemberResponseStatusEnum;
+    /**
+     * 
+     * @type {string}
+     * @memberof LabMemberResponse
+     */
+    'lastRecord'?: string;
 }
 
-export const LabMemberResponseMemberStatusEnum = {
+export const LabMemberResponseStatusEnum = {
     ACTIVE: 'ACTIVE',
     BLOCKED: 'BLOCKED'
 } as const;
 
-export type LabMemberResponseMemberStatusEnum = typeof LabMemberResponseMemberStatusEnum[keyof typeof LabMemberResponseMemberStatusEnum];
+export type LabMemberResponseStatusEnum = typeof LabMemberResponseStatusEnum[keyof typeof LabMemberResponseStatusEnum];
 
 

@@ -16,9 +16,11 @@ models/authentication-request.ts
 models/authentication-response.ts
 models/custom-api-response-authentication-response.ts
 models/custom-api-response-introspect-response.ts
+models/custom-api-response-lab-member-info-respond.ts
 models/custom-api-response-lab-member-response.ts
 models/custom-api-response-lab-response.ts
 models/custom-api-response-list-lab-member-response.ts
+models/custom-api-response-list-lab-response.ts
 models/custom-api-response-list-my-user-response.ts
 models/custom-api-response-list-role-response.ts
 models/custom-api-response-my-user-response.ts
@@ -32,12 +34,12 @@ models/introspect-request.ts
 models/introspect-response.ts
 models/lab-creation-request.ts
 models/lab-member-creation-request.ts
+models/lab-member-info-respond.ts
 models/lab-member-key.ts
 models/lab-member-response.ts
 models/lab-member-update-request.ts
 models/lab-response.ts
 models/lab-update-request.ts
-models/lab.ts
 models/logout-request.ts
 models/my-user-creation-request.ts
 models/my-user-response.ts
@@ -45,7 +47,6 @@ models/my-user-update-request.ts
 models/refresh-token-request.ts
 models/role-request.ts
 models/role-response.ts
-models/role.ts
 models/verification-code-request.ts
 models/verification-code-response.ts
 package.json

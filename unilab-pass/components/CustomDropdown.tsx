@@ -59,6 +59,7 @@ const CustomDropdownItem = ({
 // Custom dropdown input
 const CustomDropdownInput = ({
   mode,
+  disabled,
   placeholder,
   selectedLabel,
   rightIcon,
@@ -69,6 +70,7 @@ const CustomDropdownInput = ({
   <TextInput
     mode={mode}
     label={label}
+    disabled={disabled}
     placeholder={placeholder}
     placeholderTextColor="#777"
     value={selectedLabel}
@@ -80,8 +82,8 @@ const CustomDropdownInput = ({
     textColor="#333"
     contentStyle={{ fontFamily: "Poppins-Regular" }}
     right={rightIcon}
-    outlineColor="#fff"
-    outlineStyle={[styles.shadowBox]}
+    // outlineColor="#fff"
+    // outlineStyle={[styles.shadowBox]}
   />
 );
 

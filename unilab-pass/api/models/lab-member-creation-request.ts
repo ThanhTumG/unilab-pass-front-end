@@ -61,6 +61,12 @@ export interface LabMemberCreationRequest {
      * @type {string}
      * @memberof LabMemberCreationRequest
      */
+    'gender'?: string;
+    /**
+     * 
+     * @type {string}
+     * @memberof LabMemberCreationRequest
+     */
     'role': string;
 }
 
