@@ -28,8 +28,6 @@ import type { CustomApiResponseListLabEventRespond } from '../models';
 // @ts-ignore
 import type { CustomApiResponseString } from '../models';
 // @ts-ignore
-import type { LabEventCreationRequest } from '../models';
-// @ts-ignore
 import type { LabEventUpdateRequest } from '../models';
 /**
  * EventControllerApi - axios parameter creator
@@ -40,14 +38,15 @@ export const EventControllerApiAxiosParamCreator = function (configuration?: Con
         /**
          * 
          * @summary Add new event to lab
-         * @param {LabEventCreationRequest} labEventCreationRequest 
+         * @param {string} eventInfo 
+         * @param {File} [guestList] 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        createEvent: async (labEventCreationRequest: LabEventCreationRequest, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
-            // verify required parameter 'labEventCreationRequest' is not null or undefined
-            assertParamExists('createEvent', 'labEventCreationRequest', labEventCreationRequest)
-            const localVarPath = `/event`;
+        createEvent: async (eventInfo: string, guestList?: File, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'eventInfo' is not null or undefined
+            assertParamExists('createEvent', 'eventInfo', eventInfo)
+            const localVarPath = `/event/create`;
             // use dummy base URL string because the URL constructor only accepts absolute URLs.
             const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
             let baseOptions;
@@ -58,19 +57,28 @@ export const EventControllerApiAxiosParamCreator = function (configuration?: Con
             const localVarRequestOptions = { method: 'POST', ...baseOptions, ...options};
             const localVarHeaderParameter = {} as any;
             const localVarQueryParameter = {} as any;
+            const localVarFormParams = new ((configuration && configuration.formDataCtor) || FormData)();
 
             // authentication BearerAuthentication required
             // http bearer authentication required
             await setBearerAuthToObject(localVarHeaderParameter, configuration)
 
 
+            if (eventInfo !== undefined) { 
+                localVarFormParams.append('eventInfo', eventInfo as any);
+            }
     
-            localVarHeaderParameter['Content-Type'] = 'application/json';
-
+            if (guestList !== undefined) { 
+                localVarFormParams.append('guestList', guestList as any);
+            }
+    
+    
+            localVarHeaderParameter['Content-Type'] = 'multipart/form-data';
+    
             setSearchParams(localVarUrlObj, localVarQueryParameter);
             let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
             localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
-            localVarRequestOptions.data = serializeDataIfNeeded(labEventCreationRequest, localVarRequestOptions, configuration)
+            localVarRequestOptions.data = localVarFormParams;
 
             return {
                 url: toPathString(localVarUrlObj),
@@ -244,12 +252,13 @@ export const EventControllerApiFp = function(configuration?: Configuration) {
         /**
          * 
          * @summary Add new event to lab
-         * @param {LabEventCreationRequest} labEventCreationRequest 
+         * @param {string} eventInfo 
+         * @param {File} [guestList] 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async createEvent(labEventCreationRequest: LabEventCreationRequest, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<CustomApiResponseString>> {
-            const localVarAxiosArgs = await localVarAxiosParamCreator.createEvent(labEventCreationRequest, options);
+        async createEvent(eventInfo: string, guestList?: File, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<CustomApiResponseLabEventRespond>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.createEvent(eventInfo, guestList, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
             const localVarOperationServerBasePath = operationServerMap['EventControllerApi.createEvent']?.[localVarOperationServerIndex]?.url;
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
@@ -323,8 +332,8 @@ export const EventControllerApiFactory = function (configuration?: Configuration
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        createEvent(requestParameters: EventControllerApiCreateEventRequest, options?: RawAxiosRequestConfig): AxiosPromise<CustomApiResponseString> {
-            return localVarFp.createEvent(requestParameters.labEventCreationRequest, options).then((request) => request(axios, basePath));
+        createEvent(requestParameters: EventControllerApiCreateEventRequest, options?: RawAxiosRequestConfig): AxiosPromise<CustomApiResponseLabEventRespond> {
+            return localVarFp.createEvent(requestParameters.eventInfo, requestParameters.guestList, options).then((request) => request(axios, basePath));
         },
         /**
          * 
@@ -377,10 +386,17 @@ export const EventControllerApiFactory = function (configuration?: Configuration
 export interface EventControllerApiCreateEventRequest {
     /**
      * 
-     * @type {LabEventCreationRequest}
+     * @type {string}
      * @memberof EventControllerApiCreateEvent
      */
-    readonly labEventCreationRequest: LabEventCreationRequest
+    readonly eventInfo: string
+
+    /**
+     * 
+     * @type {File}
+     * @memberof EventControllerApiCreateEvent
+     */
+    readonly guestList?: File
 }
 
 /**
@@ -455,7 +471,7 @@ export class EventControllerApi extends BaseAPI {
      * @memberof EventControllerApi
      */
     public createEvent(requestParameters: EventControllerApiCreateEventRequest, options?: RawAxiosRequestConfig) {
-        return EventControllerApiFp(this.configuration).createEvent(requestParameters.labEventCreationRequest, options).then((request) => request(this.axios, this.basePath));
+        return EventControllerApiFp(this.configuration).createEvent(requestParameters.eventInfo, requestParameters.guestList, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**

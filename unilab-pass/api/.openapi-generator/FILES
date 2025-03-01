@@ -51,7 +51,6 @@ models/index.ts
 models/introspect-request.ts
 models/introspect-response.ts
 models/lab-creation-request.ts
-models/lab-event-creation-request.ts
 models/lab-event-respond.ts
 models/lab-event-update-request.ts
 models/lab-member-creation-request.ts

@@ -1,12 +1,11 @@
 // Core
-import React, { useRef, useState } from "react";
-import { FlatList, StyleSheet, View, ViewToken } from "react-native";
-import { useRouter } from "expo-router";
 import Animated, {
   useAnimatedScrollHandler,
   useSharedValue,
 } from "react-native-reanimated";
-import AsyncStorage from "@react-native-async-storage/async-storage";
+import React, { useRef, useState } from "react";
+import { FlatList, StyleSheet, View, ViewToken } from "react-native";
+import { useRouter } from "expo-router";
 import { Button } from "react-native-paper";
 
 // App

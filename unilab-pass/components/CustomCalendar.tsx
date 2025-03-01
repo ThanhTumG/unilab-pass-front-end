@@ -10,7 +10,7 @@ import React from "react";
 import { Calendar, DateData } from "react-native-calendars";
 import dayjs from "dayjs";
 import Animated from "react-native-reanimated";
-import { Button, IconButton, Text, TouchableRipple } from "react-native-paper";
+import { IconButton, Text, TouchableRipple } from "react-native-paper";
 
 // App
 import HeaderCalendar from "./ui/HeaderCalendar";

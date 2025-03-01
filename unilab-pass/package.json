@@ -58,7 +58,8 @@
     "react-native-webview": "13.12.5",
     "react-timer-hook": "^3.0.8",
     "zod": "^3.24.1",
-    "zustand": "^5.0.3"
+    "zustand": "^5.0.3",
+    "expo-document-picker": "~13.0.3"
   },
   "devDependencies": {
     "@babel/core": "^7.25.2",

@@ -16,8 +16,13 @@ import {
   CustomDropdownInput,
   CustomDropdownItem,
 } from "components/CustomDropdown";
-import { LabCreationRequest, LaboratoryControllerApi } from "api/index";
+import {
+  EventControllerApi,
+  LabCreationRequest,
+  LaboratoryControllerApi,
+} from "api/index";
 import { useAuthStore, useUserStore } from "stores";
+import useEventStore from "stores/useEventStore";
 
 // Types
 type Props = {};
@@ -38,24 +43,46 @@ const SelectLabScreen = (props: Props) => {
   // Router
   const router = useRouter();
 
+  // Server
+  const laboratoryControllerApi = new LaboratoryControllerApi();
+  const eventControllerApi = new EventControllerApi();
+
   // Store
   const { appToken } = useAuthStore();
   const { setAppUser } = useUserStore();
-
-  // Server
-  const laboratoryControllerApi = new LaboratoryControllerApi();
+  const { setAppIsEvent, setAppEvent } = useEventStore();
 
   // Methods
   // Handle press homepage button
   const handlePressHomePage = async () => {
     if (!labId) return;
     const currentLab = myLabList.find((lab) => lab.value == labId);
-    setAppUser({
-      labId: labId,
-      labName: currentLab?.label,
-      labLocation: currentLab?.location,
-    });
-    router.replace("/(tabs)/HomeScreen");
+    setIsLoading(true);
+    try {
+      const response = await eventControllerApi.getCurrentEvent(
+        { labId: labId },
+        { headers: { Authorization: `Bearer ${appToken}` } }
+      );
+
+      console.log("Success get current event:", response.data.result);
+      const event = response.data.result;
+      if (event?.id) {
+        setAppIsEvent(true);
+        setAppEvent({
+          eventId: event.id,
+          eventName: event.name,
+        });
+      }
+      setAppUser({
+        labId: labId,
+        labName: currentLab?.label,
+        labLocation: currentLab?.location,
+      });
+      router.replace("/(tabs)/HomeScreen");
+    } catch (error: any) {
+      console.error(error.response.data);
+    }
+    setIsLoading(true);
   };
 
   // Handle get all lab

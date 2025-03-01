@@ -26,6 +26,7 @@ import {
 import { WarningDialog } from "components/CustomDialog";
 import { LabInformationFormType } from "constants/userInfor.type";
 import { LabInformationFormSchema } from "constants/userInfor.constant";
+import useEventStore from "stores/useEventStore";
 
 // Types
 type Props = {};
@@ -33,13 +34,15 @@ type Props = {};
 // Component
 const ProfileScreen = (props: Props) => {
   // States
-  const [isLoading, setIsLoading] = useState<boolean>(false);
-  const [isPendingDelete, setIsPendingDelete] = useState<boolean>(false);
+  const [loading, setLoading] = useState({
+    logOut: false,
+    updateLab: false,
+    deleteLab: false,
+  });
   const [isWarnDialog, setIsWarnDialog] = useState<boolean>(false);
   const [visible, setVisible] = useState(false);
   const [isSnackBarVisible, setIsSnackBarVisible] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
-  const [isPendingUpdate, setIsPendingUpdate] = useState<boolean>(false);
 
   // Router
   const router = useRouter();
@@ -48,6 +51,7 @@ const ProfileScreen = (props: Props) => {
   const { setAppIsLoggedIn, setAppToken, appToken } = useAuthStore();
   const { appUserName, appLabName, appLabId, setAppUser, appLabLocation } =
     useUserStore();
+  const { appEventName, appIsEvent } = useEventStore();
 
   // Server
   const authenticationControllerApi = new AuthenticationControllerApi();
@@ -71,8 +75,8 @@ const ProfileScreen = (props: Props) => {
   // Methods
   // Handle delete lab
   const handleDeleteLab = async () => {
-    if (isPendingDelete) return;
-    setIsPendingDelete(true);
+    if (loading.deleteLab) return;
+    setLoading((prev) => ({ ...prev, deleteLab: true }));
     const param = appLabId ?? "";
     await laboratoryControllerApi
       .deleteLab(
@@ -88,13 +92,13 @@ const ProfileScreen = (props: Props) => {
       .catch((error) => {
         console.log(error.response.data);
       });
-    setIsPendingDelete(false);
+    setLoading((prev) => ({ ...prev, deleteLab: false }));
   };
 
   // Handle submit update lab info
   const handleSubmitLabInfoForm = async (data: LabInformationFormType) => {
-    if (isPendingUpdate) return;
-    setIsPendingUpdate(true);
+    if (loading.updateLab) return;
+    setLoading((prev) => ({ ...prev, updateLab: true }));
     const param: LaboratoryControllerApiUpdateLabRequest = {
       labId: appLabId ?? "",
       labUpdateRequest: {
@@ -113,7 +117,7 @@ const ProfileScreen = (props: Props) => {
         setErrorMessage(error.response.data.message);
         setIsSnackBarVisible(true);
       });
-    setIsPendingUpdate(false);
+    setLoading((prev) => ({ ...prev, updateLab: false }));
   };
 
   // Handle cancel modal
@@ -127,10 +131,12 @@ const ProfileScreen = (props: Props) => {
 
   // Handle log out
   const handleLogout = async () => {
+    if (loading.logOut) return;
+    setLoading((prev) => ({ ...prev, logOut: true }));
+
     const param: LogoutRequest = {
       token: appToken as string,
     };
-    setIsLoading(true);
     await authenticationControllerApi
       .logout({ logoutRequest: param })
       .then((response) => {
@@ -140,7 +146,7 @@ const ProfileScreen = (props: Props) => {
         router.replace("/(auth)/LoginScreen");
       })
       .catch((error) => console.error(error));
-    setIsLoading(false);
+    setLoading((prev) => ({ ...prev, logOut: false }));
   };
 
   // Template
@@ -156,7 +162,7 @@ const ProfileScreen = (props: Props) => {
           source={require("../../assets/images/profile-avatar.png")}
         />
 
-        <Text variant="titleLarge" style={styles.adminName} numberOfLines={2}>
+        <Text variant="titleMedium" style={styles.adminName} numberOfLines={2}>
           {appUserName}
         </Text>
       </View>
@@ -258,11 +264,19 @@ const ProfileScreen = (props: Props) => {
           </Text>
           <View style={styles.smallBodyContainer}>
             <Text variant="bodyMedium" style={styles.smallBody}>
-              There is no event now
+              {appIsEvent ? appEventName : "There is no event now"}
             </Text>
-            <TouchableRipple>
-              <Text variant="bodyMedium" style={[styles.smallAction]}>
-                Add event
+
+            {/* Add event button */}
+            <TouchableRipple
+              rippleColor={"#fcfcfc"}
+              onPress={() => router.replace("/(stack)/CreateEventScreen")}
+            >
+              <Text
+                variant="bodyMedium"
+                style={[styles.smallAction, appIsEvent && { color: "#FF3333" }]}
+              >
+                {appIsEvent ? "Remove event" : "Add event"}
               </Text>
             </TouchableRipple>
           </View>
@@ -288,12 +302,12 @@ const ProfileScreen = (props: Props) => {
         {/* Log out */}
         <Button
           mode="contained"
-          disabled={isLoading}
+          disabled={loading.logOut}
           style={{ marginTop: 47 }}
           contentStyle={{ backgroundColor: "#FF3333" }}
           labelStyle={{ fontFamily: "Poppins-Medium" }}
           onPress={handleLogout}
-          loading={isLoading}
+          loading={loading.logOut}
         >
           Log out
         </Button>
@@ -419,7 +433,7 @@ const ProfileScreen = (props: Props) => {
                     style={{ borderRadius: 4 }}
                     contentStyle={styles.buttonContent}
                     onPress={handleSubmit(handleSubmitLabInfoForm)}
-                    loading={isPendingUpdate}
+                    loading={loading.updateLab}
                   >
                     Apply
                   </Button>

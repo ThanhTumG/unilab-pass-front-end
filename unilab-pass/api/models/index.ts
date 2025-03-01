@@ -32,7 +32,6 @@ export * from './event-log-respond';
 export * from './introspect-request';
 export * from './introspect-response';
 export * from './lab-creation-request';
-export * from './lab-event-creation-request';
 export * from './lab-event-respond';
 export * from './lab-event-update-request';
 export * from './lab-member-creation-request';
