@@ -4,15 +4,14 @@ import React from "react";
 import { Card, Text } from "react-native-paper";
 import dayjs from "dayjs";
 
+// App
+import { LogRespond } from "api/index";
+import { getFullName } from "lib/utils";
+
 // Types
 type Props = {
-  item: {
-    name: string;
-    id: string;
-    status: string;
-    time: string;
-    type: "check in" | "check out";
-  };
+  item: LogRespond;
+
   isEven: boolean;
 };
 
@@ -35,13 +34,14 @@ const Record = ({ item, isEven }: Props) => {
       >
         <View style={{ gap: 2 }}>
           <Text variant="bodyMedium" style={styles.name}>
-            {item.name}
+            {getFullName({
+              firstName: item.userFirstName,
+              lastName: item.userLastName,
+            })}
           </Text>
-          <Text variant="bodySmall" style={styles.id}>
-            {item.id}
-          </Text>
+          <Text variant="bodySmall">{item.userId}</Text>
           <Text variant="bodySmall" style={styles.time}>
-            {dayjs(String(item.time), "hh:mm A DD/MM/YYYY").format(
+            {dayjs(String(item.recordTime), "hh:mm A DD/MM/YYYY").format(
               "DD/MM/YY HH:mm"
             )}
           </Text>
@@ -56,22 +56,22 @@ const Record = ({ item, isEven }: Props) => {
             height: 33,
             alignSelf: "center",
             backgroundColor: `${
-              item.status == "success"
+              item.status == "SUCCESS"
                 ? "rgba(204, 255, 204, .75)"
                 : "rgba(255, 230, 230, .75)"
             }`,
-            borderColor: `${item.status == "success" ? "#00CC00" : "#FF0000"}`,
+            borderColor: `${item.status == "SUCCESS" ? "#00CC00" : "#FF0000"}`,
           }}
         >
           <Text
             variant="bodySmall"
             style={{
-              color: `${item.status == "success" ? "#00CC00" : "#FF0000"}`,
+              color: `${item.status == "SUCCESS" ? "#00CC00" : "#FF0000"}`,
               textTransform: "capitalize",
               fontFamily: "Poppins-Regular",
             }}
           >
-            {item.type}
+            {item.recordType}
           </Text>
         </View>
       </Card.Content>

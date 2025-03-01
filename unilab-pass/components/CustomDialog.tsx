@@ -1,6 +1,6 @@
 // Core
 import { StyleSheet } from "react-native";
-import React from "react";
+import React, { useEffect } from "react";
 import { Button, Dialog, Portal, Text } from "react-native-paper";
 
 // Types
@@ -10,6 +10,7 @@ type Props = {
   visible: boolean;
   setVisible: React.Dispatch<React.SetStateAction<boolean>>;
   onConfirm?: () => any;
+  onCloseDialog?: () => any;
 };
 
 // Component
@@ -40,7 +41,39 @@ const WarningDialog = ({
   );
 };
 
-export { WarningDialog };
+const InfoDialog = ({
+  visible,
+  setVisible,
+  title,
+  content,
+  onCloseDialog,
+}: Props) => {
+  useEffect(() => {
+    let timer: NodeJS.Timeout;
+    if (visible) {
+      timer = setTimeout(() => {
+        setVisible(false);
+        onCloseDialog && onCloseDialog();
+      }, 1500);
+    }
+    return () => clearTimeout(timer);
+  }, [visible]);
+
+  // Template
+  return (
+    <Portal>
+      <Dialog visible={visible}>
+        <Dialog.Icon icon="information" />
+        <Dialog.Title style={styles.title}>{title}</Dialog.Title>
+        <Dialog.Content>
+          <Text variant="bodyMedium">{content}</Text>
+        </Dialog.Content>
+      </Dialog>
+    </Portal>
+  );
+};
+
+export { WarningDialog, InfoDialog };
 
 // Styles
 const styles = StyleSheet.create({

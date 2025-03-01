@@ -17,44 +17,38 @@
 /**
  * 
  * @export
- * @interface MyUserUpdateRequest
+ * @interface LabEventUpdateRequest
  */
-export interface MyUserUpdateRequest {
+export interface LabEventUpdateRequest {
     /**
      * 
      * @type {string}
-     * @memberof MyUserUpdateRequest
+     * @memberof LabEventUpdateRequest
      */
-    'password'?: string;
+    'eventId'?: string;
     /**
      * 
      * @type {string}
-     * @memberof MyUserUpdateRequest
+     * @memberof LabEventUpdateRequest
      */
-    'firstName'?: string;
+    'labId'?: string;
     /**
      * 
      * @type {string}
-     * @memberof MyUserUpdateRequest
+     * @memberof LabEventUpdateRequest
      */
-    'lastName'?: string;
+    'name'?: string;
     /**
      * 
      * @type {string}
-     * @memberof MyUserUpdateRequest
+     * @memberof LabEventUpdateRequest
      */
-    'gender'?: string;
+    'startTime'?: string;
     /**
      * 
      * @type {string}
-     * @memberof MyUserUpdateRequest
+     * @memberof LabEventUpdateRequest
      */
-    'dob'?: string;
-    /**
-     * 
-     * @type {Array<string>}
-     * @memberof MyUserUpdateRequest
-     */
-    'roles'?: Array<string>;
+    'endTime'?: string;
 }
 

@@ -34,3 +34,12 @@ export function getFullName({
 export const truncateText = (text: string, maxLength: number) => {
   return text.length > maxLength ? text.substring(0, maxLength) + "..." : text;
 };
+
+// Get value from object
+export const pick = <T, K extends keyof T>(obj: T, keys: K[]): Pick<T, K> =>
+  Object.fromEntries(keys.map((key) => [key, obj[key]])) as Pick<T, K>;
+
+// Check number char
+export function isNumberCharList(str: string): boolean {
+  return /^\d+$/.test(str);
+}

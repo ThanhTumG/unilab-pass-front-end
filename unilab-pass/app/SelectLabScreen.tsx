@@ -160,7 +160,7 @@ const SelectLabScreen = (props: Props) => {
           mode="outlined"
           style={{ borderRadius: 5 }}
           textColor="#333"
-          contentStyle={{ width: 270, height: 50 }}
+          contentStyle={{ width: 300, height: 50 }}
           onPress={handleCreateLab}
           loading={isLoadingCreate}
           disabled={isLoadingCreate}

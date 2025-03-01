@@ -50,10 +50,9 @@ const MemberCard = ({ item, isEven, onPress }: Props) => {
           <Text variant="bodySmall" style={styles.time}>
             {`Last record: ${
               item.lastRecord
-                ? dayjs(
-                    String("2025-01-21T16:02:15"),
-                    "hh:mm A DD/MM/YYYY"
-                  ).format("DD/MM/YY HH:mm")
+                ? dayjs(String(item.lastRecord), "hh:mm A DD/MM/YYYY").format(
+                    "DD/MM/YY HH:mm"
+                  )
                 : "Not found"
             }`}
           </Text>

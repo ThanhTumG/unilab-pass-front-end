@@ -2,11 +2,14 @@
 import { StyleSheet, View } from "react-native";
 import React, { useEffect, useState } from "react";
 import { CameraView, useCameraPermissions } from "expo-camera";
-import { Button, IconButton, Text } from "react-native-paper";
+import { Button, IconButton, Snackbar, Text } from "react-native-paper";
 import { useLocalSearchParams, useRouter } from "expo-router";
 
 // App
 import useBackHandler from "utils/useBackHandler";
+import { useAuthStore, useUserStore } from "stores";
+import { LabMemberControllerApi, MyUserResponse } from "api/index";
+import { isNumberCharList } from "lib/utils";
 
 // Types
 type Props = {};
@@ -15,6 +18,9 @@ type Props = {};
 const ScanScreen = (props: Props) => {
   // Stated
   const [idDetected, setIdDetected] = useState<string>();
+  const [isPendingGetMem, setIsPendingGetMem] = useState<boolean>();
+  const [alertMessage, setAlertMessage] = useState("");
+  const [isAlert, setIsAlert] = useState(false);
 
   // Camera permission
   const [permission, requestPermission] = useCameraPermissions();
@@ -25,10 +31,22 @@ const ScanScreen = (props: Props) => {
   // Record type
   const { recordType } = useLocalSearchParams();
 
+  // Server
+  const labMemberControllerApi = new LabMemberControllerApi();
+
+  // Store
+  const { appToken } = useAuthStore();
+  const { appLabId } = useUserStore();
+
   // Methods
   // Handle get id
   const handleOnDetectId = (id: string) => {
-    setIdDetected(id);
+    if (isNumberCharList(id)) {
+      setIdDetected(id);
+      return;
+    }
+    setAlertMessage("Wrong qr/barcode format");
+    setIsAlert(true);
   };
 
   // Handle back
@@ -40,10 +58,35 @@ const ScanScreen = (props: Props) => {
   // Effects
   useEffect(() => {
     if (!idDetected) return;
-    router.replace({
-      pathname: "/(stack)/RecordScreen",
-      params: { idDetected, recordType },
-    });
+    console.log(idDetected);
+    const handleGetDetailMember = async () => {
+      if (isPendingGetMem) return;
+      setIsPendingGetMem(true);
+      try {
+        const response = await labMemberControllerApi.getLabMemberDetailInfo(
+          {
+            labId: appLabId ?? "",
+            memberId: idDetected,
+          },
+          { headers: { Authorization: `Bearer ${appToken}` } }
+        );
+
+        if (response.data.result?.status === "ACTIVE") {
+          const { firstName, lastName, email, id }: MyUserResponse =
+            response.data.result?.myUserResponse ?? {};
+          router.replace({
+            pathname: "/(stack)/RecordScreen",
+            params: { firstName, lastName, email, id, recordType },
+          });
+        }
+      } catch (error: any) {
+        setAlertMessage(error.response.data.message);
+        setIsAlert(true);
+      }
+      setIsPendingGetMem(false);
+    };
+
+    handleGetDetailMember();
   }, [idDetected]);
 
   if (!permission) {
@@ -56,9 +99,9 @@ const ScanScreen = (props: Props) => {
     return (
       <View style={styles.container}>
         <Text style={styles.message}>
-          We need your permission to show the camera
+          We need your permission to access the camera
         </Text>
-        <Button onPress={requestPermission}>grant permission</Button>
+        <Button onPress={requestPermission}>Grant permission</Button>
       </View>
     );
   }
@@ -68,9 +111,9 @@ const ScanScreen = (props: Props) => {
     <View style={StyleSheet.absoluteFillObject}>
       <CameraView
         style={[StyleSheet.absoluteFillObject]}
-        barcodeScannerSettings={{
-          barcodeTypes: ["qr"],
-        }}
+        // barcodeScannerSettings={{
+        //   barcodeTypes: ["qr"],
+        // }}
         facing={"back"}
         videoStabilizationMode="auto"
         onBarcodeScanned={({ data }) => handleOnDetectId(data)}
@@ -105,6 +148,19 @@ const ScanScreen = (props: Props) => {
           </View>
         </View>
       </CameraView>
+
+      {/* Snackbar */}
+      <Snackbar
+        visible={isAlert}
+        onDismiss={() => setIsAlert(false)}
+        duration={3000}
+        action={{
+          label: "Close",
+          onPress: () => setIsAlert(false),
+        }}
+      >
+        {alertMessage}
+      </Snackbar>
     </View>
   );
 };

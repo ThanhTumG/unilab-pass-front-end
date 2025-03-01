@@ -31,8 +31,11 @@ import { useAuthStore, useUserStore } from "stores";
 import {
   LabMemberControllerApi,
   LabMemberControllerApiAddLabMemberRequest,
+  MyUserControllerApi,
+  MyUserControllerApiUpdateMyUserRequest,
 } from "api/index";
 import { splitFullName } from "lib/utils";
+import { WarningDialog } from "components/CustomDialog";
 
 // Types
 type Props = {};
@@ -46,15 +49,20 @@ const OPTIONS = [
 // Component
 const CreateMemberScreen = (props: Props) => {
   // States
-  const [isPendingCreate, setIsPendingCreate] = useState<boolean>(false);
   const [alertMessage, setAlertMessage] = useState("");
   const [isAlert, setIsAlert] = useState(false);
+  const [isWarnDialog, setIsWarnDialog] = useState<boolean>(false);
+  const [loading, setLoading] = useState({
+    createMem: false,
+    updateMem: false,
+  });
 
   // Router
   const router = useRouter();
 
   // Server
   const labMemberControllerApi = new LabMemberControllerApi();
+  const myUserControllerApi = new MyUserControllerApi();
 
   // Store
   const { appToken } = useAuthStore();
@@ -79,9 +87,9 @@ const CreateMemberScreen = (props: Props) => {
   });
 
   // handle submit form
-  const handleSubmitForm = async (data: DetailUserInformationFormType) => {
-    if (isPendingCreate) return;
-    setIsPendingCreate(true);
+  const handleAddMember = async (data: DetailUserInformationFormType) => {
+    if (loading.createMem) return;
+    setLoading((prev) => ({ ...prev, createMem: true }));
     const { firstName, lastName } = splitFullName(data.fullName);
     const param: LabMemberControllerApiAddLabMemberRequest = {
       request: {
@@ -95,19 +103,60 @@ const CreateMemberScreen = (props: Props) => {
         role: "MEMBER",
       },
     };
-    await labMemberControllerApi
-      .addLabMember(param, { headers: { Authorization: `Bearer ${appToken}` } })
-      .then((response) => {
-        console.log("Successful create member: ", response.data.result);
-        setAlertMessage("Successful create member");
-        setIsAlert(true);
-        reset();
-      })
-      .catch((error) => {
-        setAlertMessage(error.response.data.message);
-        setIsAlert(true);
+    try {
+      const response = await labMemberControllerApi.addLabMember(param, {
+        headers: { Authorization: `Bearer ${appToken}` },
       });
-    setIsPendingCreate(false);
+      console.log("Successful create member: ", response.data.result);
+      setAlertMessage("Successful create member");
+      setIsAlert(true);
+      reset();
+    } catch (error: any) {
+      const errLog = error.response.data;
+      if (errLog.code === 1018) {
+        setLoading((prev) => ({ ...prev, createMem: false }));
+
+        setIsWarnDialog(true);
+        return;
+      }
+
+      console.log(error.response.data);
+      setAlertMessage(error.response.data.message);
+      setIsAlert(true);
+    }
+    setLoading((prev) => ({ ...prev, createMem: false }));
+  };
+
+  // Handle update member info
+  const handleUpdateMem = async (data: DetailUserInformationFormType) => {
+    if (loading.updateMem) return;
+    setLoading((prev) => ({ ...prev, updateMem: true }));
+    try {
+      const { firstName, lastName } = splitFullName(data.fullName);
+      const param: MyUserControllerApiUpdateMyUserRequest = {
+        userId: data.id,
+        myUserUpdateRequest: {
+          firstName: firstName,
+          lastName: lastName,
+          dob: data.birth,
+          gender: data.gender,
+          roles: [],
+        },
+      };
+      const response = await myUserControllerApi.updateMyUser(param, {
+        headers: { Authorization: `Bearer ${appToken}` },
+      });
+
+      await handleAddMember(data);
+
+      setAlertMessage("Successful create member");
+      setIsAlert(true);
+    } catch (error: any) {
+      setAlertMessage(error.response.data.message);
+      setIsAlert(true);
+    }
+    setIsWarnDialog(false);
+    setLoading((prev) => ({ ...prev, createMem: false, updateMem: false }));
   };
 
   // Template
@@ -380,13 +429,22 @@ const CreateMemberScreen = (props: Props) => {
             labelStyle={{ fontFamily: "Poppins-Medium" }}
             mode="contained"
             style={styles.actButton}
-            onPress={handleSubmit(handleSubmitForm)}
-            loading={isPendingCreate}
+            onPress={handleSubmit(handleAddMember)}
+            loading={loading.createMem}
           >
             Create
           </Button>
         </View>
       </ScrollView>
+
+      {/* Alert Dialog */}
+      <WarningDialog
+        title="Member's id and email is existed"
+        content={`There is already a member with this id and email in another lab, do you want to update member info?`}
+        visible={isWarnDialog}
+        setVisible={setIsWarnDialog}
+        onConfirm={handleSubmit(handleUpdateMem)}
+      />
 
       {/* Snackbar */}
       <Snackbar

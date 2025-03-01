@@ -168,7 +168,6 @@ const UserDetailScreen = () => {
       const param: MyUserControllerApiUpdateMyUserRequest = {
         userId: id as string,
         myUserUpdateRequest: {
-          id: id as string,
           firstName: firstName,
           lastName: lastName,
           dob: data.birth,

@@ -1,34 +1,86 @@
 // Core
 import { ScrollView, StyleSheet, View } from "react-native";
-import React from "react";
+import React, { useState } from "react";
 import { useLocalSearchParams, useRouter } from "expo-router";
-import { Button, IconButton, Text, TextInput } from "react-native-paper";
+import {
+  Button,
+  IconButton,
+  Snackbar,
+  Text,
+  TextInput,
+} from "react-native-paper";
 import dayjs from "dayjs";
 
 // App
-import { useUserStore } from "stores";
+import { useAuthStore, useUserStore } from "stores";
 import useBackHandler from "utils/useBackHandler";
+import { getFullName } from "lib/utils";
+import {
+  LogControllerApi,
+  LogControllerApiCreateNewLogRequest,
+} from "api/index";
+import { InfoDialog } from "components/CustomDialog";
 
 // Types
 type Props = {};
 
 // Component
 const RecordScreen = (props: Props) => {
-  const { idDetected, recordType } = useLocalSearchParams();
+  // States
+  const [isPendingPostRecord, setIsPendingPostRecord] =
+    useState<boolean>(false);
+  const [alertMessage, setAlertMessage] = useState("");
+  const [isAlert, setIsAlert] = useState(false);
+  const [isInfoDialog, setIsInfoDialog] = useState<boolean>(false);
+
+  // Params
+  const { firstName, lastName, email, id, recordType } = useLocalSearchParams();
 
   // Today
   const initialDate = dayjs().format("DD MMM YYYY\nHH:mm");
   // Router
   const router = useRouter();
 
-  // Store
-  const { appLabName } = useUserStore();
+  // Server
+  const logControllerApi = new LogControllerApi();
 
+  // Store
+  const { appToken } = useAuthStore();
+  const { appLabName, appLabId } = useUserStore();
+
+  // Methods
   // handle back
   useBackHandler(() => {
     router.replace("/(tabs)/RecordActivityScreen");
     return true;
   });
+
+  // Handle post new record
+  const handleRecord = async () => {
+    if (isPendingPostRecord) return;
+    setIsPendingPostRecord(true);
+    try {
+      const param: LogControllerApiCreateNewLogRequest = {
+        logCreationRequest: {
+          labId: appLabId ?? "",
+          userId: id as string,
+          recordType: recordType === "CHECKIN" ? "CHECKIN" : "CHECKOUT",
+          photoURL: "",
+        },
+      };
+      await logControllerApi.createNewLog(param, {
+        headers: { Authorization: `Bearer ${appToken}` },
+      });
+
+      setAlertMessage("Record activity successfully");
+      setIsInfoDialog(true);
+    } catch (error: any) {
+      // console.log(error.response.data);
+      setAlertMessage(error.response.data.message);
+      setIsAlert(true);
+    }
+    setIsPendingPostRecord(false);
+  };
 
   // Template
   return (
@@ -100,7 +152,10 @@ const RecordScreen = (props: Props) => {
                 fontFamily: "Poppins-Regular",
                 marginTop: 8,
               }}
-              value="Not found"
+              value={getFullName({
+                firstName: firstName as string,
+                lastName: lastName as string,
+              })}
               label="Full Name"
             />
 
@@ -116,7 +171,7 @@ const RecordScreen = (props: Props) => {
               mode="outlined"
               disabled
               style={styles.inputField}
-              value={idDetected as string}
+              value={id as string}
               contentStyle={{
                 fontFamily: "Poppins-Regular",
                 marginTop: 8,
@@ -136,7 +191,7 @@ const RecordScreen = (props: Props) => {
               mode="outlined"
               disabled
               style={styles.inputField}
-              value={"Not found"}
+              value={email as string}
               contentStyle={{
                 fontFamily: "Poppins-Regular",
                 marginTop: 8,
@@ -224,11 +279,34 @@ const RecordScreen = (props: Props) => {
             labelStyle={{ fontFamily: "Poppins-Medium" }}
             mode="contained"
             style={styles.actButton}
+            onPress={handleRecord}
+            loading={isPendingPostRecord}
           >
             Record
           </Button>
         </View>
       </ScrollView>
+
+      {/* Snackbar */}
+      <Snackbar
+        visible={isAlert}
+        onDismiss={() => setIsAlert(false)}
+        duration={3000}
+        action={{
+          label: "Close",
+          onPress: () => setIsAlert(false),
+        }}
+      >
+        {alertMessage}
+      </Snackbar>
+
+      {/* Alert Dialog */}
+      <InfoDialog
+        title={alertMessage}
+        visible={isInfoDialog}
+        setVisible={setIsInfoDialog}
+        onCloseDialog={() => router.replace("/(tabs)/RecordActivityScreen")}
+      />
     </View>
   );
 };
