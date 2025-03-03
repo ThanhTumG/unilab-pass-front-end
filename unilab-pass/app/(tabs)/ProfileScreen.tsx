@@ -1,7 +1,14 @@
 // Core
-import { ImageBackground, Modal, StyleSheet, View } from "react-native";
-import React, { useState } from "react";
-import { useRouter } from "expo-router";
+import {
+  ImageBackground,
+  Modal,
+  RefreshControl,
+  ScrollView,
+  StyleSheet,
+  View,
+} from "react-native";
+import React, { useCallback, useState } from "react";
+import { useFocusEffect, useRouter } from "expo-router";
 import {
   Avatar,
   Button,
@@ -11,6 +18,7 @@ import {
   Text,
   TextInput,
   TouchableRipple,
+  useTheme,
 } from "react-native-paper";
 import { Controller, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -19,6 +27,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useAuthStore, useUserStore } from "stores";
 import {
   AuthenticationControllerApi,
+  EventControllerApi,
   LaboratoryControllerApi,
   LaboratoryControllerApiUpdateLabRequest,
   LogoutRequest,
@@ -38,24 +47,44 @@ const ProfileScreen = (props: Props) => {
     logOut: false,
     updateLab: false,
     deleteLab: false,
+    getEvent: false,
   });
   const [isWarnDialog, setIsWarnDialog] = useState<boolean>(false);
+  const [confirmDelEventDialog, setConfirmDelEventDialog] =
+    useState<boolean>(false);
   const [visible, setVisible] = useState(false);
   const [isSnackBarVisible, setIsSnackBarVisible] = useState(false);
-  const [errorMessage, setErrorMessage] = useState("");
+  const [alertMessage, setAlertMessage] = useState("");
 
   // Router
   const router = useRouter();
 
+  // Theme
+  const theme = useTheme();
+
   // Store
-  const { setAppIsLoggedIn, setAppToken, appToken } = useAuthStore();
-  const { appUserName, appLabName, appLabId, setAppUser, appLabLocation } =
-    useUserStore();
-  const { appEventName, appIsEvent } = useEventStore();
+  const { setAppIsLoggedIn, appToken, removeAppToken } = useAuthStore();
+  const {
+    appUserName,
+    appLabName,
+    appLabId,
+    setAppUser,
+    appLabLocation,
+    removeAppUser,
+  } = useUserStore();
+  const {
+    appEventName,
+    appEventId,
+    appIsEvent,
+    setAppIsEvent,
+    removeAppEvent,
+    setAppEvent,
+  } = useEventStore();
 
   // Server
   const authenticationControllerApi = new AuthenticationControllerApi();
   const laboratoryControllerApi = new LaboratoryControllerApi();
+  const eventControllerApi = new EventControllerApi();
 
   // Forms
   // Lab information form
@@ -86,6 +115,8 @@ const ProfileScreen = (props: Props) => {
       .then((response) => {
         console.log("Successful delete lab: ", response.data.result);
         setAppUser({ labId: undefined, labName: undefined });
+        setAppIsEvent(false);
+        removeAppEvent();
         setIsWarnDialog(false);
         router.replace("/SelectLabScreen");
       })
@@ -93,6 +124,26 @@ const ProfileScreen = (props: Props) => {
         console.log(error.response.data);
       });
     setLoading((prev) => ({ ...prev, deleteLab: false }));
+  };
+
+  // Handle remove event
+  const handleDeleteEvent = async () => {
+    try {
+      const response = await eventControllerApi.deleteEvent(
+        { eventId: appEventId ?? "" },
+        { headers: { Authorization: `Bearer ${appToken}` } }
+      );
+
+      console.log("Successful delete event:", response.data.result);
+      setAppIsEvent(false);
+      removeAppEvent();
+      setIsSnackBarVisible(true);
+      setConfirmDelEventDialog(false);
+      setAlertMessage("Successful delete event");
+    } catch (error: any) {
+      setAlertMessage(error.response.data.message);
+      setIsSnackBarVisible(true);
+    }
   };
 
   // Handle submit update lab info
@@ -112,9 +163,11 @@ const ProfileScreen = (props: Props) => {
         console.log("Successful update lab: ", response.data.result);
         setAppUser({ labName: data.labName, labLocation: data.location });
         setVisible(false);
+        setAlertMessage("Successful update lab");
+        setIsSnackBarVisible(true);
       })
       .catch((error) => {
-        setErrorMessage(error.response.data.message);
+        setAlertMessage(error.response.data.message);
         setIsSnackBarVisible(true);
       });
     setLoading((prev) => ({ ...prev, updateLab: false }));
@@ -142,12 +195,62 @@ const ProfileScreen = (props: Props) => {
       .then((response) => {
         console.log("Log out successfully");
         setAppIsLoggedIn(false);
-        setAppToken({ token: null });
+        setAppIsEvent(false);
+        removeAppUser();
+        removeAppEvent();
+        removeAppToken();
         router.replace("/(auth)/LoginScreen");
       })
       .catch((error) => console.error(error));
     setLoading((prev) => ({ ...prev, logOut: false }));
   };
+
+  // Handle switch lab
+  const handleSwitchLab = () => {
+    setAppIsEvent(false);
+    removeAppEvent();
+    router.replace("/SelectLabScreen");
+  };
+
+  // Handle get current event
+  const handleGetCurrentEv = useCallback(async () => {
+    if (loading.getEvent) return;
+    setLoading((prev) => ({ ...prev, getEvent: true }));
+    try {
+      const { appToken } = useAuthStore.getState();
+      const response = await eventControllerApi.getCurrentEvent(
+        { labId: appLabId ?? "" },
+        { headers: { Authorization: `Bearer ${appToken}` } }
+      );
+
+      console.log("Success get current event:", response.data.result);
+      const event = response.data.result;
+      if (event?.id) {
+        setAppIsEvent(true);
+        setAppEvent({
+          eventId: event.id,
+          eventName: event.name,
+          startTime: event.startTime,
+          endTime: event.endTime,
+        });
+      }
+    } catch (error: any) {
+      console.error(error.response.data);
+    }
+    setLoading((prev) => ({ ...prev, getEvent: false }));
+  }, [appToken]);
+
+  // Handle refresh
+  const onRefresh = useCallback(() => {
+    handleGetCurrentEv();
+  }, [handleGetCurrentEv]);
+
+  // Effects
+  useFocusEffect(
+    useCallback(() => {
+      handleGetCurrentEv();
+    }, [handleGetCurrentEv])
+  );
 
   // Template
   return (
@@ -177,141 +280,216 @@ const ProfileScreen = (props: Props) => {
       />
 
       {/* Content */}
-      <View style={styles.content}>
-        {/* Lab information */}
-        <View style={styles.smallContainer}>
-          <Text variant="titleMedium" style={styles.smallTitle}>
-            Current Lab
-          </Text>
-          <View style={styles.smallBodyContainer}>
-            <View
-              style={{
-                flexDirection: "row",
-                alignItems: "flex-start",
-                gap: 4,
-              }}
-            >
-              <Text
-                variant="bodyMedium"
-                style={[styles.smallBody, { maxWidth: 100 }]}
-                numberOfLines={2}
-              >
-                {appLabName}
-              </Text>
-              <Text variant="bodyMedium" style={styles.smallBody}>
-                -
-              </Text>
-              <TouchableRipple
+
+      <ScrollView
+        refreshControl={
+          <RefreshControl
+            colors={[theme.colors.primary]}
+            tintColor={theme.colors.primary}
+            refreshing={loading.getEvent}
+            onRefresh={onRefresh}
+          />
+        }
+      >
+        <View style={styles.content}>
+          {/* Lab information */}
+          <View style={styles.smallContainer}>
+            <Text variant="titleMedium" style={styles.smallTitle}>
+              Current Lab
+            </Text>
+            <View style={styles.smallBodyContainer}>
+              <View
                 style={{
-                  justifyContent: "center",
+                  flexDirection: "row",
+                  alignItems: "flex-start",
+                  gap: 4,
                 }}
-                onPress={() => setVisible(true)}
-                rippleColor={"#fcfcfc"}
               >
                 <Text
                   variant="bodyMedium"
-                  style={[styles.smallBody, { color: "#1B61B5" }]}
+                  style={[styles.smallBody, { maxWidth: 100 }]}
+                  numberOfLines={2}
                 >
-                  Change info
+                  {appLabName}
                 </Text>
-              </TouchableRipple>
+                <Text variant="bodyMedium" style={styles.smallBody}>
+                  -
+                </Text>
+                <TouchableRipple
+                  style={{
+                    justifyContent: "center",
+                  }}
+                  onPress={() => setVisible(true)}
+                  rippleColor={"#fcfcfc"}
+                >
+                  <Text
+                    variant="bodyMedium"
+                    style={[styles.smallBody, { color: "#1B61B5" }]}
+                  >
+                    Change info
+                  </Text>
+                </TouchableRipple>
+              </View>
+              <View style={{ gap: 4 }}>
+                <TouchableRipple
+                  onPress={handleSwitchLab}
+                  rippleColor={"#fcfcfc"}
+                >
+                  <Text variant="bodyMedium" style={[styles.smallAction]}>
+                    Switch Lab
+                  </Text>
+                </TouchableRipple>
+                <TouchableRipple
+                  rippleColor={"#fcfcfc"}
+                  onPress={() => setIsWarnDialog(true)}
+                >
+                  <Text
+                    variant="bodyMedium"
+                    style={[styles.smallAction, { color: "#FF3333" }]}
+                  >
+                    Delete Lab
+                  </Text>
+                </TouchableRipple>
+              </View>
             </View>
-            <View>
-              <TouchableRipple
-                onPress={() => router.replace("/SelectLabScreen")}
-                rippleColor={"#fcfcfc"}
-              >
+          </View>
+
+          {/* Lab Mode */}
+          <View style={styles.smallContainer}>
+            <Text variant="titleMedium" style={styles.smallTitle}>
+              Mode
+            </Text>
+            <View style={styles.smallBodyContainer}>
+              <Text variant="bodyMedium" style={styles.smallBody}>
+                Manage Lab Mode
+              </Text>
+              <TouchableRipple>
                 <Text variant="bodyMedium" style={[styles.smallAction]}>
-                  Switch Lab
-                </Text>
-              </TouchableRipple>
-              <TouchableRipple
-                rippleColor={"#fcfcfc"}
-                onPress={() => setIsWarnDialog(true)}
-              >
-                <Text
-                  variant="bodyMedium"
-                  style={[styles.smallAction, { color: "#FF3333" }]}
-                >
-                  Delete Lab
+                  Only scan mode
                 </Text>
               </TouchableRipple>
             </View>
           </View>
-        </View>
 
-        {/* Lab Mode */}
-        <View style={styles.smallContainer}>
-          <Text variant="titleMedium" style={styles.smallTitle}>
-            Mode
-          </Text>
-          <View style={styles.smallBodyContainer}>
-            <Text variant="bodyMedium" style={styles.smallBody}>
-              Manage Lab Mode
+          {/* Event */}
+          <View style={styles.smallContainer}>
+            <Text variant="titleMedium" style={styles.smallTitle}>
+              Current Event
             </Text>
-            <TouchableRipple>
-              <Text variant="bodyMedium" style={[styles.smallAction]}>
-                Only scan mode
-              </Text>
-            </TouchableRipple>
-          </View>
-        </View>
-
-        {/* Event */}
-        <View style={styles.smallContainer}>
-          <Text variant="titleMedium" style={styles.smallTitle}>
-            Current Event
-          </Text>
-          <View style={styles.smallBodyContainer}>
-            <Text variant="bodyMedium" style={styles.smallBody}>
-              {appIsEvent ? appEventName : "There is no event now"}
-            </Text>
-
-            {/* Add event button */}
-            <TouchableRipple
-              rippleColor={"#fcfcfc"}
-              onPress={() => router.replace("/(stack)/CreateEventScreen")}
-            >
-              <Text
-                variant="bodyMedium"
-                style={[styles.smallAction, appIsEvent && { color: "#FF3333" }]}
+            <View style={styles.smallBodyContainer}>
+              <View
+                style={{
+                  flexDirection: "row",
+                  alignItems: "flex-start",
+                  gap: 4,
+                }}
               >
-                {appIsEvent ? "Remove event" : "Add event"}
-              </Text>
-            </TouchableRipple>
-          </View>
-        </View>
+                <Text
+                  variant="bodyMedium"
+                  numberOfLines={2}
+                  style={[styles.smallBody, { maxWidth: 100 }]}
+                >
+                  {appIsEvent ? appEventName : "No event now"}
+                </Text>
+                {appIsEvent && (
+                  <>
+                    <Text variant="bodyMedium" style={styles.smallBody}>
+                      -
+                    </Text>
+                    <TouchableRipple
+                      style={{
+                        justifyContent: "center",
+                      }}
+                      onPress={() =>
+                        router.replace("/(stack)/DetailEventScreen")
+                      }
+                      rippleColor={"#fcfcfc"}
+                    >
+                      <Text
+                        variant="bodyMedium"
+                        style={[styles.smallBody, { color: "#1B61B5" }]}
+                      >
+                        Detail info
+                      </Text>
+                    </TouchableRipple>
+                  </>
+                )}
+              </View>
 
-        {/* Security */}
-        <View style={styles.smallContainer}>
-          <Text variant="titleMedium" style={styles.smallTitle}>
-            Security
-          </Text>
-          <View style={styles.smallBodyContainer}>
-            <Text variant="bodyMedium" style={styles.smallBody}>
-              Password
+              {/* Add event button */}
+              <View style={{ gap: 4 }}>
+                <TouchableRipple
+                  rippleColor={"#fcfcfc"}
+                  onPress={() => router.replace("/(stack)/CreateEventScreen")}
+                >
+                  <Text variant="bodyMedium" style={styles.smallAction}>
+                    Add event
+                  </Text>
+                </TouchableRipple>
+
+                {appIsEvent && (
+                  <TouchableRipple
+                    rippleColor={"#fcfcfc"}
+                    onPress={() => setConfirmDelEventDialog(true)}
+                  >
+                    <Text
+                      variant="bodyMedium"
+                      style={[styles.smallAction, { color: "#FF3333" }]}
+                    >
+                      Delete event
+                    </Text>
+                  </TouchableRipple>
+                )}
+              </View>
+            </View>
+          </View>
+
+          {/* Security */}
+          <View style={styles.smallContainer}>
+            <Text variant="titleMedium" style={styles.smallTitle}>
+              Security
             </Text>
-            <TouchableRipple>
-              <Text variant="bodyMedium" style={[styles.smallAction]}>
-                Change password
+            <View style={styles.smallBodyContainer}>
+              <Text variant="bodyMedium" style={styles.smallBody}>
+                Password
               </Text>
-            </TouchableRipple>
+              <TouchableRipple>
+                <Text variant="bodyMedium" style={[styles.smallAction]}>
+                  Change password
+                </Text>
+              </TouchableRipple>
+            </View>
           </View>
-        </View>
 
-        {/* Log out */}
-        <Button
-          mode="contained"
-          disabled={loading.logOut}
-          style={{ marginTop: 47 }}
-          contentStyle={{ backgroundColor: "#FF3333" }}
-          labelStyle={{ fontFamily: "Poppins-Medium" }}
-          onPress={handleLogout}
-          loading={loading.logOut}
+          {/* Log out */}
+          <Button
+            mode="contained"
+            disabled={loading.logOut}
+            style={{ marginTop: 47 }}
+            contentStyle={{ backgroundColor: "#FF3333" }}
+            labelStyle={{ fontFamily: "Poppins-Medium" }}
+            onPress={handleLogout}
+            loading={loading.logOut}
+          >
+            Log out
+          </Button>
+        </View>
+      </ScrollView>
+
+      {/* Snackbar */}
+      <Portal>
+        <Snackbar
+          visible={isSnackBarVisible}
+          onDismiss={() => setIsSnackBarVisible(false)}
+          duration={3000}
+          action={{
+            label: "Close",
+            onPress: () => setIsSnackBarVisible(false),
+          }}
         >
-          Log out
-        </Button>
-      </View>
+          {alertMessage}
+        </Snackbar>
+      </Portal>
 
       {/* Modal */}
       <Portal>
@@ -444,25 +622,20 @@ const ProfileScreen = (props: Props) => {
         </View>
       </Portal>
 
-      {/* Snackbar */}
-      <Snackbar
-        visible={isSnackBarVisible}
-        onDismiss={() => setIsSnackBarVisible(false)}
-        duration={3000}
-        action={{
-          label: "Close",
-          onPress: () => setIsSnackBarVisible(false),
-        }}
-      >
-        {errorMessage}
-      </Snackbar>
-
       {/* Alert Dialog */}
       <WarningDialog
         title="Confirm delete lab?"
         visible={isWarnDialog}
         setVisible={setIsWarnDialog}
         onConfirm={handleDeleteLab}
+      />
+
+      {/* Alert Dialog */}
+      <WarningDialog
+        title="Confirm delete event?"
+        visible={confirmDelEventDialog}
+        setVisible={setConfirmDelEventDialog}
+        onConfirm={handleDeleteEvent}
       />
     </ImageBackground>
   );
@@ -518,6 +691,7 @@ const styles = StyleSheet.create({
     fontFamily: "Poppins-Light",
   },
   smallAction: {
+    textAlign: "right",
     fontFamily: "Poppins-Regular",
     color: "#1B61B5",
   },

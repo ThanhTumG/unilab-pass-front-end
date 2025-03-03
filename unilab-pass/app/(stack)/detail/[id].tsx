@@ -14,8 +14,6 @@ import {
   TextInput,
   useTheme,
 } from "react-native-paper";
-import dayjs from "dayjs";
-import utc from "dayjs/plugin/utc";
 import { Dropdown } from "react-native-paper-dropdown";
 
 // App
@@ -38,9 +36,6 @@ import {
 import { useAuthStore, useUserStore } from "stores";
 import { getFullName, splitFullName } from "lib/utils";
 import { WarningDialog } from "components/CustomDialog";
-
-// UTC time
-dayjs.extend(utc);
 
 // Options
 const OPTIONS = [

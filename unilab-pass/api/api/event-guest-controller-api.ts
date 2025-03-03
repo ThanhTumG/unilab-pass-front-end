@@ -201,6 +201,48 @@ export const EventGuestControllerApiAxiosParamCreator = function (configuration?
         },
         /**
          * 
+         * @summary Get guest ìnfo of event
+         * @param {string} eventId 
+         * @param {string} guestId 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        getListEventGuests1: async (eventId: string, guestId: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'eventId' is not null or undefined
+            assertParamExists('getListEventGuests1', 'eventId', eventId)
+            // verify required parameter 'guestId' is not null or undefined
+            assertParamExists('getListEventGuests1', 'guestId', guestId)
+            const localVarPath = `/event/{eventId}/guests/{guestId}`
+                .replace(`{${"eventId"}}`, encodeURIComponent(String(eventId)))
+                .replace(`{${"guestId"}}`, encodeURIComponent(String(guestId)));
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'GET', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication BearerAuthentication required
+            // http bearer authentication required
+            await setBearerAuthToObject(localVarHeaderParameter, configuration)
+
+
+    
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * 
          * @summary Update guests of event
          * @param {EventGuestUpdateRequest} eventGuestUpdateRequest 
          * @param {*} [options] Override http request option.
@@ -304,6 +346,20 @@ export const EventGuestControllerApiFp = function(configuration?: Configuration)
         },
         /**
          * 
+         * @summary Get guest ìnfo of event
+         * @param {string} eventId 
+         * @param {string} guestId 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async getListEventGuests1(eventId: string, guestId: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<CustomApiResponseEventGuestRespond>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.getListEventGuests1(eventId, guestId, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['EventGuestControllerApi.getListEventGuests1']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * 
          * @summary Update guests of event
          * @param {EventGuestUpdateRequest} eventGuestUpdateRequest 
          * @param {*} [options] Override http request option.
@@ -364,6 +420,16 @@ export const EventGuestControllerApiFactory = function (configuration?: Configur
          */
         getListEventGuests(requestParameters: EventGuestControllerApiGetListEventGuestsRequest, options?: RawAxiosRequestConfig): AxiosPromise<CustomApiResponseListEventGuestRespond> {
             return localVarFp.getListEventGuests(requestParameters.eventId, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * 
+         * @summary Get guest ìnfo of event
+         * @param {EventGuestControllerApiGetListEventGuests1Request} requestParameters Request parameters.
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        getListEventGuests1(requestParameters: EventGuestControllerApiGetListEventGuests1Request, options?: RawAxiosRequestConfig): AxiosPromise<CustomApiResponseEventGuestRespond> {
+            return localVarFp.getListEventGuests1(requestParameters.eventId, requestParameters.guestId, options).then((request) => request(axios, basePath));
         },
         /**
          * 
@@ -442,6 +508,27 @@ export interface EventGuestControllerApiGetListEventGuestsRequest {
 }
 
 /**
+ * Request parameters for getListEventGuests1 operation in EventGuestControllerApi.
+ * @export
+ * @interface EventGuestControllerApiGetListEventGuests1Request
+ */
+export interface EventGuestControllerApiGetListEventGuests1Request {
+    /**
+     * 
+     * @type {string}
+     * @memberof EventGuestControllerApiGetListEventGuests1
+     */
+    readonly eventId: string
+
+    /**
+     * 
+     * @type {string}
+     * @memberof EventGuestControllerApiGetListEventGuests1
+     */
+    readonly guestId: string
+}
+
+/**
  * Request parameters for updateEventGuest operation in EventGuestControllerApi.
  * @export
  * @interface EventGuestControllerApiUpdateEventGuestRequest
@@ -508,6 +595,18 @@ export class EventGuestControllerApi extends BaseAPI {
      */
     public getListEventGuests(requestParameters: EventGuestControllerApiGetListEventGuestsRequest, options?: RawAxiosRequestConfig) {
         return EventGuestControllerApiFp(this.configuration).getListEventGuests(requestParameters.eventId, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * 
+     * @summary Get guest ìnfo of event
+     * @param {EventGuestControllerApiGetListEventGuests1Request} requestParameters Request parameters.
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof EventGuestControllerApi
+     */
+    public getListEventGuests1(requestParameters: EventGuestControllerApiGetListEventGuests1Request, options?: RawAxiosRequestConfig) {
+        return EventGuestControllerApiFp(this.configuration).getListEventGuests1(requestParameters.eventId, requestParameters.guestId, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**

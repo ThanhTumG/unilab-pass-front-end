@@ -8,8 +8,13 @@ import { useLocalSearchParams, useRouter } from "expo-router";
 // App
 import useBackHandler from "utils/useBackHandler";
 import { useAuthStore, useUserStore } from "stores";
-import { LabMemberControllerApi, MyUserResponse } from "api/index";
+import {
+  EventGuestControllerApi,
+  LabMemberControllerApi,
+  MyUserResponse,
+} from "api/index";
 import { isNumberCharList } from "lib/utils";
+import useEventStore from "stores/useEventStore";
 
 // Types
 type Props = {};
@@ -33,10 +38,12 @@ const ScanScreen = (props: Props) => {
 
   // Server
   const labMemberControllerApi = new LabMemberControllerApi();
+  const eventGuestControllerApi = new EventGuestControllerApi();
 
   // Store
   const { appToken } = useAuthStore();
   const { appLabId } = useUserStore();
+  const { appIsEvent, appEventId } = useEventStore();
 
   // Methods
   // Handle get id
@@ -58,7 +65,34 @@ const ScanScreen = (props: Props) => {
   // Effects
   useEffect(() => {
     if (!idDetected) return;
-    console.log(idDetected);
+
+    const handleGetGuest = async () => {
+      if (isPendingGetMem) return;
+      setIsPendingGetMem(true);
+      try {
+        const response = await eventGuestControllerApi.getListEventGuests1(
+          {
+            eventId: appEventId ?? "",
+            guestId: idDetected,
+          },
+          { headers: { Authorization: `Bearer ${appToken}` } }
+        );
+
+        console.log("Successful get guest:", response.data.result);
+        router.replace({
+          pathname: "/(stack)/RecordScreen",
+          params: {
+            id: idDetected,
+            firstName: response.data.result?.guestName,
+            recordType,
+          },
+        });
+      } catch (error: any) {
+        setAlertMessage(error.response.data.message);
+        setIsAlert(true);
+      }
+    };
+
     const handleGetDetailMember = async () => {
       if (isPendingGetMem) return;
       setIsPendingGetMem(true);
@@ -78,6 +112,9 @@ const ScanScreen = (props: Props) => {
             pathname: "/(stack)/RecordScreen",
             params: { firstName, lastName, email, id, recordType },
           });
+        } else {
+          setAlertMessage("This member status is BLOCKED");
+          setIsAlert(true);
         }
       } catch (error: any) {
         setAlertMessage(error.response.data.message);
@@ -86,6 +123,10 @@ const ScanScreen = (props: Props) => {
       setIsPendingGetMem(false);
     };
 
+    if (appIsEvent) {
+      handleGetGuest();
+      return;
+    }
     handleGetDetailMember();
   }, [idDetected]);
 

@@ -1,7 +1,7 @@
 // Core
 import { StyleSheet, View } from "react-native";
 import { BarChart, barDataItem } from "react-native-gifted-charts";
-import React, { useEffect, useState } from "react";
+import React from "react";
 import { Text } from "react-native-paper";
 
 // Types

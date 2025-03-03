@@ -1,3 +1,10 @@
+import dayjs from "dayjs";
+import utc from "dayjs/plugin/utc";
+import timezone from "dayjs/plugin/timezone";
+
+dayjs.extend(utc);
+dayjs.extend(timezone);
+
 // Split full name
 export function splitFullName(fullName: string) {
   const parts = fullName.trim().split(/\s+/);
@@ -43,3 +50,19 @@ export const pick = <T, K extends keyof T>(obj: T, keys: K[]): Pick<T, K> =>
 export function isNumberCharList(str: string): boolean {
   return /^\d+$/.test(str);
 }
+
+// Combine date and hour
+export const combineDate = (
+  date: Date | undefined,
+  hour: string | undefined = ""
+) => {
+  if (!date) return;
+  return dayjs(date)
+    .utc()
+    .tz("Asia/Ho_Chi_Minh")
+    .hour(Number(hour.split(":")[0]))
+    .minute(Number(hour.split(":")[1]))
+    .second(0)
+    .millisecond(0)
+    .format("YYYY-MM-DDTHH:mm:ss");
+};

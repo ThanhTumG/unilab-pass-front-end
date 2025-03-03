@@ -16,10 +16,13 @@ import { useAuthStore, useUserStore } from "stores";
 import useBackHandler from "utils/useBackHandler";
 import { getFullName } from "lib/utils";
 import {
+  EventLogControllerApi,
+  EventLogControllerApiAddEventLogRequest,
   LogControllerApi,
   LogControllerApiCreateNewLogRequest,
 } from "api/index";
 import { InfoDialog } from "components/CustomDialog";
+import useEventStore from "stores/useEventStore";
 
 // Types
 type Props = {};
@@ -36,17 +39,17 @@ const RecordScreen = (props: Props) => {
   // Params
   const { firstName, lastName, email, id, recordType } = useLocalSearchParams();
 
-  // Today
-  const initialDate = dayjs().format("DD MMM YYYY\nHH:mm");
   // Router
   const router = useRouter();
 
   // Server
   const logControllerApi = new LogControllerApi();
+  const eventLogControllerApi = new EventLogControllerApi();
 
   // Store
   const { appToken } = useAuthStore();
   const { appLabName, appLabId } = useUserStore();
+  const { appIsEvent, appEventName, appEventId } = useEventStore();
 
   // Methods
   // handle back
@@ -59,6 +62,34 @@ const RecordScreen = (props: Props) => {
   const handleRecord = async () => {
     if (isPendingPostRecord) return;
     setIsPendingPostRecord(true);
+
+    // If is event, create event record
+    if (appIsEvent) {
+      try {
+        const param: EventLogControllerApiAddEventLogRequest = {
+          request: {
+            eventId: appEventId ?? "",
+            guestId: id as string,
+            recordType: recordType === "CHECKIN" ? "CHECKIN" : "CHECKOUT",
+            photoURL: "",
+          },
+        };
+        console.log("request:", param);
+        const response = await eventLogControllerApi.addEventLog(param, {
+          headers: { Authorization: `Bearer ${appToken}` },
+        });
+        console.log("Successful record event:", response.data.result);
+        setIsInfoDialog(true);
+        setAlertMessage("Record activity successfully");
+      } catch (error: any) {
+        setAlertMessage(error.response.data.message);
+        setIsAlert(true);
+      }
+      setIsPendingPostRecord(false);
+      return;
+    }
+
+    // Normal record
     try {
       const param: LogControllerApiCreateNewLogRequest = {
         logCreationRequest: {
@@ -75,7 +106,6 @@ const RecordScreen = (props: Props) => {
       setAlertMessage("Record activity successfully");
       setIsInfoDialog(true);
     } catch (error: any) {
-      // console.log(error.response.data);
       setAlertMessage(error.response.data.message);
       setIsAlert(true);
     }
@@ -152,10 +182,14 @@ const RecordScreen = (props: Props) => {
                 fontFamily: "Poppins-Regular",
                 marginTop: 8,
               }}
-              value={getFullName({
-                firstName: firstName as string,
-                lastName: lastName as string,
-              })}
+              value={
+                firstName
+                  ? getFullName({
+                      firstName: firstName as string,
+                      lastName: lastName as string,
+                    })
+                  : "Not found"
+              }
               label="Full Name"
             />
 
@@ -191,7 +225,7 @@ const RecordScreen = (props: Props) => {
               mode="outlined"
               disabled
               style={styles.inputField}
-              value={email as string}
+              value={(email as string) ?? "Not found"}
               contentStyle={{
                 fontFamily: "Poppins-Regular",
                 marginTop: 8,
@@ -209,28 +243,8 @@ const RecordScreen = (props: Props) => {
                 alignSelf: "flex-start",
               }}
             >
-              Time & Location
+              Location & Type
             </Text>
-
-            {/* Time */}
-            <TextInput
-              theme={{
-                colors: {
-                  primary: "#2B56F0",
-                  onSurfaceVariant: "#777",
-                },
-              }}
-              textColor="#333"
-              mode="outlined"
-              disabled
-              style={styles.inputField}
-              value={initialDate}
-              contentStyle={{
-                fontFamily: "Poppins-Regular",
-                marginTop: 8,
-              }}
-              label="Time Record"
-            />
 
             {/* Lab */}
             <TextInput
@@ -271,6 +285,27 @@ const RecordScreen = (props: Props) => {
                 textTransform: "capitalize",
               }}
               label="Record Type"
+            />
+
+            {/* Is Event */}
+            <TextInput
+              theme={{
+                colors: {
+                  primary: "#2B56F0",
+                  onSurfaceVariant: "#777",
+                },
+              }}
+              textColor="#333"
+              mode="outlined"
+              disabled
+              style={styles.inputField}
+              value={appIsEvent ? appEventName ?? "None" : "None"}
+              contentStyle={{
+                fontFamily: "Poppins-Regular",
+                marginTop: 8,
+                textTransform: "capitalize",
+              }}
+              label="Event"
             />
           </View>
 
@@ -344,7 +379,7 @@ const styles = StyleSheet.create({
     textAlign: "center",
   },
   actButton: {
-    marginTop: 70,
+    marginTop: 50,
     borderRadius: 5,
     minWidth: 300,
     minHeight: 40,

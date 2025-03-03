@@ -10,6 +10,7 @@ import {
   TextInput,
 } from "react-native-paper";
 import { Dropdown } from "react-native-paper-dropdown";
+import dayjs from "dayjs";
 
 // App
 import {
@@ -31,6 +32,9 @@ type LabInfo = {
   value: string;
   location: string;
 };
+
+// Time
+const now = dayjs();
 
 // Component
 const SelectLabScreen = (props: Props) => {
@@ -71,6 +75,8 @@ const SelectLabScreen = (props: Props) => {
         setAppEvent({
           eventId: event.id,
           eventName: event.name,
+          startTime: event.startTime,
+          endTime: event.endTime,
         });
       }
       setAppUser({
@@ -112,7 +118,7 @@ const SelectLabScreen = (props: Props) => {
   // Handle create lab
   const handleCreateLab = async () => {
     const param: LabCreationRequest = {
-      name: `Lab ${(myLabList?.length as number) + 1}`,
+      name: `Lab created on ${now.format("YYYY/MM/DD HH:mm")}`,
       location: "",
       capacity: 12,
     };

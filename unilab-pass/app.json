@@ -17,7 +17,11 @@
         "backgroundColor": "#ffffff"
       },
       "softwareKeyboardLayoutMode": "pan",
-      "package": "com.thanhtumg.unilabpass"
+      "package": "com.thanhtumg.unilabpass",
+      "permissions": [
+        "android.permission.CAMERA",
+        "android.permission.RECORD_AUDIO"
+      ]
     },
     "web": {
       "bundler": "metro",
@@ -30,8 +34,8 @@
         "expo-splash-screen",
         {
           "backgroundColor": "#ffffff",
-          "image": "./assets/images/splash-icon.png",
-          "imageWidth": 300
+          "image": "./assets/images/unilab-pass-logo.png",
+          "imageWidth": 150
         }
       ],
       [
@@ -51,6 +55,14 @@
     ],
     "experiments": {
       "typedRoutes": true
+    },
+    "extra": {
+      "router": {
+        "origin": false
+      },
+      "eas": {
+        "projectId": "aa34aa9b-7a6b-4d51-b97a-67d98dd70765"
+      }
     }
   }
 }

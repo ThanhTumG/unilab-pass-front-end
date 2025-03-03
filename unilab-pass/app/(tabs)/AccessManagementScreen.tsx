@@ -35,7 +35,7 @@ const ManageAccessScreen = (props: Props) => {
   const { appLabId } = useUserStore();
 
   // Methods
-  // Handle get members
+  // Handle get all log
   const handleGetAllLog = useCallback(async () => {
     const { appToken } = useAuthStore.getState();
 
@@ -110,7 +110,13 @@ const ManageAccessScreen = (props: Props) => {
               tintColor={theme.colors.primary}
             />
           }
-          renderItem={({ item, index }: { item: any; index: any }) => {
+          renderItem={({
+            item,
+            index,
+          }: {
+            item: LogRespond;
+            index: number;
+          }) => {
             return <Record item={item} isEven={index % 2 == 1} />;
           }}
         />

@@ -40,6 +40,8 @@ models/custom-api-response-role-response.ts
 models/custom-api-response-string.ts
 models/custom-api-response-verification-code-response.ts
 models/custom-api-response-void.ts
+models/custom-api-response-weekly-report-response.ts
+models/daily-report-response.ts
 models/error-api-response.ts
 models/event-guest-creation-request.ts
 models/event-guest-key.ts
@@ -47,10 +49,12 @@ models/event-guest-respond.ts
 models/event-guest-update-request.ts
 models/event-log-creation-request.ts
 models/event-log-respond.ts
+models/event-with-guest-creation-request.ts
 models/index.ts
 models/introspect-request.ts
 models/introspect-response.ts
 models/lab-creation-request.ts
+models/lab-event-creation-request.ts
 models/lab-event-respond.ts
 models/lab-event-update-request.ts
 models/lab-member-creation-request.ts
@@ -72,6 +76,7 @@ models/role-request.ts
 models/role-response.ts
 models/verification-code-request.ts
 models/verification-code-response.ts
+models/weekly-report-response.ts
 package.json
 tsconfig.esm.json
 tsconfig.json

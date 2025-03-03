@@ -6,12 +6,10 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { Controller, useForm } from "react-hook-form";
 import {
   Button,
-  Icon,
   IconButton,
   Snackbar,
   Text,
   TextInput,
-  TouchableRipple,
 } from "react-native-paper";
 import { Dropdown } from "react-native-paper-dropdown";
 
@@ -211,6 +209,7 @@ const CreateMemberScreen = (props: Props) => {
             >
               Detail information
             </Text>
+
             {/* Form */}
             {/* Fullname */}
             <Controller

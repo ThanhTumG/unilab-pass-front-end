@@ -20,7 +20,7 @@
     "@expo/vector-icons": "^14.0.2",
     "@hookform/resolvers": "^3.10.0",
     "@react-native-async-storage/async-storage": "^2.1.0",
-    "@react-native-community/masked-view": "^0.1.11",
+    "@react-native-community/datetimepicker": "^8.3.0",
     "@react-navigation/bottom-tabs": "^7.2.0",
     "@react-navigation/native": "^7.0.14",
     "axios": "^1.7.9",
@@ -29,6 +29,8 @@
     "expo-blur": "~14.0.1",
     "expo-camera": "^16.0.14",
     "expo-constants": "~17.0.3",
+    "expo-dev-client": "~5.0.12",
+    "expo-document-picker": "~13.0.3",
     "expo-font": "~13.0.2",
     "expo-haptics": "~14.0.0",
     "expo-linear-gradient": "~14.0.2",
@@ -58,13 +60,11 @@
     "react-native-webview": "13.12.5",
     "react-timer-hook": "^3.0.8",
     "zod": "^3.24.1",
-    "zustand": "^5.0.3",
-    "expo-document-picker": "~13.0.3"
+    "zustand": "^5.0.3"
   },
   "devDependencies": {
     "@babel/core": "^7.25.2",
     "@openapitools/openapi-generator-cli": "^2.16.3",
-    "@types/axios": "^0.14.4",
     "@types/jest": "^29.5.12",
     "@types/react": "~18.3.12",
     "@types/react-test-renderer": "^18.3.0",

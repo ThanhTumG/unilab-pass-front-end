@@ -28,6 +28,8 @@ import type { CustomApiResponseLogDetailRespond } from '../models';
 // @ts-ignore
 import type { CustomApiResponseString } from '../models';
 // @ts-ignore
+import type { CustomApiResponseWeeklyReportResponse } from '../models';
+// @ts-ignore
 import type { LogCreationRequest } from '../models';
 /**
  * LogControllerApi - axios parameter creator
@@ -151,6 +153,44 @@ export const LogControllerApiAxiosParamCreator = function (configuration?: Confi
                 options: localVarRequestOptions,
             };
         },
+        /**
+         * 
+         * @summary Get log\'s weekly report
+         * @param {string} labId 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        getWeeklyReport: async (labId: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'labId' is not null or undefined
+            assertParamExists('getWeeklyReport', 'labId', labId)
+            const localVarPath = `/logs/{labId}/weekly`
+                .replace(`{${"labId"}}`, encodeURIComponent(String(labId)));
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'GET', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication BearerAuthentication required
+            // http bearer authentication required
+            await setBearerAuthToObject(localVarHeaderParameter, configuration)
+
+
+    
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
     }
 };
 
@@ -200,6 +240,19 @@ export const LogControllerApiFp = function(configuration?: Configuration) {
             const localVarOperationServerBasePath = operationServerMap['LogControllerApi.getLogDetail']?.[localVarOperationServerIndex]?.url;
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
         },
+        /**
+         * 
+         * @summary Get log\'s weekly report
+         * @param {string} labId 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async getWeeklyReport(labId: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<CustomApiResponseWeeklyReportResponse>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.getWeeklyReport(labId, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['LogControllerApi.getWeeklyReport']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
     }
 };
 
@@ -239,6 +292,16 @@ export const LogControllerApiFactory = function (configuration?: Configuration, 
          */
         getLogDetail(requestParameters: LogControllerApiGetLogDetailRequest, options?: RawAxiosRequestConfig): AxiosPromise<CustomApiResponseLogDetailRespond> {
             return localVarFp.getLogDetail(requestParameters.logId, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * 
+         * @summary Get log\'s weekly report
+         * @param {LogControllerApiGetWeeklyReportRequest} requestParameters Request parameters.
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        getWeeklyReport(requestParameters: LogControllerApiGetWeeklyReportRequest, options?: RawAxiosRequestConfig): AxiosPromise<CustomApiResponseWeeklyReportResponse> {
+            return localVarFp.getWeeklyReport(requestParameters.labId, options).then((request) => request(axios, basePath));
         },
     };
 };
@@ -286,6 +349,20 @@ export interface LogControllerApiGetLogDetailRequest {
 }
 
 /**
+ * Request parameters for getWeeklyReport operation in LogControllerApi.
+ * @export
+ * @interface LogControllerApiGetWeeklyReportRequest
+ */
+export interface LogControllerApiGetWeeklyReportRequest {
+    /**
+     * 
+     * @type {string}
+     * @memberof LogControllerApiGetWeeklyReport
+     */
+    readonly labId: string
+}
+
+/**
  * LogControllerApi - object-oriented interface
  * @export
  * @class LogControllerApi
@@ -326,6 +403,18 @@ export class LogControllerApi extends BaseAPI {
      */
     public getLogDetail(requestParameters: LogControllerApiGetLogDetailRequest, options?: RawAxiosRequestConfig) {
         return LogControllerApiFp(this.configuration).getLogDetail(requestParameters.logId, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * 
+     * @summary Get log\'s weekly report
+     * @param {LogControllerApiGetWeeklyReportRequest} requestParameters Request parameters.
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof LogControllerApi
+     */
+    public getWeeklyReport(requestParameters: LogControllerApiGetWeeklyReportRequest, options?: RawAxiosRequestConfig) {
+        return LogControllerApiFp(this.configuration).getWeeklyReport(requestParameters.labId, options).then((request) => request(this.axios, this.basePath));
     }
 }
 
