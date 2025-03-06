@@ -2,7 +2,13 @@
 import { StyleSheet, View } from "react-native";
 import React, { useEffect, useState } from "react";
 import { CameraView, useCameraPermissions } from "expo-camera";
-import { Button, IconButton, Snackbar, Text } from "react-native-paper";
+import {
+  ActivityIndicator,
+  Button,
+  IconButton,
+  Snackbar,
+  Text,
+} from "react-native-paper";
 import { useLocalSearchParams, useRouter } from "expo-router";
 
 // App
@@ -80,7 +86,7 @@ const ScanScreen = (props: Props) => {
 
         console.log("Successful get guest:", response.data.result);
         router.replace({
-          pathname: "/(stack)/RecordScreen",
+          pathname: "/(stack)/ScanFaceScreen",
           params: {
             id: idDetected,
             firstName: response.data.result?.guestName,
@@ -109,7 +115,7 @@ const ScanScreen = (props: Props) => {
           const { firstName, lastName, email, id }: MyUserResponse =
             response.data.result?.myUserResponse ?? {};
           router.replace({
-            pathname: "/(stack)/RecordScreen",
+            pathname: "/(stack)/ScanFaceScreen",
             params: { firstName, lastName, email, id, recordType },
           });
         } else {
@@ -132,13 +138,13 @@ const ScanScreen = (props: Props) => {
 
   if (!permission) {
     // Camera permissions are still loading.
-    return <View />;
+    return <ActivityIndicator animating={true} style={{ top: 100 }} />;
   }
 
   if (!permission.granted) {
     // Camera permissions are not granted yet.
     return (
-      <View style={styles.container}>
+      <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
         <Text style={styles.message}>
           We need your permission to access the camera
         </Text>
@@ -152,9 +158,6 @@ const ScanScreen = (props: Props) => {
     <View style={StyleSheet.absoluteFillObject}>
       <CameraView
         style={[StyleSheet.absoluteFillObject]}
-        // barcodeScannerSettings={{
-        //   barcodeTypes: ["qr"],
-        // }}
         facing={"back"}
         videoStabilizationMode="auto"
         onBarcodeScanned={({ data }) => handleOnDetectId(data)}
@@ -229,7 +232,6 @@ const styles = StyleSheet.create({
     color: "#fff",
     textAlign: "center",
   },
-
   message: {
     textAlign: "center",
     paddingBottom: 10,
@@ -237,21 +239,5 @@ const styles = StyleSheet.create({
   camera: {
     flex: 1,
     maxHeight: 400,
-  },
-  buttonContainer: {
-    flex: 1,
-    flexDirection: "row",
-    backgroundColor: "transparent",
-    margin: 64,
-  },
-  button: {
-    flex: 1,
-    alignSelf: "flex-end",
-    alignItems: "center",
-  },
-  text: {
-    fontSize: 24,
-    fontWeight: "bold",
-    color: "white",
   },
 });

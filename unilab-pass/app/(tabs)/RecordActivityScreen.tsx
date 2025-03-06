@@ -16,7 +16,7 @@ const RecordActivityScreen = (props: Props) => {
   // Handle route scan screen
   const handleRouteScanScreen = (isCheckIn: boolean) => {
     router.replace({
-      pathname: "/(stack)/ScanScreen",
+      pathname: "/(stack)/ScanFaceScreen",
       params: { recordType: isCheckIn ? "CHECKIN" : "CHECKOUT" },
     });
   };
