@@ -1,9 +1,10 @@
 // Core
-import { zodResolver } from "@hookform/resolvers/zod";
 import React, { useCallback, useState } from "react";
-import { useFocusEffect, useLocalSearchParams, useRouter } from "expo-router";
 import { Controller, useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { Dropdown } from "react-native-paper-dropdown";
 import { View, StyleSheet, ScrollView, RefreshControl } from "react-native";
+import { useFocusEffect, useLocalSearchParams, useRouter } from "expo-router";
 import {
   ActivityIndicator,
   Button,
@@ -14,10 +15,12 @@ import {
   TextInput,
   useTheme,
 } from "react-native-paper";
-import { Dropdown } from "react-native-paper-dropdown";
 
 // App
 import useBackHandler from "utils/useBackHandler";
+import { useAuthStore, useUserStore } from "stores";
+import { getFullName, splitFullName } from "lib/utils";
+import { WarningDialog } from "components/CustomDialog";
 import { DetailUserInformationFormType } from "constants/userInfor.type";
 import {
   DEFAULT_DETAIL_USER_INFORMATION_FORM_VALUES,
@@ -33,9 +36,6 @@ import {
   MyUserControllerApi,
   MyUserControllerApiUpdateMyUserRequest,
 } from "api/index";
-import { useAuthStore, useUserStore } from "stores";
-import { getFullName, splitFullName } from "lib/utils";
-import { WarningDialog } from "components/CustomDialog";
 
 // Options
 const OPTIONS = [
@@ -111,7 +111,7 @@ const UserDetailScreen = () => {
         { headers: { Authorization: `Bearer ${appToken}` } }
       );
 
-      console.log("Successful get detail info: ", response.data.result);
+      console.log("Successful get detail info");
       const memberInfo = response.data.result?.myUserResponse;
       reset({
         fullName: getFullName({
@@ -145,7 +145,7 @@ const UserDetailScreen = () => {
         headers: { Authorization: `Bearer ${appToken}` },
       });
 
-      console.log("Success delete member: ", response.data.result);
+      console.log("Success delete member");
       router.replace("/(tabs)/AccountManagementScreen");
     } catch (error: any) {
       console.error(error.response.data);
@@ -170,12 +170,11 @@ const UserDetailScreen = () => {
           roles: [],
         },
       };
-      console.log(param);
       const response = await myUserControllerApi.updateMyUser(param, {
         headers: { Authorization: `Bearer ${appToken}` },
       });
 
-      console.log("Successful update member info: ", response.data.result);
+      console.log("Successful update member info");
       setValue("permission", data.permission);
       setIsEditMode(false);
     } catch (error: any) {
@@ -204,7 +203,7 @@ const UserDetailScreen = () => {
         }
       );
 
-      console.log("Successful update status:", response.data);
+      console.log("Successful update status");
       setIsActive(!isActive);
       setLoading((prev) => ({ ...prev, updateStatus: false }));
       setAlertMessage("Successful update status");
@@ -509,7 +508,8 @@ const UserDetailScreen = () => {
 
       {/* Alert Dialog */}
       <WarningDialog
-        title="Confirm delete member?"
+        title="Warning"
+        content="Are you sure you want to delete this member from lab?"
         visible={isWarnDialog}
         setVisible={setIsWarnDialog}
         onConfirm={handleDeleteMem}

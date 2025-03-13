@@ -1,7 +1,7 @@
 // Core
 import React from "react";
-import { StyleSheet, View, Image, Dimensions } from "react-native";
 import { Text } from "react-native-paper";
+import { StyleSheet, View, Image, Dimensions } from "react-native";
 
 // App
 import { ImageSliderType } from "constants/OnboardingData";

@@ -1,10 +1,10 @@
 // Core
-import { StyleSheet, View } from "react-native";
-import React, { useEffect, useMemo, useState } from "react";
-import { Button, IconButton, Text, TouchableRipple } from "react-native-paper";
-import { useLocalSearchParams, useRouter } from "expo-router";
-import { OtpInput } from "react-native-otp-entry";
 import { useTimer } from "react-timer-hook";
+import { StyleSheet, View } from "react-native";
+import { OtpInput } from "react-native-otp-entry";
+import React, { useEffect, useMemo, useState } from "react";
+import { useLocalSearchParams, useRouter } from "expo-router";
+import { Button, IconButton, Text, TouchableRipple } from "react-native-paper";
 
 // App
 import { OTP_EXPIRED_DURATION_MILLISECONDS } from "constants/auth.constant";

@@ -1,6 +1,6 @@
 // Core
-import { StyleSheet, View, Modal } from "react-native";
 import React, { useState } from "react";
+import { StyleSheet, View, Modal } from "react-native";
 import {
   Button,
   Text,
@@ -14,22 +14,31 @@ import {
 import CustomCalendar from "./CustomCalendar";
 
 // Types
-type Props = {};
+type Props = {
+  onSubmit: (markedDates: any) => void;
+};
+type MarkedDatesType = {
+  currentDate: string;
+  markedDates: string[];
+};
 
 // Component
-const FilterAccess = (props: Props) => {
+const FilterAccess = ({ onSubmit }: Props) => {
   // States
   const initialDate = new Date().toISOString().split("T")[0];
   const [visible, setVisible] = React.useState(false);
-  const [markedDates, setMarkedDates] = useState({});
-  const [currentDate, setCurrentDate] = useState<string>(initialDate);
+  const [markedDates, setMarkedDates] = useState<MarkedDatesType>({
+    currentDate: initialDate,
+    markedDates: [],
+  });
   const [viewMode, setViewMode] = useState<"week" | "month">("week");
 
   // Methods
   const showModal = () => setVisible(true);
   const handleSubmit = () => {
-    console.log(markedDates);
+    onSubmit(markedDates);
   };
+
   // Template
   return (
     <>
@@ -49,6 +58,7 @@ const FilterAccess = (props: Props) => {
         <View
           style={[styles.container, { display: visible ? "flex" : "none" }]}
         >
+          {/* <Calendar /> */}
           <Modal
             animationType="slide"
             transparent={true}
@@ -72,8 +82,6 @@ const FilterAccess = (props: Props) => {
                 <CustomCalendar
                   markedDates={markedDates}
                   setMarkedDates={setMarkedDates}
-                  currentDate={currentDate}
-                  setCurrentDate={setCurrentDate}
                   viewMode={viewMode}
                   setViewMode={setViewMode}
                   style={{ marginTop: 33 }}

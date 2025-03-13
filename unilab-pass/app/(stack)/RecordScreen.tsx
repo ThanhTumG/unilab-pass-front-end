@@ -1,6 +1,6 @@
 // Core
-import { ScrollView, StyleSheet, View } from "react-native";
 import React, { useState } from "react";
+import { ScrollView, StyleSheet, View } from "react-native";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import {
   Button,
@@ -9,20 +9,19 @@ import {
   Text,
   TextInput,
 } from "react-native-paper";
-import dayjs from "dayjs";
 
 // App
-import { useAuthStore, useUserStore } from "stores";
-import useBackHandler from "utils/useBackHandler";
 import { getFullName } from "lib/utils";
+import useEventStore from "stores/useEventStore";
+import useBackHandler from "utils/useBackHandler";
+import { useAuthStore, useUserStore } from "stores";
+import { SuccessDialog } from "components/CustomDialog";
 import {
   EventLogControllerApi,
   EventLogControllerApiAddEventLogRequest,
   LogControllerApi,
   LogControllerApiCreateNewLogRequest,
 } from "api/index";
-import { InfoDialog } from "components/CustomDialog";
-import useEventStore from "stores/useEventStore";
 
 // Types
 type Props = {};
@@ -34,7 +33,7 @@ const RecordScreen = (props: Props) => {
     useState<boolean>(false);
   const [alertMessage, setAlertMessage] = useState("");
   const [isAlert, setIsAlert] = useState(false);
-  const [isInfoDialog, setIsInfoDialog] = useState<boolean>(false);
+  const [isSuccessDialog, setIsSuccessDialog] = useState<boolean>(false);
 
   // Params
   const { firstName, lastName, email, id, recordType } = useLocalSearchParams();
@@ -75,11 +74,10 @@ const RecordScreen = (props: Props) => {
           },
         };
         console.log("request:", param);
-        const response = await eventLogControllerApi.addEventLog(param, {
+        await eventLogControllerApi.addEventLog(param, {
           headers: { Authorization: `Bearer ${appToken}` },
         });
-        console.log("Successful record event:", response.data.result);
-        setIsInfoDialog(true);
+        setIsSuccessDialog(true);
         setAlertMessage("Record activity successfully");
       } catch (error: any) {
         setAlertMessage(error.response.data.message);
@@ -102,9 +100,8 @@ const RecordScreen = (props: Props) => {
       await logControllerApi.createNewLog(param, {
         headers: { Authorization: `Bearer ${appToken}` },
       });
-
       setAlertMessage("Record activity successfully");
-      setIsInfoDialog(true);
+      setIsSuccessDialog(true);
     } catch (error: any) {
       setAlertMessage(error.response.data.message);
       setIsAlert(true);
@@ -336,10 +333,11 @@ const RecordScreen = (props: Props) => {
       </Snackbar>
 
       {/* Alert Dialog */}
-      <InfoDialog
-        title={alertMessage}
-        visible={isInfoDialog}
-        setVisible={setIsInfoDialog}
+      <SuccessDialog
+        title={"Success"}
+        content="Member's activity is successfully recorded."
+        visible={isSuccessDialog}
+        setVisible={setIsSuccessDialog}
         onCloseDialog={() => router.replace("/(tabs)/RecordActivityScreen")}
       />
     </View>
@@ -348,6 +346,7 @@ const RecordScreen = (props: Props) => {
 
 export default RecordScreen;
 
+// Styles
 const styles = StyleSheet.create({
   container: {
     flex: 1,

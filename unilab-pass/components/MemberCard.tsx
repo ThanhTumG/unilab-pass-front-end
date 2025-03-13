@@ -1,9 +1,9 @@
 // Core
-import { StyleSheet, View } from "react-native";
 import React from "react";
-import { Card, Text } from "react-native-paper";
 import dayjs from "dayjs";
 import { useRouter } from "expo-router";
+import { StyleSheet, View } from "react-native";
+import { Card, Text } from "react-native-paper";
 
 // Types
 type Props = {
@@ -19,9 +19,6 @@ type Props = {
 
 // Component
 const MemberCard = ({ item, isEven, onPress }: Props) => {
-  // Router
-  const router = useRouter();
-
   // Template
   return (
     <Card

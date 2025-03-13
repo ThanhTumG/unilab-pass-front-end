@@ -1,12 +1,12 @@
 // Core
+import { useRouter } from "expo-router";
+import { Button } from "react-native-paper";
+import React, { useRef, useState } from "react";
+import { FlatList, StyleSheet, View, ViewToken } from "react-native";
 import Animated, {
   useAnimatedScrollHandler,
   useSharedValue,
 } from "react-native-reanimated";
-import React, { useRef, useState } from "react";
-import { FlatList, StyleSheet, View, ViewToken } from "react-native";
-import { useRouter } from "expo-router";
-import { Button } from "react-native-paper";
 
 // App
 import SliderItem from "components/SliderItem";

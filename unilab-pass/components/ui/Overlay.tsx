@@ -1,13 +1,15 @@
+// Core
 import React from "react";
 import { View, StyleSheet, Dimensions } from "react-native";
 
 const { width, height } = Dimensions.get("window");
 const scannerSize = 250;
 
+// Component
 const QRScannerOverlay = () => {
+  // Template
   return (
     <View style={styles.overlay}>
-      {/* Lớp nền tối */}
       <View style={styles.top} />
       <View style={styles.middle}>
         <View style={styles.side} />
@@ -19,6 +21,7 @@ const QRScannerOverlay = () => {
   );
 };
 
+// Styles
 const styles = StyleSheet.create({
   overlay: {
     position: "absolute",

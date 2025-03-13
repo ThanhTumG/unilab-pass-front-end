@@ -1,4 +1,8 @@
 // Core
+import { useFocusEffect } from "expo-router";
+import { Text, useTheme } from "react-native-paper";
+import React, { useCallback, useState } from "react";
+import { barDataItem } from "react-native-gifted-charts";
 import {
   ImageBackground,
   RefreshControl,
@@ -6,15 +10,11 @@ import {
   StyleSheet,
   View,
 } from "react-native";
-import React, { useCallback, useState } from "react";
-import { Text, useTheme } from "react-native-paper";
-import { barDataItem } from "react-native-gifted-charts";
-import { useFocusEffect } from "expo-router";
 
 // App
 import CustomCard from "components/CustomCard";
-import CustomBarChart from "components/CustomBarChart";
 import { useAuthStore, useUserStore } from "stores";
+import CustomBarChart from "components/CustomBarChart";
 import { LogControllerApi, WeeklyReportResponse } from "api/index";
 
 // Types
@@ -61,8 +61,6 @@ const HomeScreen = (props: Props) => {
         },
       ]);
       setWeeklyLog(newLogList);
-
-      console.log("Successful get weekly report:", response.data.result);
     } catch (error: any) {
       console.error(error.response.data);
     } finally {
@@ -89,6 +87,7 @@ const HomeScreen = (props: Props) => {
       style={[styles.background]}
     >
       <ScrollView
+        style={{ alignSelf: "stretch", paddingHorizontal: 10 }}
         refreshControl={
           <RefreshControl
             colors={[theme.colors.primary]}

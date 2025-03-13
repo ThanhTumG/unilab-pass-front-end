@@ -1,9 +1,9 @@
 // Core
-import { Dimensions, ScrollView, StyleSheet } from "react-native";
 import React from "react";
-import { DataTable, Icon, Text, TouchableRipple } from "react-native-paper";
 import dayjs from "dayjs";
 import { useRouter } from "expo-router";
+import { Dimensions, ScrollView, StyleSheet } from "react-native";
+import { DataTable, Icon, Text, TouchableRipple } from "react-native-paper";
 
 // Types
 type Props<T> = {
@@ -84,7 +84,7 @@ const Table = <T,>({ data, columns, mode }: Props<T>) => {
                   : "auto",
               marginHorizontal: 5,
             }}
-            textStyle={styles.tabletitle}
+            textStyle={styles.tableTitle}
           >
             {String(col)}
           </DataTable.Title>
@@ -187,7 +187,7 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
   },
-  tabletitle: {
+  tableTitle: {
     fontSize: 12,
     fontFamily: "Poppins-SemiBold",
     color: "#333",

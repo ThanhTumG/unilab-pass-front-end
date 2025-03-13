@@ -1,16 +1,16 @@
 // Core
-import { FlatList, RefreshControl, StyleSheet, View } from "react-native";
+import dayjs from "dayjs";
 import React, { useCallback, useState } from "react";
 import { useFocusEffect, useRouter } from "expo-router";
+import { FlatList, RefreshControl, StyleSheet, View } from "react-native";
 import { IconButton, Text, TextInput, useTheme } from "react-native-paper";
-import dayjs from "dayjs";
 
 // App
-import useBackHandler from "utils/useBackHandler";
+import { useAuthStore } from "stores";
 import Record from "components/Record";
+import useBackHandler from "utils/useBackHandler";
 import useEventStore from "stores/useEventStore";
 import { EventLogControllerApi, EventLogRespond } from "api/index";
-import { useAuthStore } from "stores";
 
 // Types
 type Props = {};
@@ -52,10 +52,7 @@ const DetailEventScreen = (props: Props) => {
         { eventId: appEventId ?? "" },
         { headers: { Authorization: `Bearer ${appToken}` } }
       );
-      console.log(
-        "Successful get event log:",
-        response.data.result?.map((log) => log)
-      );
+      console.log("Successful get event log");
       setLogList(response.data.result);
     } catch (error: any) {
       console.error(error.response.data);

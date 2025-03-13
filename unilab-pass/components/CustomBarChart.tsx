@@ -1,8 +1,8 @@
 // Core
-import { StyleSheet, View } from "react-native";
-import { BarChart, barDataItem } from "react-native-gifted-charts";
 import React from "react";
 import { Text } from "react-native-paper";
+import { StyleSheet, View } from "react-native";
+import { BarChart, barDataItem } from "react-native-gifted-charts";
 
 // Types
 type Props = {
@@ -11,8 +11,6 @@ type Props = {
 
 // Component
 const CustomBarChart = ({ data }: Props) => {
-  // States
-
   // Template
   return (
     <View style={styles.container}>
@@ -54,7 +52,7 @@ const CustomBarChart = ({ data }: Props) => {
         barWidth={15}
         spacing={8}
         isAnimated
-        animationDuration={300}
+        animationDuration={500}
       />
 
       <View style={styles.legendContainer}>
@@ -77,6 +75,7 @@ const CustomBarChart = ({ data }: Props) => {
 
 export default CustomBarChart;
 
+// Styles
 const styles = StyleSheet.create({
   container: {
     paddingVertical: 20,

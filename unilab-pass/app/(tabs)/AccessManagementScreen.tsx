@@ -1,20 +1,20 @@
 // Core
+import { FlatList } from "react-native";
+import { useFocusEffect } from "expo-router";
+import React, { useCallback, useState } from "react";
+import { Icon, Searchbar, Text, useTheme } from "react-native-paper";
 import {
   ImageBackground,
   RefreshControl,
   StyleSheet,
   View,
 } from "react-native";
-import React, { useCallback, useState } from "react";
-import { Icon, Searchbar, Text, useTheme } from "react-native-paper";
-import { FlatList } from "react-native";
 
 // App
-import FilterAccess from "components/FilterAccess";
 import Record from "components/Record";
+import FilterAccess from "components/FilterAccess";
 import { useAuthStore, useUserStore } from "stores";
 import { LogControllerApi, LogRespond } from "api/index";
-import { useFocusEffect } from "expo-router";
 
 // Types
 type Props = {};
@@ -28,6 +28,7 @@ const ManageAccessScreen = (props: Props) => {
 
   // Theme
   const theme = useTheme();
+
   // Server
   const logControllerApi = new LogControllerApi();
 
@@ -46,10 +47,7 @@ const ManageAccessScreen = (props: Props) => {
         { labId: appLabId ?? "" },
         { headers: { Authorization: `Bearer ${appToken}` } }
       );
-      console.log(
-        "Successful get all log:",
-        response.data.result?.map((log) => log.id)
-      );
+      console.log("Successful get all log");
       setLogList(response.data.result);
     } catch (error: any) {
       console.error(error.response.data);
@@ -57,6 +55,11 @@ const ManageAccessScreen = (props: Props) => {
       setIsPendingGetLog(false);
     }
   }, [appLabId]);
+
+  // Handle filter
+  const handleFilterAccess = (markedDates: any) => {
+    console.log(markedDates);
+  };
 
   // Handle refresh
   const onRefresh = useCallback(() => {
@@ -93,7 +96,7 @@ const ManageAccessScreen = (props: Props) => {
 
       {/* Filter */}
       <View style={{ position: "absolute", top: 35, right: 20 }}>
-        <FilterAccess />
+        <FilterAccess onSubmit={handleFilterAccess} />
       </View>
       {/* </View> */}
 
@@ -127,6 +130,7 @@ const ManageAccessScreen = (props: Props) => {
 
 export default ManageAccessScreen;
 
+// Styles
 const styles = StyleSheet.create({
   alignCenter: {
     justifyContent: "center",

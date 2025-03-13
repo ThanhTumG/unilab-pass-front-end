@@ -1,19 +1,19 @@
 // Core
-import { StyleSheet, View } from "react-native";
 import React, { useState } from "react";
-import { Button, IconButton, Text, TextInput } from "react-native-paper";
 import { useRouter } from "expo-router";
+import { StyleSheet, View } from "react-native";
 import { Controller, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { Button, IconButton, Text, TextInput } from "react-native-paper";
 
 // App
+import { splitFullName } from "lib/utils";
+import { SignupFormType } from "constants/auth.type";
+import { MyUserControllerApi, MyUserCreationRequest } from "api/index";
 import {
   DEFAULT_SIGNUP_FORM_VALUES,
   SignupFormSchema,
 } from "constants/auth.constant";
-import { MyUserControllerApi, MyUserCreationRequest } from "api/index";
-import { splitFullName } from "lib/utils";
-import { SignupFormType } from "constants/auth.type";
 
 // Types
 type Props = {};

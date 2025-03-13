@@ -1,8 +1,8 @@
 // Core
-import { ImageBackground, StyleSheet, View } from "react-native";
 import React from "react";
-import { Button, Text } from "react-native-paper";
 import { useRouter } from "expo-router";
+import { Button, Text } from "react-native-paper";
+import { ImageBackground, StyleSheet, View } from "react-native";
 
 // Types
 type Props = {};
@@ -16,7 +16,7 @@ const RecordActivityScreen = (props: Props) => {
   // Handle route scan screen
   const handleRouteScanScreen = (isCheckIn: boolean) => {
     router.replace({
-      pathname: "/(stack)/ScanFaceScreen",
+      pathname: "/(stack)/ScanQRScreen",
       params: { recordType: isCheckIn ? "CHECKIN" : "CHECKOUT" },
     });
   };

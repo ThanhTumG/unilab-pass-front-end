@@ -1,9 +1,9 @@
 // Core
-import { Dimensions, StyleSheet, View } from "react-native";
 import React from "react";
-import { LinearGradient } from "expo-linear-gradient";
-import { IconSource } from "react-native-paper/lib/typescript/components/Icon";
 import { Icon, Text } from "react-native-paper";
+import { LinearGradient } from "expo-linear-gradient";
+import { Dimensions, StyleSheet, View } from "react-native";
+import { IconSource } from "react-native-paper/lib/typescript/components/Icon";
 
 // App
 import Dot from "./ui/Dot-matrix";

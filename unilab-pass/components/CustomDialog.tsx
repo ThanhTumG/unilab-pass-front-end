@@ -1,7 +1,14 @@
 // Core
-import { StyleSheet } from "react-native";
 import React, { useEffect } from "react";
-import { Button, Dialog, Portal, Text } from "react-native-paper";
+import { StyleSheet, View } from "react-native";
+import {
+  Button,
+  Dialog,
+  Divider,
+  Icon,
+  Portal,
+  Text,
+} from "react-native-paper";
 
 // Types
 type Props = {
@@ -27,21 +34,40 @@ const WarningDialog = ({
   return (
     <Portal>
       <Dialog visible={visible} onDismiss={hideDialog}>
-        <Dialog.Icon icon="alert" />
-        <Dialog.Title style={styles.title}>{title}</Dialog.Title>
-        <Dialog.Content>
-          <Text variant="bodyMedium">{content}</Text>
+        <View style={styles.header}>
+          <Text style={styles.title} variant="titleMedium">
+            {title}
+          </Text>
+          <Icon source={"alert"} size={22} color="#ff7733" />
+        </View>
+        <Divider />
+        <Dialog.Content style={styles.content}>
+          <Text style={styles.contentText} variant="bodyMedium">
+            {content}
+          </Text>
         </Dialog.Content>
         <Dialog.Actions>
-          <Button onPress={hideDialog}>Cancel</Button>
-          <Button onPress={onConfirm}>Ok</Button>
+          <Button
+            contentStyle={styles.btn}
+            onPress={hideDialog}
+            labelStyle={[styles.label, { color: "#333" }]}
+          >
+            Cancel
+          </Button>
+          <Button
+            contentStyle={styles.btn}
+            labelStyle={[styles.label]}
+            onPress={onConfirm}
+          >
+            Ok
+          </Button>
         </Dialog.Actions>
       </Dialog>
     </Portal>
   );
 };
 
-const InfoDialog = ({
+const SuccessDialog = ({
   visible,
   setVisible,
   title,
@@ -63,21 +89,54 @@ const InfoDialog = ({
   return (
     <Portal>
       <Dialog visible={visible}>
-        <Dialog.Icon icon="information" />
-        <Dialog.Title style={styles.title}>{title}</Dialog.Title>
-        <Dialog.Content>
-          <Text variant="bodyMedium">{content}</Text>
-        </Dialog.Content>
+        <View style={styles.header}>
+          <Text style={styles.title} variant="titleMedium">
+            {title}
+          </Text>
+          <Icon source={"check-circle"} size={22} color="#3bb300" />
+        </View>
+        <Divider />
+        {content && (
+          <Dialog.Content style={styles.content}>
+            <Text style={styles.contentText} variant="bodyMedium">
+              {content}
+            </Text>
+          </Dialog.Content>
+        )}
       </Dialog>
     </Portal>
   );
 };
 
-export { WarningDialog, InfoDialog };
+export { WarningDialog, SuccessDialog };
 
 // Styles
 const styles = StyleSheet.create({
   title: {
-    textAlign: "center",
+    textAlign: "left",
+    fontFamily: "Poppins-Medium",
+  },
+  header: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "baseline",
+    gap: 4,
+    paddingHorizontal: 22,
+    paddingBottom: 10,
+  },
+  label: {
+    fontFamily: "Poppins-Regular",
+    fontSize: 14,
+  },
+  btn: {
+    maxWidth: 80,
+    paddingHorizontal: 3,
+  },
+  content: {
+    paddingTop: 15,
+  },
+  contentText: {
+    fontFamily: "Poppins-Regular",
+    color: "#333",
   },
 });

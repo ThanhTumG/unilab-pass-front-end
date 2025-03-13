@@ -1,6 +1,6 @@
 // Core
-import { StyleSheet, View, Dimensions } from "react-native";
 import React from "react";
+import { StyleSheet, View, Dimensions } from "react-native";
 import { Button, Icon, Text } from "react-native-paper";
 
 // Types

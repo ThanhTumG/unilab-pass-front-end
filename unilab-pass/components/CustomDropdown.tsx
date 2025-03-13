@@ -1,6 +1,6 @@
 // Core
-import { StyleSheet, ViewStyle } from "react-native";
 import React, { useMemo } from "react";
+import { StyleSheet, ViewStyle } from "react-native";
 import {
   Divider,
   Headline,

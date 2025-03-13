@@ -1,14 +1,14 @@
 // Core
-import { Dimensions, StyleSheet, View } from "react-native";
-import React, { memo } from "react";
-import { Button, IconButton, Text } from "react-native-paper";
 import dayjs from "dayjs";
+import React, { memo } from "react";
+import { IconButton, Text } from "react-native-paper";
+import { Dimensions, StyleSheet, View } from "react-native";
 
 // Types
 type Props = {
   mode: "week" | "month";
   currentDate: string;
-  setCurrentDate: React.Dispatch<React.SetStateAction<string>>;
+  setCurrentDate: (date: string) => void;
 };
 
 // Screen Dimension

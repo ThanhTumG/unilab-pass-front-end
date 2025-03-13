@@ -55,6 +55,7 @@ const TabBar = ({ state, descriptors, navigation }: BottomTabBarProps) => {
 
 export default TabBar;
 
+// Styles
 const styles = StyleSheet.create({
   alginCenter: {
     justifyContent: "center",

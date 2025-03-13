@@ -1,7 +1,9 @@
 // Core
-import { Image, StyleSheet, View } from "react-native";
 import React, { useState } from "react";
 import { useRouter } from "expo-router";
+import { Image, StyleSheet, View } from "react-native";
+import { useForm, Controller } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
 import {
   Button,
   TextInput,
@@ -9,10 +11,10 @@ import {
   TouchableRipple,
   Snackbar,
 } from "react-native-paper";
-import { useForm, Controller } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
 
 // App
+import { getFullName } from "lib/utils";
+import { useAuthStore, useUserStore } from "stores";
 import { LoginFormType } from "../../constants/auth.type";
 import {
   DEFAULT_LOGIN_FORM_VALUES,
@@ -23,8 +25,6 @@ import {
   AuthenticationRequest,
   MyUserControllerApi,
 } from "api/index";
-import { useAuthStore, useUserStore } from "stores";
-import { getFullName } from "lib/utils";
 
 // Types
 type Props = {};

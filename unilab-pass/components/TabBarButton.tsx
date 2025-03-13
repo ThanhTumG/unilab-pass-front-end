@@ -1,4 +1,6 @@
 // Core
+import React, { useEffect } from "react";
+import { TouchableRipple } from "react-native-paper";
 import {
   GestureResponderEvent,
   StyleProp,
@@ -6,8 +8,6 @@ import {
   View,
   ViewStyle,
 } from "react-native";
-import React, { useEffect } from "react";
-import { TouchableRipple } from "react-native-paper";
 import Animated, {
   interpolate,
   useAnimatedStyle,

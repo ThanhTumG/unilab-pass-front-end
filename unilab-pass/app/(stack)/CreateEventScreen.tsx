@@ -1,12 +1,14 @@
-import {
-  Alert,
-  Keyboard,
-  Pressable,
-  ScrollView,
-  StyleSheet,
-  View,
-} from "react-native";
+// Core
+import dayjs from "dayjs";
+import utc from "dayjs/plugin/utc";
+import { useRouter } from "expo-router";
 import React, { useState } from "react";
+import timezone from "dayjs/plugin/timezone";
+import * as DocumentPicker from "expo-document-picker";
+import { Controller, useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import DateTimePicker from "@react-native-community/datetimepicker";
+import { Pressable, ScrollView, StyleSheet, View } from "react-native";
 import {
   Button,
   Icon,
@@ -16,17 +18,11 @@ import {
   TextInput,
   TouchableRipple,
 } from "react-native-paper";
-import DateTimePicker from "@react-native-community/datetimepicker";
-import { useRouter } from "expo-router";
-import * as DocumentPicker from "expo-document-picker";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { Controller, useForm } from "react-hook-form";
-import dayjs from "dayjs";
-import utc from "dayjs/plugin/utc";
-import timezone from "dayjs/plugin/timezone";
 
 // App
+import { combineDate } from "lib/utils";
 import useBackHandler from "utils/useBackHandler";
+import { useAuthStore, useUserStore } from "stores";
 import { EventFormType } from "constants/event.type";
 import {
   DEFAULT_EVENT_FORM_VALUES,
@@ -38,8 +34,6 @@ import {
   EventGuestCreationRequest,
   LabEventCreationRequest,
 } from "api/index";
-import { useAuthStore, useUserStore } from "stores";
-import { combineDate } from "lib/utils";
 
 dayjs.extend(utc);
 dayjs.extend(timezone);
@@ -134,7 +128,6 @@ const CreateEventScreen = () => {
         startTime: combineDate(timeRange.startDate, timeRange.startHour),
         endTime: combineDate(timeRange.endDate, timeRange.endHour),
       };
-      // console.log(guestList);
       const param: EventControllerApiCreateEventRequest = {
         eventWIthGuestCreationRequest: {
           eventInfo,
@@ -151,7 +144,6 @@ const CreateEventScreen = () => {
       setIsAlert(true);
       setFileName(undefined);
       reset();
-      console.log("Successful create event:", response.data.result);
     } catch (error: any) {
       console.log(error.response.data);
     }
@@ -560,6 +552,7 @@ const CreateEventScreen = () => {
 
 export default CreateEventScreen;
 
+// Styles
 const styles = StyleSheet.create({
   container: {
     flex: 1,

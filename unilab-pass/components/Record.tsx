@@ -1,8 +1,8 @@
 // Core
-import { StyleSheet, View } from "react-native";
 import React from "react";
-import { Card, Text } from "react-native-paper";
 import dayjs from "dayjs";
+import { Card, Text } from "react-native-paper";
+import { StyleSheet, View } from "react-native";
 
 // App
 import { LogRespond } from "api/index";
@@ -81,6 +81,7 @@ const Record = ({ item, isEven }: Props) => {
 
 export default Record;
 
+// Styles
 const styles = StyleSheet.create({
   name: {
     fontFamily: "Poppins-Medium",

@@ -1,5 +1,5 @@
 import { useEffect } from "react";
-import { BackHandler, Alert } from "react-native";
+import { BackHandler } from "react-native";
 
 export default function useBackHandler(callback: () => boolean) {
   useEffect(() => {

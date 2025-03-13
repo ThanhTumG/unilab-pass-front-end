@@ -1,26 +1,30 @@
 // Core
 import { StyleSheet, View } from "react-native";
 import React, { useEffect, useState } from "react";
-import { CameraView, useCameraPermissions } from "expo-camera";
+import { useLocalSearchParams, useRouter } from "expo-router";
 import {
   ActivityIndicator,
-  Button,
   IconButton,
   Snackbar,
   Text,
 } from "react-native-paper";
-import { useLocalSearchParams, useRouter } from "expo-router";
+import {
+  Camera,
+  useCameraDevice,
+  useCameraPermission,
+  useCodeScanner,
+} from "react-native-vision-camera";
 
 // App
+import { isNumberCharList } from "lib/utils";
 import useBackHandler from "utils/useBackHandler";
+import useEventStore from "stores/useEventStore";
 import { useAuthStore, useUserStore } from "stores";
 import {
   EventGuestControllerApi,
   LabMemberControllerApi,
   MyUserResponse,
 } from "api/index";
-import { isNumberCharList } from "lib/utils";
-import useEventStore from "stores/useEventStore";
 
 // Types
 type Props = {};
@@ -29,12 +33,12 @@ type Props = {};
 const ScanScreen = (props: Props) => {
   // Stated
   const [idDetected, setIdDetected] = useState<string>();
-  const [isPendingGetMem, setIsPendingGetMem] = useState<boolean>();
+  const [isPendingGetMem, setIsPendingGetMem] = useState<boolean>(false);
   const [alertMessage, setAlertMessage] = useState("");
-  const [isAlert, setIsAlert] = useState(false);
+  const [isAlert, setIsAlert] = useState<boolean>(false);
 
   // Camera permission
-  const [permission, requestPermission] = useCameraPermissions();
+  const { hasPermission, requestPermission } = useCameraPermission();
 
   // Router
   const router = useRouter();
@@ -51,9 +55,21 @@ const ScanScreen = (props: Props) => {
   const { appLabId } = useUserStore();
   const { appIsEvent, appEventId } = useEventStore();
 
+  // Code scanner
+  const codeScanner = useCodeScanner({
+    codeTypes: ["qr", "code-128"],
+    onCodeScanned: (codes) => {
+      handleOnDetectId(codes[0].value);
+    },
+  });
+
+  // Device mode
+  const device = useCameraDevice("back");
+
   // Methods
   // Handle get id
-  const handleOnDetectId = (id: string) => {
+  const handleOnDetectId = (id: string | undefined) => {
+    if (!id) return;
     if (isNumberCharList(id)) {
       setIdDetected(id);
       return;
@@ -86,7 +102,7 @@ const ScanScreen = (props: Props) => {
 
         console.log("Successful get guest:", response.data.result);
         router.replace({
-          pathname: "/(stack)/ScanFaceScreen",
+          pathname: "/(stack)/RecordScreen",
           params: {
             id: idDetected,
             firstName: response.data.result?.guestName,
@@ -112,10 +128,11 @@ const ScanScreen = (props: Props) => {
         );
 
         if (response.data.result?.status === "ACTIVE") {
+          console.log("User is in lab");
           const { firstName, lastName, email, id }: MyUserResponse =
             response.data.result?.myUserResponse ?? {};
           router.replace({
-            pathname: "/(stack)/ScanFaceScreen",
+            pathname: "/(stack)/RecordScreen",
             params: { firstName, lastName, email, id, recordType },
           });
         } else {
@@ -136,19 +153,25 @@ const ScanScreen = (props: Props) => {
     handleGetDetailMember();
   }, [idDetected]);
 
-  if (!permission) {
-    // Camera permissions are still loading.
-    return <ActivityIndicator animating={true} style={{ top: 100 }} />;
-  }
+  // Effects
+  // Request Permission on Mount
+  useEffect(() => {
+    if (!hasPermission) {
+      requestPermission().then((granted) => {
+        if (!granted) {
+          setAlertMessage("Camera permission denied");
+          setIsAlert(true);
+        }
+      });
+    }
+  }, [hasPermission, requestPermission]);
 
-  if (!permission.granted) {
-    // Camera permissions are not granted yet.
+  // If no permission
+  if (!hasPermission) {
     return (
-      <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
-        <Text style={styles.message}>
-          We need your permission to access the camera
-        </Text>
-        <Button onPress={requestPermission}>Grant permission</Button>
+      <View style={styles.center}>
+        <Text>Requesting camera permission...</Text>
+        <ActivityIndicator size="large" />
       </View>
     );
   }
@@ -156,42 +179,49 @@ const ScanScreen = (props: Props) => {
   // Template
   return (
     <View style={StyleSheet.absoluteFillObject}>
-      <CameraView
-        style={[StyleSheet.absoluteFillObject]}
-        facing={"back"}
-        videoStabilizationMode="auto"
-        onBarcodeScanned={({ data }) => handleOnDetectId(data)}
-      >
-        {/* Header */}
-        <View
-          style={{
-            position: "absolute",
-            zIndex: 10,
-            top: 0,
-            flexDirection: "row",
-            alignItems: "center",
-            width: "100%",
-            paddingVertical: 20,
-          }}
-        >
-          {/* Go back button */}
-          <IconButton
-            icon={"close"}
-            size={20}
-            iconColor="#fff"
-            style={styles.backBtn}
-            onPress={() => router.replace("/(tabs)/RecordActivityScreen")}
+      {device && (
+        <>
+          <Camera
+            style={StyleSheet.absoluteFill}
+            isActive
+            device={device}
+            codeScanner={codeScanner}
           />
-          {/* Title */}
+          {/* Header */}
           <View
-            style={{ flex: 1, justifyContent: "center", alignItems: "center" }}
+            style={{
+              position: "absolute",
+              zIndex: 10,
+              top: 0,
+              flexDirection: "row",
+              alignItems: "center",
+              width: "100%",
+              paddingVertical: 20,
+            }}
           >
-            <Text variant="titleMedium" style={styles.title}>
-              Scan QR/Barcode
-            </Text>
+            {/* Go back button */}
+            <IconButton
+              icon={"close"}
+              size={20}
+              iconColor="#fff"
+              style={styles.backBtn}
+              onPress={() => router.replace("/(tabs)/RecordActivityScreen")}
+            />
+            {/* Title */}
+            <View
+              style={{
+                flex: 1,
+                justifyContent: "center",
+                alignItems: "center",
+              }}
+            >
+              <Text variant="titleMedium" style={styles.title}>
+                Scan QR/Barcode
+              </Text>
+            </View>
           </View>
-        </View>
-      </CameraView>
+        </>
+      )}
 
       {/* Snackbar */}
       <Snackbar
@@ -211,11 +241,17 @@ const ScanScreen = (props: Props) => {
 
 export default ScanScreen;
 
+// Styles
 const styles = StyleSheet.create({
   container: {
     flex: 1,
     alignSelf: "stretch",
     justifyContent: "flex-start",
+  },
+  center: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
   },
   backBtn: {
     position: "absolute",

@@ -1,7 +1,9 @@
 // Core
-import { ImageBackground, StyleSheet, View } from "react-native";
+import dayjs from "dayjs";
 import React, { useCallback, useState } from "react";
+import { Dropdown } from "react-native-paper-dropdown";
 import { useFocusEffect, useRouter } from "expo-router";
+import { ImageBackground, StyleSheet, View } from "react-native";
 import {
   ActivityIndicator,
   Button,
@@ -9,10 +11,10 @@ import {
   Text,
   TextInput,
 } from "react-native-paper";
-import { Dropdown } from "react-native-paper-dropdown";
-import dayjs from "dayjs";
 
 // App
+import useEventStore from "stores/useEventStore";
+import { useAuthStore, useUserStore } from "stores";
 import {
   CustomDropdownInput,
   CustomDropdownItem,
@@ -22,8 +24,6 @@ import {
   LabCreationRequest,
   LaboratoryControllerApi,
 } from "api/index";
-import { useAuthStore, useUserStore } from "stores";
-import useEventStore from "stores/useEventStore";
 
 // Types
 type Props = {};
@@ -108,17 +108,17 @@ const SelectLabScreen = (props: Props) => {
             };
             return obj;
           }) ?? [];
-        console.log("Successful get lab list: ", newLabLst);
+        console.log("Successful get lab list");
         setMyLabList(newLabLst);
       })
-      .catch((error) => console.log("Error get lab: ", error.response.data));
+      .catch((error) => console.error("Error get lab: ", error.response.data));
     setIsLoading(false);
   };
 
   // Handle create lab
   const handleCreateLab = async () => {
     const param: LabCreationRequest = {
-      name: `Lab created on ${now.format("YYYY/MM/DD HH:mm")}`,
+      name: `Lab ${now.format("YYYY/MM/DD HH:mm")}`,
       location: "",
       capacity: 12,
     };
@@ -127,11 +127,11 @@ const SelectLabScreen = (props: Props) => {
     await laboratoryControllerApi
       .createLab({ labCreationRequest: param }, options)
       .then((response) => {
-        console.log("Successful create new lab: ", response.data.result);
+        console.log("Successful create new lab");
         const { appToken: latestToken } = useAuthStore.getState();
         handleGetAllLab(latestToken ?? "");
       })
-      .catch((error) => console.log(error.response.data));
+      .catch((error) => console.error(error.response.data));
     setIsLoadingCreate(false);
   };
 

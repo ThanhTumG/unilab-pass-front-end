@@ -1,8 +1,8 @@
 // Core
-import { StyleSheet, View } from "react-native";
-import React, { useEffect, useRef, useState } from "react";
 import { useRouter } from "expo-router";
-import useBackHandler from "utils/useBackHandler";
+import { StyleSheet, View } from "react-native";
+import { Worklets } from "react-native-worklets-core";
+import React, { useEffect, useRef, useState } from "react";
 import { ActivityIndicator, Snackbar, Text } from "react-native-paper";
 import {
   Camera,
@@ -15,8 +15,10 @@ import {
   useFaceDetector,
   FaceDetectionOptions,
 } from "react-native-vision-camera-face-detector";
-import { Worklets } from "react-native-worklets-core";
-import Svg, { Rect } from "react-native-svg";
+
+// App
+import FaceFrame from "components/ui/FaceFrame";
+import useBackHandler from "utils/useBackHandler";
 
 // Types
 type Props = {};
@@ -26,8 +28,9 @@ const ScanFaceScreen = (props: Props) => {
   // Stated
   const [alertMessage, setAlertMessage] = useState("");
   const [isAlert, setIsAlert] = useState(false);
-  const [faces, setFaces] = useState<Face[]>([]);
+  const [faces, setFaces] = useState<Face>();
 
+  // Face detect option config
   const faceDetectionOptions = useRef<FaceDetectionOptions>({
     performanceMode: "fast",
     landmarkMode: "all",
@@ -51,17 +54,21 @@ const ScanFaceScreen = (props: Props) => {
 
   // Handle detect face
   const handleDetectedFaces = Worklets.createRunOnJS((faces: Face[]) => {
-    console.log("faces detected", faces);
-    setFaces(faces);
+    if (faces.length > 0) {
+      const detectFace: Face = faces[0];
+      console.log("faces detected", faces);
+      setFaces(detectFace);
+    } else {
+      setFaces(undefined);
+    }
   });
 
+  // Frame processor
   const frameProcessor = useFrameProcessor(
     (frame) => {
       "worklet";
       const faces = detectFaces(frame);
-      if (faces.length > 0) {
-        handleDetectedFaces(faces);
-      }
+      handleDetectedFaces(faces);
     },
     [handleDetectedFaces]
   );
@@ -100,7 +107,7 @@ const ScanFaceScreen = (props: Props) => {
 
   // Finally
   return (
-    <View style={[StyleSheet.absoluteFillObject]}>
+    <View style={styles.container}>
       {/* Camera */}
       <Camera
         style={[StyleSheet.absoluteFill]}
@@ -111,20 +118,7 @@ const ScanFaceScreen = (props: Props) => {
       />
 
       {/* Draw frame */}
-      <Svg style={StyleSheet.absoluteFill}>
-        {faces.map((face, index) => (
-          <Rect
-            key={index}
-            x={face.bounds.x / 2}
-            y={face.bounds.y}
-            width={face.bounds.width}
-            height={face.bounds.height}
-            stroke="red"
-            strokeWidth="3"
-            fill="transparent"
-          />
-        ))}
-      </Svg>
+      {faces && <FaceFrame face={faces} />}
 
       {/* Snackbar */}
       <Snackbar
@@ -153,8 +147,9 @@ const styles = StyleSheet.create({
   },
   container: {
     flex: 1,
-    alignSelf: "stretch",
-    justifyContent: "flex-start",
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: "#fcfcfc",
   },
   backBtn: {
     position: "absolute",

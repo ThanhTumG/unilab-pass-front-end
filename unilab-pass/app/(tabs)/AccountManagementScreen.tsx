@@ -1,4 +1,6 @@
 // Core
+import React, { useCallback, useState } from "react";
+import { useFocusEffect, useRouter } from "expo-router";
 import {
   FlatList,
   ImageBackground,
@@ -6,7 +8,6 @@ import {
   StyleSheet,
   View,
 } from "react-native";
-import React, { useCallback, useState } from "react";
 import {
   Icon,
   Searchbar,
@@ -15,13 +16,12 @@ import {
   TouchableRipple,
   useTheme,
 } from "react-native-paper";
-import { useFocusEffect, useRouter } from "expo-router";
 
 // App
+import { getFullName } from "lib/utils";
 import MemberCard from "components/MemberCard";
 import { LabMemberControllerApi } from "api/index";
 import { useAuthStore, useUserStore } from "stores";
-import { getFullName } from "lib/utils";
 
 // Types
 type Props = {};
@@ -89,7 +89,7 @@ const ManageAccountScreen = (props: Props) => {
           };
           return Obj;
         }) ?? [];
-      console.log("Successful get members: ", newLabMemberList);
+      console.log("Successful get members");
       setMemberList(newLabMemberList);
     } catch (error: any) {
       console.error(error.response.data);

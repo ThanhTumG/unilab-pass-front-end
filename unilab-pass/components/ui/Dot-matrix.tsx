@@ -1,6 +1,6 @@
 // Core
-import Svg, { G, Path } from "react-native-svg";
 import { ViewStyle } from "react-native";
+import Svg, { G, Path } from "react-native-svg";
 
 // Types
 type Props = {

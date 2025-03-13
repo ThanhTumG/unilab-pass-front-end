@@ -1,9 +1,10 @@
 // Core
-import { ImageBackground, ScrollView, StyleSheet, View } from "react-native";
 import React, { useState } from "react";
 import { useRouter } from "expo-router";
-import { zodResolver } from "@hookform/resolvers/zod";
 import { Controller, useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { Dropdown } from "react-native-paper-dropdown";
+import { ScrollView, StyleSheet, View } from "react-native";
 import {
   Button,
   IconButton,
@@ -11,16 +12,16 @@ import {
   Text,
   TextInput,
 } from "react-native-paper";
-import { Dropdown } from "react-native-paper-dropdown";
 
 // App
+import { splitFullName } from "lib/utils";
 import useBackHandler from "utils/useBackHandler";
+import { WarningDialog } from "components/CustomDialog";
 import { DetailUserInformationFormType } from "constants/userInfor.type";
 import {
   DEFAULT_DETAIL_USER_INFORMATION_FORM_VALUES,
   DetailUserInformationFormSchema,
 } from "constants/userInfor.constant";
-
 import {
   CustomDropdownInput,
   CustomDropdownItem,
@@ -32,8 +33,6 @@ import {
   MyUserControllerApi,
   MyUserControllerApiUpdateMyUserRequest,
 } from "api/index";
-import { splitFullName } from "lib/utils";
-import { WarningDialog } from "components/CustomDialog";
 
 // Types
 type Props = {};
@@ -113,12 +112,9 @@ const CreateMemberScreen = (props: Props) => {
       const errLog = error.response.data;
       if (errLog.code === 1018) {
         setLoading((prev) => ({ ...prev, createMem: false }));
-
         setIsWarnDialog(true);
         return;
       }
-
-      console.log(error.response.data);
       setAlertMessage(error.response.data.message);
       setIsAlert(true);
     }
@@ -141,7 +137,7 @@ const CreateMemberScreen = (props: Props) => {
           roles: [],
         },
       };
-      const response = await myUserControllerApi.updateMyUser(param, {
+      await myUserControllerApi.updateMyUser(param, {
         headers: { Authorization: `Bearer ${appToken}` },
       });
 
@@ -438,7 +434,7 @@ const CreateMemberScreen = (props: Props) => {
 
       {/* Alert Dialog */}
       <WarningDialog
-        title="Member's id and email is existed"
+        title="Warning"
         content={`There is already a member with this id and email in another lab, do you want to update member info?`}
         visible={isWarnDialog}
         setVisible={setIsWarnDialog}

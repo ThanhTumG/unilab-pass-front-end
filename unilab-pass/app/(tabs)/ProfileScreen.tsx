@@ -8,6 +8,8 @@ import {
   View,
 } from "react-native";
 import React, { useCallback, useState } from "react";
+import { Controller, useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
 import { useFocusEffect, useRouter } from "expo-router";
 import {
   Avatar,
@@ -20,11 +22,13 @@ import {
   TouchableRipple,
   useTheme,
 } from "react-native-paper";
-import { Controller, useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
 
 // App
+import useEventStore from "stores/useEventStore";
 import { useAuthStore, useUserStore } from "stores";
+import { WarningDialog } from "components/CustomDialog";
+import { LabInformationFormType } from "constants/userInfor.type";
+import { LabInformationFormSchema } from "constants/userInfor.constant";
 import {
   AuthenticationControllerApi,
   EventControllerApi,
@@ -32,10 +36,6 @@ import {
   LaboratoryControllerApiUpdateLabRequest,
   LogoutRequest,
 } from "api/index";
-import { WarningDialog } from "components/CustomDialog";
-import { LabInformationFormType } from "constants/userInfor.type";
-import { LabInformationFormSchema } from "constants/userInfor.constant";
-import useEventStore from "stores/useEventStore";
 
 // Types
 type Props = {};
@@ -134,7 +134,7 @@ const ProfileScreen = (props: Props) => {
         { headers: { Authorization: `Bearer ${appToken}` } }
       );
 
-      console.log("Successful delete event:", response.data.result);
+      console.log("Successful delete event");
       setAppIsEvent(false);
       removeAppEvent();
       setIsSnackBarVisible(true);
@@ -160,7 +160,6 @@ const ProfileScreen = (props: Props) => {
     await laboratoryControllerApi
       .updateLab(param, { headers: { Authorization: `Bearer ${appToken}` } })
       .then((response) => {
-        console.log("Successful update lab: ", response.data.result);
         setAppUser({ labName: data.labName, labLocation: data.location });
         setVisible(false);
         setAlertMessage("Successful update lab");
@@ -222,8 +221,7 @@ const ProfileScreen = (props: Props) => {
         { labId: appLabId ?? "" },
         { headers: { Authorization: `Bearer ${appToken}` } }
       );
-
-      console.log("Success get current event:", response.data.result);
+      console.log("Success get current event");
       const event = response.data.result;
       if (event?.id) {
         setAppIsEvent(true);
@@ -624,7 +622,8 @@ const ProfileScreen = (props: Props) => {
 
       {/* Alert Dialog */}
       <WarningDialog
-        title="Confirm delete lab?"
+        title="Warning"
+        content="Are you sure you want to delete this lab?"
         visible={isWarnDialog}
         setVisible={setIsWarnDialog}
         onConfirm={handleDeleteLab}
@@ -632,7 +631,8 @@ const ProfileScreen = (props: Props) => {
 
       {/* Alert Dialog */}
       <WarningDialog
-        title="Confirm delete event?"
+        title="Warning"
+        content="Are you sure you want to delete this event?"
         visible={confirmDelEventDialog}
         setVisible={setConfirmDelEventDialog}
         onConfirm={handleDeleteEvent}
