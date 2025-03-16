@@ -37,7 +37,7 @@ API.interceptors.response.use(
         const refreshResponse = await API.post("/auth/refresh", {
           token: appToken,
         });
-        console.info("Successful refresh:", refreshResponse.data);
+        console.info("Successfully refresh:", refreshResponse.data);
         const newAccessToken = refreshResponse.data.result.token;
         setAppToken({ token: newAccessToken });
 

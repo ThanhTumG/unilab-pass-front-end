@@ -1,6 +1,6 @@
 // Core
 import { useTimer } from "react-timer-hook";
-import { StyleSheet, View } from "react-native";
+import { ImageBackground, StyleSheet, View } from "react-native";
 import { OtpInput } from "react-native-otp-entry";
 import React, { useEffect, useMemo, useState } from "react";
 import { useLocalSearchParams, useRouter } from "expo-router";
@@ -10,6 +10,7 @@ import { Button, IconButton, Text, TouchableRipple } from "react-native-paper";
 import { OTP_EXPIRED_DURATION_MILLISECONDS } from "constants/auth.constant";
 import {
   AuthenticationControllerApi,
+  AuthenticationControllerApiResendVerifyCodeRequest,
   VerificationCodeRequest,
 } from "api/index";
 
@@ -21,6 +22,7 @@ const OTPVerificationScreen = (props: Props) => {
   // States
   const [otpCode, setOtpCode] = useState<string>("");
   const [isLoading, setIsLoading] = useState<boolean>(false);
+  const [isLoadingResend, setIsLoadingResend] = useState<boolean>(false);
 
   // Route
   const route = useRouter();
@@ -38,9 +40,25 @@ const OTPVerificationScreen = (props: Props) => {
 
   // Methods
   // Handle resend otp
-  const handleResendOtp = () => {
-    otpTimer.restart(new Date(Date.now() + OTP_EXPIRED_DURATION_MILLISECONDS));
+  const handleResendOtp = async () => {
+    if (isLoadingResend) return;
+    setIsLoadingResend(true);
+    try {
+      const param: AuthenticationControllerApiResendVerifyCodeRequest = {
+        resendVerificationCodeRequest: {
+          email: email as string,
+        },
+      };
+      await authenticationControllerApi.resendVerifyCode(param);
+      otpTimer.restart(
+        new Date(Date.now() + OTP_EXPIRED_DURATION_MILLISECONDS)
+      );
+    } catch (error: any) {
+      console.error(error.response.data);
+    }
+    setIsLoadingResend(false);
   };
+
   // Handle on change otp
   const handleOnChangeOtp = (otp: string) => {
     setOtpCode(otp);
@@ -50,18 +68,19 @@ const OTPVerificationScreen = (props: Props) => {
   const handleSubmitOtpForm = async () => {
     if (otpCode.length != 4) return;
 
-    const param: VerificationCodeRequest = {
-      email: email as string,
-      code: otpCode,
-    };
     setIsLoading(true);
-    await authenticationControllerApi
-      .verifyCode({ verificationCodeRequest: param })
-      .then((response) => {
-        console.log(response.data.result);
-        route.replace("/(auth)/LoginScreen");
-      })
-      .catch((error) => console.error(error));
+    try {
+      const param: VerificationCodeRequest = {
+        email: email as string,
+        code: otpCode,
+      };
+      await authenticationControllerApi.verifyCode({
+        verificationCodeRequest: param,
+      });
+      route.replace("/(auth)/LoginScreen");
+    } catch (error: any) {
+      console.error(error);
+    }
     setIsLoading(false);
   };
 
@@ -87,104 +106,111 @@ const OTPVerificationScreen = (props: Props) => {
 
   // Template
   return (
-    <View style={styles.container}>
-      {/* Go back to sign up screen */}
-      <IconButton
-        icon={"chevron-left"}
-        style={styles.backBtn}
-        size={32}
-        iconColor="#808080"
-        onPress={() => route.replace("/SignUpScreen")}
-      ></IconButton>
+    <ImageBackground
+      source={require("../../assets/images/background.png")}
+      style={styles.background}
+    >
+      <View style={styles.container}>
+        {/* Go back to sign up screen */}
+        <IconButton
+          icon={"chevron-left"}
+          style={styles.backBtn}
+          size={32}
+          iconColor="#808080"
+          onPress={() => route.back()}
+        ></IconButton>
 
-      {/* Title */}
-      <View style={styles.titleContainer}>
-        <Text variant="bodyLarge" style={styles.title}>
-          Verification Code
-        </Text>
-        <Text variant="bodySmall" style={styles.body}>
-          We have sent the OTP verification code to email{" "}
-          <Text style={styles.email}>{email}</Text>
-        </Text>
-      </View>
+        {/* Title */}
+        <View style={styles.titleContainer}>
+          <Text variant="bodyLarge" style={styles.title}>
+            Verification Code
+          </Text>
+          <Text variant="bodySmall" style={styles.body}>
+            We have sent the OTP verification code to email{" "}
+            <Text style={styles.email}>{email}</Text>
+          </Text>
+        </View>
 
-      {/* OTP */}
-      <View style={styles.OTPContainer}>
-        <OtpInput
-          numberOfDigits={4}
-          focusColor={"#3385FF"}
-          focusStickBlinkingDuration={400}
-          autoFocus={false}
-          type="numeric"
-          theme={{
-            pinCodeContainerStyle: {
-              backgroundColor: "#fcfcfc",
-              width: 60,
-              height: 65,
-              borderRadius: 12,
-            },
-            pinCodeTextStyle: {
+        {/* OTP */}
+        <View style={styles.OTPContainer}>
+          <OtpInput
+            numberOfDigits={4}
+            focusColor={"#3385FF"}
+            focusStickBlinkingDuration={400}
+            autoFocus={false}
+            type="numeric"
+            theme={{
+              pinCodeContainerStyle: {
+                backgroundColor: "#fcfcfc",
+                width: 60,
+                height: 65,
+                borderRadius: 12,
+              },
+              pinCodeTextStyle: {
+                fontFamily: "Poppins-Regular",
+                color: "#333333",
+              },
+            }}
+            onTextChange={handleOnChangeOtp}
+          />
+
+          <Text
+            variant="titleSmall"
+            style={{
               fontFamily: "Poppins-Regular",
-              color: "#333333",
-            },
-          }}
-          onTextChange={handleOnChangeOtp}
-        />
+              textAlign: "center",
+              marginTop: 14,
+              color: "#3385FF",
+            }}
+          >
+            {formattedOtpCountdownDurationMemo}
+          </Text>
+        </View>
 
-        <Text
-          variant="titleSmall"
-          style={{
-            fontFamily: "Poppins-Regular",
-            textAlign: "center",
-            marginTop: 14,
-            color: "#3385FF",
-          }}
+        {/* Verify Button */}
+        <Button
+          mode="contained"
+          buttonColor="rgba(27, 97, 181, 0.89)"
+          style={styles.verifyBtn}
+          onPress={handleSubmitOtpForm}
+          disabled={isTimerOverMemo}
+          labelStyle={{ fontFamily: "Poppins-SemiBold", fontSize: 15 }}
+          loading={isLoading}
         >
-          {formattedOtpCountdownDurationMemo}
-        </Text>
-      </View>
+          Verify
+        </Button>
 
-      {/* Verify Button */}
-      <Button
-        mode="contained"
-        buttonColor="rgba(27, 97, 181, 0.89)"
-        style={styles.verifyBtn}
-        onPress={handleSubmitOtpForm}
-        disabled={isTimerOverMemo}
-        labelStyle={{ fontFamily: "Poppins-SemiBold", fontSize: 15 }}
-        loading={isLoading}
-      >
-        Verify
-      </Button>
-
-      {/* Resend OTP */}
-      <View
-        style={{ flexDirection: "row", alignItems: "center", marginTop: 20 }}
-      >
-        <Text
-          variant="bodySmall"
-          style={{ fontFamily: "Poppins-Regular", color: "#888" }}
-        >
-          Didn't you receive any code?
-        </Text>
-        <TouchableRipple
-          onPress={handleResendOtp}
-          rippleColor={"#FCFCFC"}
-          style={{ marginLeft: 4 }}
+        {/* Resend OTP */}
+        <View
+          style={{ flexDirection: "row", alignItems: "center", marginTop: 20 }}
         >
           <Text
             variant="bodySmall"
-            style={{
-              fontSize: 14,
-              fontFamily: "Poppins-SemiBold",
-              color: "#3385ff",
-            }}
+            style={{ fontFamily: "Poppins-Regular", color: "#888" }}
           >
-            Resend
+            Didn't you receive any code?
           </Text>
-        </TouchableRipple>
+
+          <TouchableRipple
+            onPress={handleResendOtp}
+            rippleColor={"#FCFCFC"}
+            style={{ marginLeft: 4 }}
+            disabled={isLoadingResend}
+          >
+            <Text
+              variant="bodySmall"
+              style={{
+                fontSize: 14,
+                fontFamily: "Poppins-SemiBold",
+                color: isLoadingResend ? "#808080" : "#3385ff",
+              }}
+            >
+              Resend
+            </Text>
+          </TouchableRipple>
+        </View>
       </View>
-    </View>
+    </ImageBackground>
   );
 };
 
@@ -192,6 +218,10 @@ export default OTPVerificationScreen;
 
 // Styles
 const styles = StyleSheet.create({
+  background: {
+    flex: 1,
+    resizeMode: "cover",
+  },
   container: {
     flex: 1,
     justifyContent: "flex-start",
@@ -207,7 +237,7 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "flex-start",
     alignSelf: "stretch",
-    marginLeft: 30,
+    marginHorizontal: 25,
     gap: 3,
   },
   title: { fontFamily: "Poppins-SemiBold" },

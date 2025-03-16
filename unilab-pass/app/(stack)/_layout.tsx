@@ -10,6 +10,7 @@ export default function StackLayout() {
       <Stack.Screen name="RecordScreen" />
       <Stack.Screen name="CreateEventScreen" />
       <Stack.Screen name="DetailEventScreen" />
+      <Stack.Screen name="ChangePasswordScreen" />
     </Stack>
   );
 }

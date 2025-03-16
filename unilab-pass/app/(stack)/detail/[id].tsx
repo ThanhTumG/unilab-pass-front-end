@@ -17,7 +17,6 @@ import {
 } from "react-native-paper";
 
 // App
-import useBackHandler from "utils/useBackHandler";
 import { useAuthStore, useUserStore } from "stores";
 import { getFullName, splitFullName } from "lib/utils";
 import { WarningDialog } from "components/CustomDialog";
@@ -89,12 +88,6 @@ const UserDetailScreen = () => {
   });
 
   // Methods
-  // handle back
-  useBackHandler(() => {
-    router.replace("/AccountManagementScreen");
-    return true;
-  });
-
   // handle toggle edit mode
   const handleToggleEdit = () => {
     if (isEditMode) reset();
@@ -111,7 +104,7 @@ const UserDetailScreen = () => {
         { headers: { Authorization: `Bearer ${appToken}` } }
       );
 
-      console.log("Successful get detail info");
+      console.log("Successfully get detail info");
       const memberInfo = response.data.result?.myUserResponse;
       reset({
         fullName: getFullName({
@@ -146,7 +139,7 @@ const UserDetailScreen = () => {
       });
 
       console.log("Success delete member");
-      router.replace("/(tabs)/AccountManagementScreen");
+      router.back();
     } catch (error: any) {
       console.error(error.response.data);
     }
@@ -170,15 +163,16 @@ const UserDetailScreen = () => {
           roles: [],
         },
       };
-      const response = await myUserControllerApi.updateMyUser(param, {
+      await myUserControllerApi.updateMyUser(param, {
         headers: { Authorization: `Bearer ${appToken}` },
       });
 
-      console.log("Successful update member info");
+      console.log("Successfully update member info");
       setValue("permission", data.permission);
       setIsEditMode(false);
+      setAlertMessage("Successfully update member info");
+      setIsAlert(true);
     } catch (error: any) {
-      // console.error(error.response.data);
       setAlertMessage(error.response.data.message);
       setIsAlert(true);
     }
@@ -189,9 +183,8 @@ const UserDetailScreen = () => {
   const handleSetPermission = async () => {
     if (loading.updateStatus) return;
     setLoading((prev) => ({ ...prev, updateStatus: true }));
-
     try {
-      const response = await labMemberControllerApi.updateLabMemberStatus(
+      await labMemberControllerApi.updateLabMemberStatus(
         {
           labMemberUpdateRequest: {
             labMemberKey: { labId: appLabId ?? "", myUserId: id as string },
@@ -203,10 +196,9 @@ const UserDetailScreen = () => {
         }
       );
 
-      console.log("Successful update status");
+      console.log("Successfully update status");
       setIsActive(!isActive);
-      setLoading((prev) => ({ ...prev, updateStatus: false }));
-      setAlertMessage("Successful update status");
+      setAlertMessage("Successfully update status");
       setIsAlert(true);
     } catch {
       (error: any) => {
@@ -214,6 +206,7 @@ const UserDetailScreen = () => {
         setIsAlert(true);
       };
     }
+    setLoading((prev) => ({ ...prev, updateStatus: false }));
   };
 
   // Handle refresh
@@ -251,7 +244,7 @@ const UserDetailScreen = () => {
           style={{ position: "absolute", left: 10, zIndex: 10 }}
           size={32}
           iconColor="#808080"
-          onPress={() => router.replace("/(tabs)/AccountManagementScreen")}
+          onPress={() => router.back()}
         />
         {/* Title */}
         <Text
@@ -332,6 +325,7 @@ const UserDetailScreen = () => {
               <TextInput
                 disabled={!isEditMode}
                 textColor="#333"
+                editable={false}
                 mode="outlined"
                 style={styles.inputField}
                 contentStyle={{
@@ -437,6 +431,7 @@ const UserDetailScreen = () => {
                         onSurfaceVariant: "#777",
                       },
                     }}
+                    editable={false}
                     disabled={!isEditMode}
                     textColor="#333"
                     mode="outlined"
@@ -477,7 +472,11 @@ const UserDetailScreen = () => {
                   style={{ marginLeft: 10 }}
                 />
               ) : (
-                <Switch value={isActive} onValueChange={handleSetPermission} />
+                <Switch
+                  value={isActive}
+                  color="#44CC77"
+                  onValueChange={handleSetPermission}
+                />
               )}
             </View>
           </View>

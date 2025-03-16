@@ -60,13 +60,13 @@ const Record = ({ item, isEven }: Props) => {
                 ? "rgba(204, 255, 204, .75)"
                 : "rgba(255, 230, 230, .75)"
             }`,
-            borderColor: `${item.status == "SUCCESS" ? "#00CC00" : "#FF0000"}`,
+            borderColor: `${item.status == "SUCCESS" ? "#44CC77" : "#FF0000"}`,
           }}
         >
           <Text
             variant="bodySmall"
             style={{
-              color: `${item.status == "SUCCESS" ? "#00CC00" : "#FF0000"}`,
+              color: `${item.status == "SUCCESS" ? "#44CC77" : "#FF0000"}`,
               textTransform: "capitalize",
               fontFamily: "Poppins-Regular",
             }}

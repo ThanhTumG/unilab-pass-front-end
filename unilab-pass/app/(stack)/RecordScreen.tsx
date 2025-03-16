@@ -2,18 +2,11 @@
 import React, { useState } from "react";
 import { ScrollView, StyleSheet, View } from "react-native";
 import { useLocalSearchParams, useRouter } from "expo-router";
-import {
-  Button,
-  IconButton,
-  Snackbar,
-  Text,
-  TextInput,
-} from "react-native-paper";
+import { Button, Snackbar, Text, TextInput } from "react-native-paper";
 
 // App
 import { getFullName } from "lib/utils";
 import useEventStore from "stores/useEventStore";
-import useBackHandler from "utils/useBackHandler";
 import { useAuthStore, useUserStore } from "stores";
 import { SuccessDialog } from "components/CustomDialog";
 import {
@@ -22,6 +15,7 @@ import {
   LogControllerApi,
   LogControllerApiCreateNewLogRequest,
 } from "api/index";
+import ScreenHeader from "components/ScreenHeader";
 
 // Types
 type Props = {};
@@ -51,12 +45,6 @@ const RecordScreen = (props: Props) => {
   const { appIsEvent, appEventName, appEventId } = useEventStore();
 
   // Methods
-  // handle back
-  useBackHandler(() => {
-    router.replace("/(tabs)/RecordActivityScreen");
-    return true;
-  });
-
   // Handle post new record
   const handleRecord = async () => {
     if (isPendingPostRecord) return;
@@ -73,7 +61,6 @@ const RecordScreen = (props: Props) => {
             photoURL: "",
           },
         };
-        console.log("request:", param);
         await eventLogControllerApi.addEventLog(param, {
           headers: { Authorization: `Bearer ${appToken}` },
         });
@@ -113,40 +100,7 @@ const RecordScreen = (props: Props) => {
   return (
     <View style={{ flex: 1, backgroundColor: "#FCFCFC" }}>
       {/* Header */}
-      <View
-        style={{
-          position: "absolute",
-          zIndex: 10,
-          top: 0,
-          flexDirection: "row",
-          alignItems: "center",
-          backgroundColor: "#FCFCFC",
-          width: "100%",
-          paddingVertical: 20,
-        }}
-      >
-        {/* Go back button */}
-        <IconButton
-          icon={"chevron-left"}
-          style={{ position: "absolute", left: 10, zIndex: 10 }}
-          size={32}
-          iconColor="#808080"
-          onPress={() => router.replace("/(tabs)/RecordActivityScreen")}
-        />
-        {/* Title */}
-        <Text
-          variant="titleLarge"
-          style={{
-            fontFamily: "Poppins-SemiBold",
-            color: "#333",
-            textAlign: "center",
-            flex: 1,
-            alignItems: "center",
-          }}
-        >
-          Record Activity
-        </Text>
-      </View>
+      <ScreenHeader title="Record Activity" />
 
       <ScrollView>
         {/* Content */}
@@ -332,7 +286,7 @@ const RecordScreen = (props: Props) => {
         {alertMessage}
       </Snackbar>
 
-      {/* Alert Dialog */}
+      {/* Success Dialog */}
       <SuccessDialog
         title={"Success"}
         content="Member's activity is successfully recorded."

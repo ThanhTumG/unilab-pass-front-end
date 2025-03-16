@@ -113,7 +113,6 @@ const ProfileScreen = (props: Props) => {
         { headers: { Authorization: `Bearer ${appToken}` } }
       )
       .then((response) => {
-        console.log("Successful delete lab: ", response.data.result);
         setAppUser({ labId: undefined, labName: undefined });
         setAppIsEvent(false);
         removeAppEvent();
@@ -129,17 +128,16 @@ const ProfileScreen = (props: Props) => {
   // Handle remove event
   const handleDeleteEvent = async () => {
     try {
-      const response = await eventControllerApi.deleteEvent(
+      await eventControllerApi.deleteEvent(
         { eventId: appEventId ?? "" },
         { headers: { Authorization: `Bearer ${appToken}` } }
       );
 
-      console.log("Successful delete event");
       setAppIsEvent(false);
       removeAppEvent();
       setIsSnackBarVisible(true);
       setConfirmDelEventDialog(false);
-      setAlertMessage("Successful delete event");
+      setAlertMessage("Successfully delete event");
     } catch (error: any) {
       setAlertMessage(error.response.data.message);
       setIsSnackBarVisible(true);
@@ -162,7 +160,7 @@ const ProfileScreen = (props: Props) => {
       .then((response) => {
         setAppUser({ labName: data.labName, labLocation: data.location });
         setVisible(false);
-        setAlertMessage("Successful update lab");
+        setAlertMessage("Successfully update lab");
         setIsSnackBarVisible(true);
       })
       .catch((error) => {
@@ -237,6 +235,11 @@ const ProfileScreen = (props: Props) => {
     }
     setLoading((prev) => ({ ...prev, getEvent: false }));
   }, [appToken]);
+
+  // Handle route change password
+  const handleChangePassword = () => {
+    router.push("/(stack)/ChangePasswordScreen");
+  };
 
   // Handle refresh
   const onRefresh = useCallback(() => {
@@ -398,9 +401,7 @@ const ProfileScreen = (props: Props) => {
                       style={{
                         justifyContent: "center",
                       }}
-                      onPress={() =>
-                        router.replace("/(stack)/DetailEventScreen")
-                      }
+                      onPress={() => router.push("/(stack)/DetailEventScreen")}
                       rippleColor={"#fcfcfc"}
                     >
                       <Text
@@ -418,7 +419,7 @@ const ProfileScreen = (props: Props) => {
               <View style={{ gap: 4 }}>
                 <TouchableRipple
                   rippleColor={"#fcfcfc"}
-                  onPress={() => router.replace("/(stack)/CreateEventScreen")}
+                  onPress={() => router.push("/(stack)/CreateEventScreen")}
                 >
                   <Text variant="bodyMedium" style={styles.smallAction}>
                     Add event
@@ -451,7 +452,10 @@ const ProfileScreen = (props: Props) => {
               <Text variant="bodyMedium" style={styles.smallBody}>
                 Password
               </Text>
-              <TouchableRipple>
+              <TouchableRipple
+                rippleColor={"#fcfcfc"}
+                onPress={handleChangePassword}
+              >
                 <Text variant="bodyMedium" style={[styles.smallAction]}>
                   Change password
                 </Text>
@@ -464,7 +468,7 @@ const ProfileScreen = (props: Props) => {
             mode="contained"
             disabled={loading.logOut}
             style={{ marginTop: 47 }}
-            contentStyle={{ backgroundColor: "#FF3333" }}
+            contentStyle={{ backgroundColor: "#FF6666" }}
             labelStyle={{ fontFamily: "Poppins-Medium" }}
             onPress={handleLogout}
             loading={loading.logOut}
@@ -512,18 +516,7 @@ const ProfileScreen = (props: Props) => {
                 </Text>
 
                 {/* Content */}
-                <View
-                  style={{
-                    backgroundColor: "#fff",
-                    flex: 1,
-                    justifyContent: "flex-start",
-                    alignItems: "center",
-                    paddingHorizontal: 17,
-                    paddingVertical: 10,
-                    gap: 15,
-                    borderRadius: 7,
-                  }}
-                >
+                <View style={styles.labInfoContainer}>
                   {/* Form */}
                   {/* Lab name */}
                   <Controller
@@ -740,5 +733,15 @@ const styles = StyleSheet.create({
     color: "red",
     fontFamily: "Poppins-Light",
     fontSize: 12,
+  },
+  labInfoContainer: {
+    backgroundColor: "#fff",
+    flex: 1,
+    justifyContent: "flex-start",
+    alignItems: "center",
+    paddingHorizontal: 17,
+    paddingVertical: 10,
+    gap: 15,
+    borderRadius: 7,
   },
 });

@@ -1,16 +1,10 @@
 // Core
 import dayjs from "dayjs";
-import React, { useCallback, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import { Dropdown } from "react-native-paper-dropdown";
 import { useFocusEffect, useRouter } from "expo-router";
 import { ImageBackground, StyleSheet, View } from "react-native";
-import {
-  ActivityIndicator,
-  Button,
-  Icon,
-  Text,
-  TextInput,
-} from "react-native-paper";
+import { ActivityIndicator, Button, Text, TextInput } from "react-native-paper";
 
 // App
 import useEventStore from "stores/useEventStore";
@@ -57,40 +51,6 @@ const SelectLabScreen = (props: Props) => {
   const { setAppIsEvent, setAppEvent } = useEventStore();
 
   // Methods
-  // Handle press homepage button
-  const handlePressHomePage = async () => {
-    if (!labId) return;
-    const currentLab = myLabList.find((lab) => lab.value == labId);
-    setIsLoading(true);
-    try {
-      const response = await eventControllerApi.getCurrentEvent(
-        { labId: labId },
-        { headers: { Authorization: `Bearer ${appToken}` } }
-      );
-
-      console.log("Success get current event:", response.data.result);
-      const event = response.data.result;
-      if (event?.id) {
-        setAppIsEvent(true);
-        setAppEvent({
-          eventId: event.id,
-          eventName: event.name,
-          startTime: event.startTime,
-          endTime: event.endTime,
-        });
-      }
-      setAppUser({
-        labId: labId,
-        labName: currentLab?.label,
-        labLocation: currentLab?.location,
-      });
-      router.replace("/(tabs)/HomeScreen");
-    } catch (error: any) {
-      console.error(error.response.data);
-    }
-    setIsLoading(true);
-  };
-
   // Handle get all lab
   const handleGetAllLab = async (token?: string) => {
     if (isLoading) return;
@@ -108,7 +68,7 @@ const SelectLabScreen = (props: Props) => {
             };
             return obj;
           }) ?? [];
-        console.log("Successful get lab list");
+        console.log("Successfully get lab list");
         setMyLabList(newLabLst);
       })
       .catch((error) => console.error("Error get lab: ", error.response.data));
@@ -127,7 +87,7 @@ const SelectLabScreen = (props: Props) => {
     await laboratoryControllerApi
       .createLab({ labCreationRequest: param }, options)
       .then((response) => {
-        console.log("Successful create new lab");
+        console.log("Successfully create new lab");
         const { appToken: latestToken } = useAuthStore.getState();
         handleGetAllLab(latestToken ?? "");
       })
@@ -142,9 +102,52 @@ const SelectLabScreen = (props: Props) => {
     }, [appToken])
   );
 
+  useEffect(() => {
+    // Handle press homepage button
+    const handlePressHomePage = async () => {
+      if (!labId) return;
+      const currentLab = myLabList.find((lab) => lab.value == labId);
+      setIsLoading(true);
+      try {
+        const response = await eventControllerApi.getCurrentEvent(
+          { labId: labId },
+          { headers: { Authorization: `Bearer ${appToken}` } }
+        );
+
+        console.log("Success get current event:", response.data.result);
+        const event = response.data.result;
+        if (event?.id) {
+          setAppIsEvent(true);
+          setAppEvent({
+            eventId: event.id,
+            eventName: event.name,
+            startTime: event.startTime,
+            endTime: event.endTime,
+          });
+        }
+        setAppUser({
+          labId: labId,
+          labName: currentLab?.label,
+          labLocation: currentLab?.location,
+        });
+        router.replace("/(tabs)/HomeScreen");
+      } catch (error: any) {
+        console.error(error.response.data);
+      }
+      setIsLoading(false);
+    };
+
+    if (!!labId) handlePressHomePage();
+  }, [labId]);
+
   // Template
   return isLoading ? (
-    <ActivityIndicator animating={true} style={{ top: 100 }} />
+    <ImageBackground
+      source={require("../assets/images/background.png")}
+      style={styles.background}
+    >
+      <ActivityIndicator animating={true} />
+    </ImageBackground>
   ) : (
     <ImageBackground
       source={require("../assets/images/background.png")}
@@ -201,31 +204,6 @@ const SelectLabScreen = (props: Props) => {
           Create new Lab
         </Button>
       </View>
-
-      {/* Go to Homepage */}
-      <Button
-        style={{
-          position: "absolute",
-          bottom: 5,
-          right: 5,
-        }}
-        mode="text"
-        onPress={handlePressHomePage}
-        textColor="#1B61B5"
-      >
-        <View style={[styles.homeButton, styles.alignCenter]}>
-          <Text
-            variant="titleMedium"
-            style={{
-              fontFamily: "Poppins-Medium",
-              color: "#1B61B5",
-            }}
-          >
-            Home
-          </Text>
-          <Icon source="chevron-right" color="#1B61B5" size={20} />
-        </View>
-      </Button>
     </ImageBackground>
   );
 };
@@ -253,8 +231,5 @@ const styles = StyleSheet.create({
     maxHeight: 200,
     marginTop: 40,
     gap: 30,
-  },
-  homeButton: {
-    flexDirection: "row",
   },
 });

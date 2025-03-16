@@ -1,21 +1,13 @@
 // Core
 import React, { useState } from "react";
-import { useRouter } from "expo-router";
 import { Controller, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Dropdown } from "react-native-paper-dropdown";
 import { ScrollView, StyleSheet, View } from "react-native";
-import {
-  Button,
-  IconButton,
-  Snackbar,
-  Text,
-  TextInput,
-} from "react-native-paper";
+import { Button, Snackbar, Text, TextInput } from "react-native-paper";
 
 // App
 import { splitFullName } from "lib/utils";
-import useBackHandler from "utils/useBackHandler";
 import { WarningDialog } from "components/CustomDialog";
 import { DetailUserInformationFormType } from "constants/userInfor.type";
 import {
@@ -33,6 +25,7 @@ import {
   MyUserControllerApi,
   MyUserControllerApiUpdateMyUserRequest,
 } from "api/index";
+import ScreenHeader from "components/ScreenHeader";
 
 // Types
 type Props = {};
@@ -54,9 +47,6 @@ const CreateMemberScreen = (props: Props) => {
     updateMem: false,
   });
 
-  // Router
-  const router = useRouter();
-
   // Server
   const labMemberControllerApi = new LabMemberControllerApi();
   const myUserControllerApi = new MyUserControllerApi();
@@ -77,12 +67,6 @@ const CreateMemberScreen = (props: Props) => {
   });
 
   // Methods
-  // handle back
-  useBackHandler(() => {
-    router.replace("/AccountManagementScreen");
-    return true;
-  });
-
   // handle submit form
   const handleAddMember = async (data: DetailUserInformationFormType) => {
     if (loading.createMem) return;
@@ -101,11 +85,11 @@ const CreateMemberScreen = (props: Props) => {
       },
     };
     try {
-      const response = await labMemberControllerApi.addLabMember(param, {
+      await labMemberControllerApi.addLabMember(param, {
         headers: { Authorization: `Bearer ${appToken}` },
       });
-      console.log("Successful create member: ", response.data.result);
-      setAlertMessage("Successful create member");
+      console.log("Successfully create member");
+      setAlertMessage("Successfully create member");
       setIsAlert(true);
       reset();
     } catch (error: any) {
@@ -143,7 +127,7 @@ const CreateMemberScreen = (props: Props) => {
 
       await handleAddMember(data);
 
-      setAlertMessage("Successful create member");
+      setAlertMessage("Successfully create member");
       setIsAlert(true);
     } catch (error: any) {
       setAlertMessage(error.response.data.message);
@@ -157,40 +141,7 @@ const CreateMemberScreen = (props: Props) => {
   return (
     <View style={{ flex: 1, backgroundColor: "#FCFCFC" }}>
       {/* Header */}
-      <View
-        style={{
-          position: "absolute",
-          zIndex: 10,
-          top: 0,
-          flexDirection: "row",
-          alignItems: "center",
-          backgroundColor: "#FCFCFC",
-          width: "100%",
-          paddingVertical: 20,
-        }}
-      >
-        {/* Go back button */}
-        <IconButton
-          icon={"chevron-left"}
-          size={32}
-          iconColor="#808080"
-          style={{ position: "absolute", left: 10, zIndex: 10 }}
-          onPress={() => router.replace("/(tabs)/AccountManagementScreen")}
-        />
-        {/* Title */}
-        <Text
-          variant="titleLarge"
-          style={{
-            fontFamily: "Poppins-SemiBold",
-            color: "#333",
-            textAlign: "center",
-            flex: 1,
-            alignItems: "center",
-          }}
-        >
-          Create Member
-        </Text>
-      </View>
+      <ScreenHeader title="Create Member" />
 
       {/* Content */}
       <ScrollView style={styles.scrollView}>

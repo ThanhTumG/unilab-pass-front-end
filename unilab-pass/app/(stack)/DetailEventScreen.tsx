@@ -1,16 +1,16 @@
 // Core
 import dayjs from "dayjs";
 import React, { useCallback, useState } from "react";
-import { useFocusEffect, useRouter } from "expo-router";
+import { useFocusEffect } from "expo-router";
 import { FlatList, RefreshControl, StyleSheet, View } from "react-native";
-import { IconButton, Text, TextInput, useTheme } from "react-native-paper";
+import { Text, TextInput, useTheme } from "react-native-paper";
 
 // App
 import { useAuthStore } from "stores";
 import Record from "components/Record";
-import useBackHandler from "utils/useBackHandler";
 import useEventStore from "stores/useEventStore";
 import { EventLogControllerApi, EventLogRespond } from "api/index";
+import ScreenHeader from "components/ScreenHeader";
 
 // Types
 type Props = {};
@@ -24,9 +24,6 @@ const DetailEventScreen = (props: Props) => {
   // Theme
   const theme = useTheme();
 
-  // Router
-  const router = useRouter();
-
   // Server
   const eventLogControllerApi = new EventLogControllerApi();
 
@@ -35,12 +32,6 @@ const DetailEventScreen = (props: Props) => {
     useEventStore();
 
   // Methods
-  // handle back
-  useBackHandler(() => {
-    router.replace("/(tabs)/ProfileScreen");
-    return true;
-  });
-
   // Handle get event log
   const handleGetEventLog = useCallback(async () => {
     const { appToken } = useAuthStore.getState();
@@ -52,7 +43,7 @@ const DetailEventScreen = (props: Props) => {
         { eventId: appEventId ?? "" },
         { headers: { Authorization: `Bearer ${appToken}` } }
       );
-      console.log("Successful get event log");
+      console.log("Successfully get event log");
       setLogList(response.data.result);
     } catch (error: any) {
       console.error(error.response.data);
@@ -84,40 +75,7 @@ const DetailEventScreen = (props: Props) => {
       }}
     >
       {/* Header */}
-      <View
-        style={{
-          position: "absolute",
-          zIndex: 10,
-          top: 0,
-          flexDirection: "row",
-          alignItems: "center",
-          backgroundColor: "#FCFCFC",
-          width: "100%",
-          paddingVertical: 20,
-        }}
-      >
-        {/* Go back button */}
-        <IconButton
-          icon={"chevron-left"}
-          style={{ position: "absolute", left: 10, zIndex: 10 }}
-          size={32}
-          iconColor="#808080"
-          onPress={() => router.replace("/(tabs)/ProfileScreen")}
-        />
-        {/* Title */}
-        <Text
-          variant="titleLarge"
-          style={{
-            fontFamily: "Poppins-SemiBold",
-            color: "#333",
-            textAlign: "center",
-            flex: 1,
-            alignItems: "center",
-          }}
-        >
-          Event Information
-        </Text>
-      </View>
+      <ScreenHeader title="Event Information" />
 
       {/* Event Information */}
       <View style={styles.eventInfoContainer}>

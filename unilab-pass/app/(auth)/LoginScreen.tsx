@@ -1,7 +1,7 @@
 // Core
 import React, { useState } from "react";
 import { useRouter } from "expo-router";
-import { Image, StyleSheet, View } from "react-native";
+import { Image, ImageBackground, StyleSheet, View } from "react-native";
 import { useForm, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import {
@@ -98,8 +98,8 @@ const LoginScreen = (props: Props) => {
       const token = response.data.result?.token as string;
       const responseGetInfo = await handleGetMyInformation(token);
       if (responseGetInfo) {
-        console.info("Successful log in: ", response.data.result);
-        console.log("Successful get my info: ", responseGetInfo);
+        console.info("Successfully log in:", response.data.result);
+        console.log("Successfully get my info");
         setAppToken({ token: token });
         setAppIsLoggedIn(true);
         router.replace("/SelectLabScreen");
@@ -113,144 +113,180 @@ const LoginScreen = (props: Props) => {
 
   // Handle sign up
   const handleSignup = () => {
-    router.replace("/(auth)/SignUpScreen");
+    if (isLoading) return;
+    router.push("/(auth)/SignUpScreen");
+  };
+
+  // Handle forgot pass
+  const handleForgotPassword = () => {
+    if (isLoading) return;
+    router.push("/(auth)/ForgotPasswordScreen");
   };
 
   // Template
   return (
-    <View style={[styles.container, styles.alignCenter]}>
-      {/* Logo */}
-      <Image
-        style={styles.logo}
-        source={require("assets/images/unilab-pass-logo.png")}
-      />
-      <View style={[styles.formField, styles.alignCenter]}>
-        <Text variant="headlineLarge" style={styles.title}>
-          Login
-        </Text>
-
-        {/* Form */}
-        {/* Email */}
-        <Controller
-          control={control}
-          name="email"
-          render={({ field: { onChange, onBlur, value } }) => (
-            <View style={styles.inputForm}>
-              <TextInput
-                theme={{
-                  colors: { primary: "#2B56F0", onSurfaceVariant: "#777" },
-                }}
-                textColor="#333"
-                outlineColor="#F2F6FC"
-                outlineStyle={{ borderRadius: 5 }}
-                mode="outlined"
-                style={styles.inputField}
-                contentStyle={{ fontFamily: "Poppins-Regular" }}
-                label="Email"
-                onChangeText={onChange}
-                onBlur={onBlur}
-                value={value}
-                error={!!errors.email}
-              />
-              {errors.email && (
-                <Text style={styles.error}>{`${errors.email.message}`}</Text>
-              )}
-            </View>
-          )}
+    <ImageBackground
+      source={require("../../assets/images/background.png")}
+      style={styles.background}
+    >
+      <View style={[styles.container, styles.alignCenter]}>
+        {/* Logo */}
+        <Image
+          style={styles.logo}
+          source={require("assets/images/unilab-pass-logo.png")}
         />
-
-        {/* Password */}
-        <Controller
-          control={control}
-          name="password"
-          render={({ field: { onBlur, onChange, value } }) => (
-            <View style={styles.inputForm}>
-              <TextInput
-                theme={{
-                  colors: { primary: "#2B56F0", onSurfaceVariant: "#777" },
-                }}
-                textColor="#333"
-                outlineColor="#F2F6FC"
-                mode="outlined"
-                outlineStyle={{ borderRadius: 5 }}
-                style={styles.inputField}
-                contentStyle={{ fontFamily: "Poppins-Regular" }}
-                secureTextEntry={isHidePassword}
-                right={
-                  <TextInput.Icon
-                    icon={isHidePassword ? "eye-off" : "eye"}
-                    onPress={() => setIsHidePassword(!isHidePassword)}
-                    color="#777"
-                  />
-                }
-                label="Password"
-                onChangeText={onChange}
-                onBlur={onBlur}
-                value={value}
-                error={!!errors.password}
-              />
-              {errors.password && (
-                <Text style={styles.error}>{`${errors.password.message}`}</Text>
-              )}
-            </View>
-          )}
-        />
-
-        {/* Sign in button */}
-        <Button
-          style={[styles.submitButton, styles.alignCenter]}
-          buttonColor="rgba(27, 97, 181, 0.89)"
-          mode="contained"
-          textColor="#F5F5F5"
-          labelStyle={{ fontFamily: "Poppins-SemiBold", fontSize: 18 }}
-          contentStyle={{ width: 300, height: 50 }}
-          onPress={handleSubmit(handleOnSubmit)}
-          loading={isLoading}
-        >
-          Sign In
-        </Button>
-
-        <View style={[{ flexDirection: "row" }, styles.alignCenter]}>
-          <Text
-            variant="bodySmall"
-            style={{ fontFamily: "Poppins-Regular", color: "#444" }}
-          >
-            Don't have an account?
+        <View style={[styles.formField, styles.alignCenter]}>
+          <Text variant="headlineLarge" style={styles.title}>
+            Login
           </Text>
 
-          {/* Sign up button */}
-          <TouchableRipple
-            onPress={handleSignup}
-            rippleColor={"#FCFCFC"}
-            style={{ marginLeft: 4 }}
+          {/* Form */}
+          {/* Email */}
+          <Controller
+            control={control}
+            name="email"
+            render={({ field: { onChange, onBlur, value } }) => (
+              <View style={styles.inputForm}>
+                <TextInput
+                  theme={{
+                    colors: { primary: "#2B56F0", onSurfaceVariant: "#777" },
+                  }}
+                  textColor="#333"
+                  outlineColor="#F2F6FC"
+                  outlineStyle={{ borderRadius: 5 }}
+                  mode="outlined"
+                  style={styles.inputField}
+                  contentStyle={{ fontFamily: "Poppins-Regular" }}
+                  label="Email"
+                  onChangeText={onChange}
+                  onBlur={onBlur}
+                  value={value}
+                  error={!!errors.email}
+                />
+                {errors.email && (
+                  <Text style={styles.error}>{`${errors.email.message}`}</Text>
+                )}
+              </View>
+            )}
+          />
+
+          {/* Password */}
+          <Controller
+            control={control}
+            name="password"
+            render={({ field: { onBlur, onChange, value } }) => (
+              <View style={styles.inputForm}>
+                <TextInput
+                  theme={{
+                    colors: { primary: "#2B56F0", onSurfaceVariant: "#777" },
+                  }}
+                  textColor="#333"
+                  outlineColor="#F2F6FC"
+                  mode="outlined"
+                  outlineStyle={{ borderRadius: 5 }}
+                  style={styles.inputField}
+                  contentStyle={{ fontFamily: "Poppins-Regular" }}
+                  secureTextEntry={isHidePassword}
+                  right={
+                    <TextInput.Icon
+                      icon={isHidePassword ? "eye-off" : "eye"}
+                      onPress={() => setIsHidePassword(!isHidePassword)}
+                      color="#777"
+                    />
+                  }
+                  label="Password"
+                  onChangeText={onChange}
+                  onBlur={onBlur}
+                  value={value}
+                  error={!!errors.password}
+                />
+                <View style={styles.passwordError}>
+                  {errors.password && (
+                    <Text
+                      style={styles.error}
+                    >{`${errors.password.message}`}</Text>
+                  )}
+
+                  {/* Forgot pass */}
+                  <TouchableRipple
+                    onPress={handleForgotPassword}
+                    rippleColor={"#FCFCFC"}
+                    style={{
+                      height: "100%",
+                      marginLeft: "auto",
+                    }}
+                  >
+                    <Text
+                      variant="bodySmall"
+                      style={{
+                        fontFamily: "Poppins-Regular",
+                        color: "#444",
+                      }}
+                    >
+                      Forgot password?
+                    </Text>
+                  </TouchableRipple>
+                </View>
+              </View>
+            )}
+          />
+
+          {/* Sign in button */}
+          <Button
+            style={[styles.submitButton, styles.alignCenter]}
+            mode="contained"
+            textColor="#F5F5F5"
+            labelStyle={{ fontFamily: "Poppins-SemiBold", fontSize: 18 }}
+            contentStyle={{ width: 300, height: 50 }}
+            onPress={handleSubmit(handleOnSubmit)}
+            loading={isLoading}
           >
+            Sign In
+          </Button>
+
+          <View style={[{ flexDirection: "row" }, styles.alignCenter]}>
             <Text
               variant="bodySmall"
+              style={{ fontFamily: "Poppins-Regular", color: "#444" }}
+            >
+              Don't have an account?
+            </Text>
+
+            {/* Sign up button */}
+            <TouchableRipple
+              onPress={handleSignup}
+              rippleColor={"#FCFCFC"}
               style={{
-                fontSize: 14,
-                fontFamily: "Poppins-SemiBold",
-                color: "#3385ff",
+                marginLeft: 4,
               }}
             >
-              Sign Up
-            </Text>
-          </TouchableRipple>
+              <Text
+                variant="bodySmall"
+                style={{
+                  fontFamily: "Poppins-SemiBold",
+                  color: "#3385ff",
+                }}
+              >
+                Sign Up
+              </Text>
+            </TouchableRipple>
+          </View>
         </View>
-      </View>
 
-      {/* Snackbar */}
-      <Snackbar
-        visible={visible}
-        onDismiss={() => setVisible(false)}
-        duration={3000}
-        action={{
-          label: "Close",
-          onPress: () => setVisible(false),
-        }}
-      >
-        {errorMessage}
-      </Snackbar>
-    </View>
+        {/* Snackbar */}
+        <Snackbar
+          visible={visible}
+          onDismiss={() => setVisible(false)}
+          duration={3000}
+          action={{
+            label: "Close",
+            onPress: () => setVisible(false),
+          }}
+        >
+          {errorMessage}
+        </Snackbar>
+      </View>
+    </ImageBackground>
   );
 };
 
@@ -258,6 +294,10 @@ export default LoginScreen;
 
 // Styles
 const styles = StyleSheet.create({
+  background: {
+    flex: 1,
+    resizeMode: "cover",
+  },
   alignCenter: {
     justifyContent: "center",
     alignItems: "center",
@@ -286,12 +326,17 @@ const styles = StyleSheet.create({
   },
   submitButton: {
     borderRadius: 5,
-    marginTop: 25,
+    marginTop: 18,
   },
   error: {
     marginLeft: 2,
     color: "red",
     fontFamily: "Poppins-Light",
     fontSize: 12,
+  },
+  passwordError: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
   },
 });

@@ -1,7 +1,6 @@
 // Core
 import dayjs from "dayjs";
 import utc from "dayjs/plugin/utc";
-import { useRouter } from "expo-router";
 import React, { useState } from "react";
 import timezone from "dayjs/plugin/timezone";
 import * as DocumentPicker from "expo-document-picker";
@@ -12,7 +11,6 @@ import { Pressable, ScrollView, StyleSheet, View } from "react-native";
 import {
   Button,
   Icon,
-  IconButton,
   Snackbar,
   Text,
   TextInput,
@@ -21,7 +19,6 @@ import {
 
 // App
 import { combineDate } from "lib/utils";
-import useBackHandler from "utils/useBackHandler";
 import { useAuthStore, useUserStore } from "stores";
 import { EventFormType } from "constants/event.type";
 import {
@@ -34,6 +31,7 @@ import {
   EventGuestCreationRequest,
   LabEventCreationRequest,
 } from "api/index";
+import ScreenHeader from "components/ScreenHeader";
 
 dayjs.extend(utc);
 dayjs.extend(timezone);
@@ -52,9 +50,6 @@ const CreateEventScreen = () => {
   const [guestList, setGuestList] = useState<EventGuestCreationRequest[]>();
   const [alertMessage, setAlertMessage] = useState("");
   const [isAlert, setIsAlert] = useState(false);
-
-  // Router
-  const router = useRouter();
 
   // Server
   const eventControllerApi = new EventControllerApi();
@@ -75,12 +70,6 @@ const CreateEventScreen = () => {
   });
 
   // Methods
-  // handle back
-  useBackHandler(() => {
-    router.replace("/(tabs)/ProfileScreen");
-    return true;
-  });
-
   // Handle upload file csv
   const pickCSVFile = async () => {
     try {
@@ -134,13 +123,14 @@ const CreateEventScreen = () => {
           guestList,
         },
       };
-      const response = await eventControllerApi.createEvent(param, {
+
+      await eventControllerApi.createEvent(param, {
         headers: {
           Authorization: `Bearer ${appToken}`,
         },
       });
 
-      setAlertMessage("Successful create new event");
+      setAlertMessage("Successfully create new event");
       setIsAlert(true);
       setFileName(undefined);
       reset();
@@ -154,40 +144,7 @@ const CreateEventScreen = () => {
   return (
     <View style={{ flex: 1, backgroundColor: "#FCFCFC" }}>
       {/* Header */}
-      <View
-        style={{
-          position: "absolute",
-          zIndex: 10,
-          top: 0,
-          flexDirection: "row",
-          alignItems: "center",
-          backgroundColor: "#FCFCFC",
-          width: "100%",
-          paddingVertical: 20,
-        }}
-      >
-        {/* Go back button */}
-        <IconButton
-          icon={"chevron-left"}
-          size={32}
-          iconColor="#808080"
-          style={{ position: "absolute", left: 10, zIndex: 10 }}
-          onPress={() => router.replace("/(tabs)/ProfileScreen")}
-        />
-        {/* Title */}
-        <Text
-          variant="titleLarge"
-          style={{
-            fontFamily: "Poppins-SemiBold",
-            color: "#333",
-            textAlign: "center",
-            flex: 1,
-            alignItems: "center",
-          }}
-        >
-          Create Event
-        </Text>
-      </View>
+      <ScreenHeader title="Create Event" />
 
       {/* Content */}
       <ScrollView style={styles.scrollView}>

@@ -15,7 +15,7 @@ const RecordActivityScreen = (props: Props) => {
   // Methods
   // Handle route scan screen
   const handleRouteScanScreen = (isCheckIn: boolean) => {
-    router.replace({
+    router.push({
       pathname: "/(stack)/ScanQRScreen",
       params: { recordType: isCheckIn ? "CHECKIN" : "CHECKOUT" },
     });
@@ -36,21 +36,37 @@ const RecordActivityScreen = (props: Props) => {
       <View style={[styles.actionBtnContainer, styles.alignCenter]}>
         <Button
           mode="outlined"
-          style={{ borderRadius: 5 }}
-          textColor="#333"
-          contentStyle={{ width: 270, height: 50 }}
+          style={{ borderRadius: 5, borderColor: "#44CC77", borderWidth: 1.25 }}
+          textColor="#44CC77"
+          contentStyle={{ width: 270, height: 55 }}
+          buttonColor="rgba(204, 255, 204, .75)"
           onPress={() => handleRouteScanScreen(true)}
+          icon={"home-import-outline"}
+          labelStyle={{ fontSize: 24 }}
         >
-          Check In
+          <Text
+            variant="bodyLarge"
+            style={[styles.buttonLabel, { color: "#44CC77" }]}
+          >
+            Check In
+          </Text>
         </Button>
         <Button
           mode="outlined"
-          style={{ borderRadius: 5 }}
-          textColor="#333"
-          contentStyle={{ width: 270, height: 50 }}
+          style={{ borderRadius: 5, borderColor: "#FF6666", borderWidth: 1.25 }}
+          textColor="#FF6666"
+          buttonColor="rgba(255, 230, 230, .75)"
+          contentStyle={{ width: 270, height: 55 }}
+          icon={"home-export-outline"}
+          labelStyle={{ fontSize: 24 }}
           onPress={() => handleRouteScanScreen(false)}
         >
-          Check Out
+          <Text
+            variant="bodyLarge"
+            style={[styles.buttonLabel, { color: "#FF6666" }]}
+          >
+            Check Out
+          </Text>
         </Button>
       </View>
     </ImageBackground>
@@ -78,6 +94,9 @@ const styles = StyleSheet.create({
   },
   actionBtnContainer: {
     marginTop: 90,
-    gap: 37,
+    gap: 32,
+  },
+  buttonLabel: {
+    fontFamily: "Poppins-SemiBold",
   },
 });

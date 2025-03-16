@@ -56,12 +56,12 @@ const ManageAccountScreen = (props: Props) => {
   // Method
   // Handle get detail account
   const handleViewDetailMember = (id: string) => {
-    router.replace(`/(stack)/detail/${id}`);
+    router.push(`/(stack)/detail/${id}`);
   };
 
   // Handle create new member
   const handleCreateNewMember = () => {
-    router.replace("/(stack)/CreateMemberScreen");
+    router.push("/(stack)/CreateMemberScreen");
   };
 
   // Handle get members
@@ -89,7 +89,7 @@ const ManageAccountScreen = (props: Props) => {
           };
           return Obj;
         }) ?? [];
-      console.log("Successful get members");
+      console.log("Successfully get members");
       setMemberList(newLabMemberList);
     } catch (error: any) {
       console.error(error.response.data);

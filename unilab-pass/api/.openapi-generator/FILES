@@ -18,7 +18,11 @@ git_push.sh
 index.ts
 models/authentication-request.ts
 models/authentication-response.ts
+models/change-password-request.ts
+models/check-password-request.ts
+models/check-password-response.ts
 models/custom-api-response-authentication-response.ts
+models/custom-api-response-check-password-response.ts
 models/custom-api-response-event-guest-respond.ts
 models/custom-api-response-event-log-respond.ts
 models/custom-api-response-introspect-response.ts
@@ -72,6 +76,7 @@ models/my-user-creation-request.ts
 models/my-user-response.ts
 models/my-user-update-request.ts
 models/refresh-token-request.ts
+models/resend-verification-code-request.ts
 models/role-request.ts
 models/role-response.ts
 models/verification-code-request.ts

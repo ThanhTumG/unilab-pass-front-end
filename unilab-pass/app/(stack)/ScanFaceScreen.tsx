@@ -18,7 +18,6 @@ import {
 
 // App
 import FaceFrame from "components/ui/FaceFrame";
-import useBackHandler from "utils/useBackHandler";
 
 // Types
 type Props = {};
@@ -46,12 +45,6 @@ const ScanFaceScreen = (props: Props) => {
   const router = useRouter();
 
   // Methods
-  // Handle back
-  useBackHandler(() => {
-    router.replace("/(tabs)/RecordActivityScreen");
-    return true;
-  });
-
   // Handle detect face
   const handleDetectedFaces = Worklets.createRunOnJS((faces: Face[]) => {
     if (faces.length > 0) {

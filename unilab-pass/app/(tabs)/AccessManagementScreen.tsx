@@ -47,7 +47,7 @@ const ManageAccessScreen = (props: Props) => {
         { labId: appLabId ?? "" },
         { headers: { Authorization: `Bearer ${appToken}` } }
       );
-      console.log("Successful get all log");
+      console.log("Successfully get all log");
       setLogList(response.data.result);
     } catch (error: any) {
       console.error(error.response.data);

@@ -68,13 +68,13 @@ const MemberCard = ({ item, isEven, onPress }: Props) => {
                 ? "rgba(204, 255, 204, .75)"
                 : "rgba(255, 230, 230, .75)"
             }`,
-            borderColor: `${item.status == "ACTIVE" ? "#00CC00" : "#FF0000"}`,
+            borderColor: `${item.status == "ACTIVE" ? "#44CC77" : "#FF0000"}`,
           }}
         >
           <Text
             variant="bodySmall"
             style={{
-              color: `${item.status == "ACTIVE" ? "#00CC00" : "#FF0000"}`,
+              color: `${item.status == "ACTIVE" ? "#44CC77" : "#FF0000"}`,
               textTransform: "capitalize",
               fontFamily: "Poppins-Regular",
             }}

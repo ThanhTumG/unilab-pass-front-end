@@ -17,7 +17,6 @@ import {
 
 // App
 import { isNumberCharList } from "lib/utils";
-import useBackHandler from "utils/useBackHandler";
 import useEventStore from "stores/useEventStore";
 import { useAuthStore, useUserStore } from "stores";
 import {
@@ -78,12 +77,6 @@ const ScanScreen = (props: Props) => {
     setIsAlert(true);
   };
 
-  // Handle back
-  useBackHandler(() => {
-    router.replace("/(tabs)/RecordActivityScreen");
-    return true;
-  });
-
   // Effects
   useEffect(() => {
     if (!idDetected) return;
@@ -100,8 +93,7 @@ const ScanScreen = (props: Props) => {
           { headers: { Authorization: `Bearer ${appToken}` } }
         );
 
-        console.log("Successful get guest:", response.data.result);
-        router.replace({
+        router.push({
           pathname: "/(stack)/RecordScreen",
           params: {
             id: idDetected,
@@ -131,7 +123,7 @@ const ScanScreen = (props: Props) => {
           console.log("User is in lab");
           const { firstName, lastName, email, id }: MyUserResponse =
             response.data.result?.myUserResponse ?? {};
-          router.replace({
+          router.push({
             pathname: "/(stack)/RecordScreen",
             params: { firstName, lastName, email, id, recordType },
           });
@@ -140,6 +132,7 @@ const ScanScreen = (props: Props) => {
           setIsAlert(true);
         }
       } catch (error: any) {
+        console.log(error.response.data.message);
         setAlertMessage(error.response.data.message);
         setIsAlert(true);
       }
@@ -205,7 +198,7 @@ const ScanScreen = (props: Props) => {
               size={20}
               iconColor="#fff"
               style={styles.backBtn}
-              onPress={() => router.replace("/(tabs)/RecordActivityScreen")}
+              onPress={() => router.back()}
             />
             {/* Title */}
             <View

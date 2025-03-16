@@ -24,7 +24,13 @@ import { BASE_PATH, COLLECTION_FORMATS, type RequestArgs, BaseAPI, RequiredError
 // @ts-ignore
 import type { AuthenticationRequest } from '../models';
 // @ts-ignore
+import type { ChangePasswordRequest } from '../models';
+// @ts-ignore
+import type { CheckPasswordRequest } from '../models';
+// @ts-ignore
 import type { CustomApiResponseAuthenticationResponse } from '../models';
+// @ts-ignore
+import type { CustomApiResponseCheckPasswordResponse } from '../models';
 // @ts-ignore
 import type { CustomApiResponseIntrospectResponse } from '../models';
 // @ts-ignore
@@ -39,6 +45,8 @@ import type { IntrospectRequest } from '../models';
 import type { LogoutRequest } from '../models';
 // @ts-ignore
 import type { RefreshTokenRequest } from '../models';
+// @ts-ignore
+import type { ResendVerificationCodeRequest } from '../models';
 // @ts-ignore
 import type { VerificationCodeRequest } from '../models';
 /**
@@ -77,6 +85,89 @@ export const AuthenticationControllerApiAxiosParamCreator = function (configurat
             let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
             localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
             localVarRequestOptions.data = serializeDataIfNeeded(authenticationRequest, localVarRequestOptions, configuration)
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * 
+         * @summary Change Password
+         * @param {ChangePasswordRequest} changePasswordRequest 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        changePassword: async (changePasswordRequest: ChangePasswordRequest, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'changePasswordRequest' is not null or undefined
+            assertParamExists('changePassword', 'changePasswordRequest', changePasswordRequest)
+            const localVarPath = `/auth/change-pass`;
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'POST', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication BearerAuthentication required
+            // http bearer authentication required
+            await setBearerAuthToObject(localVarHeaderParameter, configuration)
+
+
+    
+            localVarHeaderParameter['Content-Type'] = 'application/json';
+
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+            localVarRequestOptions.data = serializeDataIfNeeded(changePasswordRequest, localVarRequestOptions, configuration)
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * 
+         * @summary Check Password
+         * @param {CheckPasswordRequest} request 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        checkPassword: async (request: CheckPasswordRequest, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'request' is not null or undefined
+            assertParamExists('checkPassword', 'request', request)
+            const localVarPath = `/auth/check-password`;
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'POST', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication BearerAuthentication required
+            // http bearer authentication required
+            await setBearerAuthToObject(localVarHeaderParameter, configuration)
+
+            if (request !== undefined) {
+                for (const [key, value] of Object.entries(request)) {
+                    localVarQueryParameter[key] = value;
+                }
+            }
+
+
+    
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
 
             return {
                 url: toPathString(localVarUrlObj),
@@ -193,6 +284,81 @@ export const AuthenticationControllerApiAxiosParamCreator = function (configurat
         },
         /**
          * 
+         * @summary Resend Verify Email
+         * @param {ResendVerificationCodeRequest} resendVerificationCodeRequest 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        resendVerifyCode: async (resendVerificationCodeRequest: ResendVerificationCodeRequest, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'resendVerificationCodeRequest' is not null or undefined
+            assertParamExists('resendVerifyCode', 'resendVerificationCodeRequest', resendVerificationCodeRequest)
+            const localVarPath = `/auth/resend-verify-email`;
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'POST', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+
+    
+            localVarHeaderParameter['Content-Type'] = 'application/json';
+
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+            localVarRequestOptions.data = serializeDataIfNeeded(resendVerificationCodeRequest, localVarRequestOptions, configuration)
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * 
+         * @summary Send Reset Password
+         * @param {ResendVerificationCodeRequest} request 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        sendResetPassword: async (request: ResendVerificationCodeRequest, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'request' is not null or undefined
+            assertParamExists('sendResetPassword', 'request', request)
+            const localVarPath = `/auth/send-reset-pass`;
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'POST', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            if (request !== undefined) {
+                for (const [key, value] of Object.entries(request)) {
+                    localVarQueryParameter[key] = value;
+                }
+            }
+
+
+    
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * 
          * @summary Verify email with verification code
          * @param {VerificationCodeRequest} verificationCodeRequest 
          * @param {*} [options] Override http request option.
@@ -252,6 +418,32 @@ export const AuthenticationControllerApiFp = function(configuration?: Configurat
         },
         /**
          * 
+         * @summary Change Password
+         * @param {ChangePasswordRequest} changePasswordRequest 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async changePassword(changePasswordRequest: ChangePasswordRequest, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<CustomApiResponseVoid>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.changePassword(changePasswordRequest, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['AuthenticationControllerApi.changePassword']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * 
+         * @summary Check Password
+         * @param {CheckPasswordRequest} request 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async checkPassword(request: CheckPasswordRequest, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<CustomApiResponseCheckPasswordResponse>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.checkPassword(request, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['AuthenticationControllerApi.checkPassword']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * 
          * @summary Check the validity of the token
          * @param {IntrospectRequest} introspectRequest 
          * @param {*} [options] Override http request option.
@@ -291,6 +483,32 @@ export const AuthenticationControllerApiFp = function(configuration?: Configurat
         },
         /**
          * 
+         * @summary Resend Verify Email
+         * @param {ResendVerificationCodeRequest} resendVerificationCodeRequest 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async resendVerifyCode(resendVerificationCodeRequest: ResendVerificationCodeRequest, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<CustomApiResponseVoid>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.resendVerifyCode(resendVerificationCodeRequest, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['AuthenticationControllerApi.resendVerifyCode']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * 
+         * @summary Send Reset Password
+         * @param {ResendVerificationCodeRequest} request 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async sendResetPassword(request: ResendVerificationCodeRequest, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<CustomApiResponseVoid>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.sendResetPassword(request, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['AuthenticationControllerApi.sendResetPassword']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * 
          * @summary Verify email with verification code
          * @param {VerificationCodeRequest} verificationCodeRequest 
          * @param {*} [options] Override http request option.
@@ -324,6 +542,26 @@ export const AuthenticationControllerApiFactory = function (configuration?: Conf
         },
         /**
          * 
+         * @summary Change Password
+         * @param {AuthenticationControllerApiChangePasswordRequest} requestParameters Request parameters.
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        changePassword(requestParameters: AuthenticationControllerApiChangePasswordRequest, options?: RawAxiosRequestConfig): AxiosPromise<CustomApiResponseVoid> {
+            return localVarFp.changePassword(requestParameters.changePasswordRequest, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * 
+         * @summary Check Password
+         * @param {AuthenticationControllerApiCheckPasswordRequest} requestParameters Request parameters.
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        checkPassword(requestParameters: AuthenticationControllerApiCheckPasswordRequest, options?: RawAxiosRequestConfig): AxiosPromise<CustomApiResponseCheckPasswordResponse> {
+            return localVarFp.checkPassword(requestParameters.request, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * 
          * @summary Check the validity of the token
          * @param {AuthenticationControllerApiIntrospectRequest} requestParameters Request parameters.
          * @param {*} [options] Override http request option.
@@ -354,6 +592,26 @@ export const AuthenticationControllerApiFactory = function (configuration?: Conf
         },
         /**
          * 
+         * @summary Resend Verify Email
+         * @param {AuthenticationControllerApiResendVerifyCodeRequest} requestParameters Request parameters.
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        resendVerifyCode(requestParameters: AuthenticationControllerApiResendVerifyCodeRequest, options?: RawAxiosRequestConfig): AxiosPromise<CustomApiResponseVoid> {
+            return localVarFp.resendVerifyCode(requestParameters.resendVerificationCodeRequest, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * 
+         * @summary Send Reset Password
+         * @param {AuthenticationControllerApiSendResetPasswordRequest} requestParameters Request parameters.
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        sendResetPassword(requestParameters: AuthenticationControllerApiSendResetPasswordRequest, options?: RawAxiosRequestConfig): AxiosPromise<CustomApiResponseVoid> {
+            return localVarFp.sendResetPassword(requestParameters.request, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * 
          * @summary Verify email with verification code
          * @param {AuthenticationControllerApiVerifyCodeRequest} requestParameters Request parameters.
          * @param {*} [options] Override http request option.
@@ -377,6 +635,34 @@ export interface AuthenticationControllerApiAuthenticateRequest {
      * @memberof AuthenticationControllerApiAuthenticate
      */
     readonly authenticationRequest: AuthenticationRequest
+}
+
+/**
+ * Request parameters for changePassword operation in AuthenticationControllerApi.
+ * @export
+ * @interface AuthenticationControllerApiChangePasswordRequest
+ */
+export interface AuthenticationControllerApiChangePasswordRequest {
+    /**
+     * 
+     * @type {ChangePasswordRequest}
+     * @memberof AuthenticationControllerApiChangePassword
+     */
+    readonly changePasswordRequest: ChangePasswordRequest
+}
+
+/**
+ * Request parameters for checkPassword operation in AuthenticationControllerApi.
+ * @export
+ * @interface AuthenticationControllerApiCheckPasswordRequest
+ */
+export interface AuthenticationControllerApiCheckPasswordRequest {
+    /**
+     * 
+     * @type {CheckPasswordRequest}
+     * @memberof AuthenticationControllerApiCheckPassword
+     */
+    readonly request: CheckPasswordRequest
 }
 
 /**
@@ -422,6 +708,34 @@ export interface AuthenticationControllerApiRefreshTokenRequest {
 }
 
 /**
+ * Request parameters for resendVerifyCode operation in AuthenticationControllerApi.
+ * @export
+ * @interface AuthenticationControllerApiResendVerifyCodeRequest
+ */
+export interface AuthenticationControllerApiResendVerifyCodeRequest {
+    /**
+     * 
+     * @type {ResendVerificationCodeRequest}
+     * @memberof AuthenticationControllerApiResendVerifyCode
+     */
+    readonly resendVerificationCodeRequest: ResendVerificationCodeRequest
+}
+
+/**
+ * Request parameters for sendResetPassword operation in AuthenticationControllerApi.
+ * @export
+ * @interface AuthenticationControllerApiSendResetPasswordRequest
+ */
+export interface AuthenticationControllerApiSendResetPasswordRequest {
+    /**
+     * 
+     * @type {ResendVerificationCodeRequest}
+     * @memberof AuthenticationControllerApiSendResetPassword
+     */
+    readonly request: ResendVerificationCodeRequest
+}
+
+/**
  * Request parameters for verifyCode operation in AuthenticationControllerApi.
  * @export
  * @interface AuthenticationControllerApiVerifyCodeRequest
@@ -452,6 +766,30 @@ export class AuthenticationControllerApi extends BaseAPI {
      */
     public authenticate(requestParameters: AuthenticationControllerApiAuthenticateRequest, options?: RawAxiosRequestConfig) {
         return AuthenticationControllerApiFp(this.configuration).authenticate(requestParameters.authenticationRequest, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * 
+     * @summary Change Password
+     * @param {AuthenticationControllerApiChangePasswordRequest} requestParameters Request parameters.
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof AuthenticationControllerApi
+     */
+    public changePassword(requestParameters: AuthenticationControllerApiChangePasswordRequest, options?: RawAxiosRequestConfig) {
+        return AuthenticationControllerApiFp(this.configuration).changePassword(requestParameters.changePasswordRequest, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * 
+     * @summary Check Password
+     * @param {AuthenticationControllerApiCheckPasswordRequest} requestParameters Request parameters.
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof AuthenticationControllerApi
+     */
+    public checkPassword(requestParameters: AuthenticationControllerApiCheckPasswordRequest, options?: RawAxiosRequestConfig) {
+        return AuthenticationControllerApiFp(this.configuration).checkPassword(requestParameters.request, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**
@@ -488,6 +826,30 @@ export class AuthenticationControllerApi extends BaseAPI {
      */
     public refreshToken(requestParameters: AuthenticationControllerApiRefreshTokenRequest, options?: RawAxiosRequestConfig) {
         return AuthenticationControllerApiFp(this.configuration).refreshToken(requestParameters.refreshTokenRequest, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * 
+     * @summary Resend Verify Email
+     * @param {AuthenticationControllerApiResendVerifyCodeRequest} requestParameters Request parameters.
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof AuthenticationControllerApi
+     */
+    public resendVerifyCode(requestParameters: AuthenticationControllerApiResendVerifyCodeRequest, options?: RawAxiosRequestConfig) {
+        return AuthenticationControllerApiFp(this.configuration).resendVerifyCode(requestParameters.resendVerificationCodeRequest, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * 
+     * @summary Send Reset Password
+     * @param {AuthenticationControllerApiSendResetPasswordRequest} requestParameters Request parameters.
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof AuthenticationControllerApi
+     */
+    public sendResetPassword(requestParameters: AuthenticationControllerApiSendResetPasswordRequest, options?: RawAxiosRequestConfig) {
+        return AuthenticationControllerApiFp(this.configuration).sendResetPassword(requestParameters.request, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**
