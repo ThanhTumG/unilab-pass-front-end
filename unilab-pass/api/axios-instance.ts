@@ -1,15 +1,6 @@
 import axios from "axios";
 import { useAuthStore } from "../stores";
 
-const handleSetToken = (token: string) => {
-  const { setAppToken } = useAuthStore();
-  setAppToken({ token: token });
-};
-const handleGetToken = () => {
-  const { appToken } = useAuthStore();
-  return appToken;
-};
-
 const API = axios.create({
   baseURL: "https://unilabpass-backend.onrender.com/identity",
 });
@@ -23,6 +14,7 @@ API.interceptors.response.use(
       "/auth/login",
       "/users/signup",
       "/users/myInfo",
+      "/auth/change-pass",
     ];
 
     if (excludeRefreshRoutes.includes(originalRequest.url)) {
@@ -41,7 +33,7 @@ API.interceptors.response.use(
         const newAccessToken = refreshResponse.data.result.token;
         setAppToken({ token: newAccessToken });
 
-        // Gửi lại request với access token mới
+        // Resend request with refresh token
         originalRequest.headers.Authorization = `Bearer ${newAccessToken}`;
         return API(originalRequest);
       } catch (err) {

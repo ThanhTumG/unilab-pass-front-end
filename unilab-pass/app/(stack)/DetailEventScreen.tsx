@@ -3,7 +3,7 @@ import dayjs from "dayjs";
 import React, { useCallback, useState } from "react";
 import { useFocusEffect } from "expo-router";
 import { FlatList, RefreshControl, StyleSheet, View } from "react-native";
-import { Text, TextInput, useTheme } from "react-native-paper";
+import { Snackbar, Text, TextInput, useTheme } from "react-native-paper";
 
 // App
 import { useAuthStore } from "stores";
@@ -20,6 +20,8 @@ const DetailEventScreen = (props: Props) => {
   // States
   const [isPendingGetLog, setIsPendingGetLog] = useState<boolean>(false);
   const [logList, setLogList] = useState<EventLogRespond[]>();
+  const [alertMessage, setAlertMessage] = useState("");
+  const [isAlert, setIsAlert] = useState(false);
 
   // Theme
   const theme = useTheme();
@@ -46,7 +48,8 @@ const DetailEventScreen = (props: Props) => {
       console.log("Successfully get event log");
       setLogList(response.data.result);
     } catch (error: any) {
-      console.error(error.response.data);
+      setAlertMessage(error.response.data.message);
+      setIsAlert(true);
     } finally {
       setIsPendingGetLog(false);
     }
@@ -196,6 +199,19 @@ const DetailEventScreen = (props: Props) => {
           }}
         />
       </View>
+
+      {/* Snackbar */}
+      <Snackbar
+        visible={isAlert}
+        onDismiss={() => setIsAlert(false)}
+        duration={3000}
+        action={{
+          label: "Close",
+          onPress: () => setIsAlert(false),
+        }}
+      >
+        {alertMessage}
+      </Snackbar>
     </View>
   );
 };

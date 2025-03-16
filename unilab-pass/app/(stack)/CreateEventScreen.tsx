@@ -100,8 +100,9 @@ const CreateEventScreen = () => {
       });
 
       setGuestList(data);
-    } catch (error) {
-      console.error("Error load file:", error);
+    } catch {
+      setAlertMessage("Error load file");
+      setIsAlert(true);
     }
   };
 
@@ -135,7 +136,8 @@ const CreateEventScreen = () => {
       setFileName(undefined);
       reset();
     } catch (error: any) {
-      console.log(error.response.data);
+      setAlertMessage(error.response.data.message);
+      setIsAlert(true);
     }
     setIsPendingCreateEv(false);
   };

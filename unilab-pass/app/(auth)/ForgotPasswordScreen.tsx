@@ -2,7 +2,13 @@
 import React, { useState } from "react";
 import { useRouter } from "expo-router";
 import { Controller, useForm } from "react-hook-form";
-import { Button, IconButton, Text, TextInput } from "react-native-paper";
+import {
+  Button,
+  IconButton,
+  Snackbar,
+  Text,
+  TextInput,
+} from "react-native-paper";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { ImageBackground, StyleSheet, View } from "react-native";
 
@@ -26,6 +32,8 @@ const ForgotPasswordScreen = (props: Props) => {
   // States
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [isSuccessDialog, setIsSuccessDialog] = useState<boolean>(false);
+  const [alertMessage, setAlertMessage] = useState("");
+  const [isAlert, setIsAlert] = useState(false);
 
   // Server
   const authenticationControllerApi = new AuthenticationControllerApi();
@@ -57,7 +65,8 @@ const ForgotPasswordScreen = (props: Props) => {
       await authenticationControllerApi.sendResetPassword(param);
       setIsSuccessDialog(true);
     } catch (error: any) {
-      console.error(error.response.data);
+      setAlertMessage(error.response.data.message);
+      setIsAlert(true);
     }
     setIsLoading(false);
   };
@@ -143,6 +152,19 @@ const ForgotPasswordScreen = (props: Props) => {
         setVisible={setIsSuccessDialog}
         onCloseDialog={() => router.replace("/(auth)/LoginScreen")}
       />
+
+      {/* Snackbar */}
+      <Snackbar
+        visible={isAlert}
+        onDismiss={() => setIsAlert(false)}
+        duration={3000}
+        action={{
+          label: "Close",
+          onPress: () => setIsAlert(false),
+        }}
+      >
+        {alertMessage}
+      </Snackbar>
     </ImageBackground>
   );
 };

@@ -4,7 +4,13 @@ import { useRouter } from "expo-router";
 import { ImageBackground, StyleSheet, View } from "react-native";
 import { Controller, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Button, IconButton, Text, TextInput } from "react-native-paper";
+import {
+  Button,
+  IconButton,
+  Snackbar,
+  Text,
+  TextInput,
+} from "react-native-paper";
 
 // App
 import { splitFullName } from "lib/utils";
@@ -26,6 +32,8 @@ const SignUpScreen = (props: Props) => {
   const [isHideConfirmPassword, setIsHideConfirmPassword] =
     useState<boolean>(true);
   const [isLoading, setIsLoading] = useState<boolean>(false);
+  const [alertMessage, setAlertMessage] = useState("");
+  const [isAlert, setIsAlert] = useState(false);
 
   // Router
   const router = useRouter();
@@ -65,7 +73,8 @@ const SignUpScreen = (props: Props) => {
         });
       })
       .catch((error) => {
-        console.error("Error: ", error.response.data);
+        setAlertMessage(error.response.data.message);
+        setIsAlert(true);
       });
     setIsLoading(false);
   };
@@ -249,6 +258,19 @@ const SignUpScreen = (props: Props) => {
           </Button>
         </View>
       </View>
+
+      {/* Snackbar */}
+      <Snackbar
+        visible={isAlert}
+        onDismiss={() => setIsAlert(false)}
+        duration={3000}
+        action={{
+          label: "Close",
+          onPress: () => setIsAlert(false),
+        }}
+      >
+        {alertMessage}
+      </Snackbar>
     </ImageBackground>
   );
 };

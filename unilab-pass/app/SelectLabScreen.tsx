@@ -4,7 +4,13 @@ import React, { useCallback, useEffect, useState } from "react";
 import { Dropdown } from "react-native-paper-dropdown";
 import { useFocusEffect, useRouter } from "expo-router";
 import { ImageBackground, StyleSheet, View } from "react-native";
-import { ActivityIndicator, Button, Text, TextInput } from "react-native-paper";
+import {
+  ActivityIndicator,
+  Button,
+  Snackbar,
+  Text,
+  TextInput,
+} from "react-native-paper";
 
 // App
 import useEventStore from "stores/useEventStore";
@@ -37,6 +43,8 @@ const SelectLabScreen = (props: Props) => {
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [isLoadingCreate, setIsLoadingCreate] = useState<boolean>(false);
   const [myLabList, setMyLabList] = useState<LabInfo[]>([]);
+  const [alertMessage, setAlertMessage] = useState("");
+  const [isAlert, setIsAlert] = useState(false);
 
   // Router
   const router = useRouter();
@@ -56,42 +64,49 @@ const SelectLabScreen = (props: Props) => {
     if (isLoading) return;
     const finalToken = token || appToken;
     setIsLoading(true);
-    await laboratoryControllerApi
-      .getAllLabs({ headers: { Authorization: `Bearer ${finalToken}` } })
-      .then((response) => {
-        const newLabLst =
-          response.data.result?.map((lab) => {
-            const obj: LabInfo = {
-              label: lab.name || "",
-              value: lab.id || "",
-              location: lab.location || "",
-            };
-            return obj;
-          }) ?? [];
-        console.log("Successfully get lab list");
-        setMyLabList(newLabLst);
-      })
-      .catch((error) => console.error("Error get lab: ", error.response.data));
+    try {
+      const response = await laboratoryControllerApi.getAllLabs({
+        headers: { Authorization: `Bearer ${finalToken}` },
+      });
+      const newLabLst =
+        response.data.result?.map((lab) => {
+          const obj: LabInfo = {
+            label: lab.name || "",
+            value: lab.id || "",
+            location: lab.location || "",
+          };
+          return obj;
+        }) ?? [];
+      console.log("Successfully get lab list");
+      setMyLabList(newLabLst);
+    } catch (error: any) {
+      setAlertMessage(error.response.data.message);
+      setIsAlert(true);
+    }
     setIsLoading(false);
   };
 
   // Handle create lab
   const handleCreateLab = async () => {
-    const param: LabCreationRequest = {
-      name: `Lab ${now.format("YYYY/MM/DD HH:mm")}`,
-      location: "",
-      capacity: 12,
-    };
-    const options = { headers: { Authorization: `Bearer ${appToken}` } };
+    if (isLoadingCreate) return;
     setIsLoadingCreate(true);
-    await laboratoryControllerApi
-      .createLab({ labCreationRequest: param }, options)
-      .then((response) => {
-        console.log("Successfully create new lab");
-        const { appToken: latestToken } = useAuthStore.getState();
-        handleGetAllLab(latestToken ?? "");
-      })
-      .catch((error) => console.error(error.response.data));
+    try {
+      const param: LabCreationRequest = {
+        name: `Lab ${now.format("YYYY/MM/DD HH:mm")}`,
+        location: "",
+        capacity: 12,
+      };
+      const options = { headers: { Authorization: `Bearer ${appToken}` } };
+      await laboratoryControllerApi.createLab(
+        { labCreationRequest: param },
+        options
+      );
+      const { appToken: latestToken } = useAuthStore.getState();
+      handleGetAllLab(latestToken ?? "");
+    } catch (error: any) {
+      setAlertMessage(error.response.data.message);
+      setIsAlert(true);
+    }
     setIsLoadingCreate(false);
   };
 
@@ -106,15 +121,13 @@ const SelectLabScreen = (props: Props) => {
     // Handle press homepage button
     const handlePressHomePage = async () => {
       if (!labId) return;
-      const currentLab = myLabList.find((lab) => lab.value == labId);
       setIsLoading(true);
+      const currentLab = myLabList.find((lab) => lab.value == labId);
       try {
         const response = await eventControllerApi.getCurrentEvent(
           { labId: labId },
           { headers: { Authorization: `Bearer ${appToken}` } }
         );
-
-        console.log("Success get current event:", response.data.result);
         const event = response.data.result;
         if (event?.id) {
           setAppIsEvent(true);
@@ -132,7 +145,8 @@ const SelectLabScreen = (props: Props) => {
         });
         router.replace("/(tabs)/HomeScreen");
       } catch (error: any) {
-        console.error(error.response.data);
+        setAlertMessage(error.response.data.message);
+        setIsAlert(true);
       }
       setIsLoading(false);
     };
@@ -204,6 +218,19 @@ const SelectLabScreen = (props: Props) => {
           Create new Lab
         </Button>
       </View>
+
+      {/* Snackbar */}
+      <Snackbar
+        visible={isAlert}
+        onDismiss={() => setIsAlert(false)}
+        duration={3000}
+        action={{
+          label: "Close",
+          onPress: () => setIsAlert(false),
+        }}
+      >
+        {alertMessage}
+      </Snackbar>
     </ImageBackground>
   );
 };

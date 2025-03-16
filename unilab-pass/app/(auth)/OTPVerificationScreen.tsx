@@ -2,9 +2,15 @@
 import { useTimer } from "react-timer-hook";
 import { ImageBackground, StyleSheet, View } from "react-native";
 import { OtpInput } from "react-native-otp-entry";
-import React, { useEffect, useMemo, useState } from "react";
-import { useLocalSearchParams, useRouter } from "expo-router";
-import { Button, IconButton, Text, TouchableRipple } from "react-native-paper";
+import React, { useCallback, useMemo, useState } from "react";
+import { useFocusEffect, useLocalSearchParams, useRouter } from "expo-router";
+import {
+  Button,
+  IconButton,
+  Snackbar,
+  Text,
+  TouchableRipple,
+} from "react-native-paper";
 
 // App
 import { OTP_EXPIRED_DURATION_MILLISECONDS } from "constants/auth.constant";
@@ -23,6 +29,8 @@ const OTPVerificationScreen = (props: Props) => {
   const [otpCode, setOtpCode] = useState<string>("");
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [isLoadingResend, setIsLoadingResend] = useState<boolean>(false);
+  const [alertMessage, setAlertMessage] = useState("");
+  const [isAlert, setIsAlert] = useState(false);
 
   // Route
   const route = useRouter();
@@ -41,6 +49,8 @@ const OTPVerificationScreen = (props: Props) => {
   // Methods
   // Handle resend otp
   const handleResendOtp = async () => {
+    console.log("sent otp");
+
     if (isLoadingResend) return;
     setIsLoadingResend(true);
     try {
@@ -54,7 +64,8 @@ const OTPVerificationScreen = (props: Props) => {
         new Date(Date.now() + OTP_EXPIRED_DURATION_MILLISECONDS)
       );
     } catch (error: any) {
-      console.error(error.response.data);
+      setAlertMessage(error.response.data.message);
+      setIsAlert(true);
     }
     setIsLoadingResend(false);
   };
@@ -79,7 +90,8 @@ const OTPVerificationScreen = (props: Props) => {
       });
       route.replace("/(auth)/LoginScreen");
     } catch (error: any) {
-      console.error(error);
+      setAlertMessage(error.response.data.message);
+      setIsAlert(true);
     }
     setIsLoading(false);
   };
@@ -100,9 +112,11 @@ const OTPVerificationScreen = (props: Props) => {
   }, [otpTimer.totalSeconds]);
 
   // Effects
-  useEffect(() => {
-    handleResendOtp();
-  }, []);
+  useFocusEffect(
+    useCallback(() => {
+      handleResendOtp();
+    }, [])
+  );
 
   // Template
   return (
@@ -210,6 +224,19 @@ const OTPVerificationScreen = (props: Props) => {
           </TouchableRipple>
         </View>
       </View>
+
+      {/* Snackbar */}
+      <Snackbar
+        visible={isAlert}
+        onDismiss={() => setIsAlert(false)}
+        duration={3000}
+        action={{
+          label: "Close",
+          onPress: () => setIsAlert(false),
+        }}
+      >
+        {alertMessage}
+      </Snackbar>
     </ImageBackground>
   );
 };

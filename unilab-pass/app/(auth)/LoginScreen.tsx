@@ -65,7 +65,6 @@ const LoginScreen = (props: Props) => {
       const response = await myUserControllerApi.getMyInfo({
         headers: { Authorization: `Bearer ${token}` },
       });
-
       setAppUser({
         userEmail: response.data.result?.email,
         userId: response.data.result?.id,
@@ -74,7 +73,6 @@ const LoginScreen = (props: Props) => {
           firstName: response.data.result?.firstName,
         }),
       });
-      return response.data.result;
     } catch (error) {
       setErrorMessage("Something was wrong");
       setVisible(true);
@@ -96,16 +94,14 @@ const LoginScreen = (props: Props) => {
       });
 
       const token = response.data.result?.token as string;
-      const responseGetInfo = await handleGetMyInformation(token);
-      if (responseGetInfo) {
-        console.info("Successfully log in:", response.data.result);
-        console.log("Successfully get my info");
-        setAppToken({ token: token });
-        setAppIsLoggedIn(true);
-        router.replace("/SelectLabScreen");
-      }
-    } catch (error) {
-      setErrorMessage("Email or Password is incorrect");
+      await handleGetMyInformation(token);
+      console.info("Successfully log in:", response.data.result);
+      console.log("Successfully get my info");
+      setAppToken({ token: token });
+      setAppIsLoggedIn(true);
+      router.replace("/SelectLabScreen");
+    } catch (error: any) {
+      setErrorMessage(error.response.data.message);
       setVisible(true);
     }
     setIsLoading(false);

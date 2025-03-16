@@ -119,7 +119,8 @@ const UserDetailScreen = () => {
       });
       setIsActive(response.data.result?.status === "ACTIVE");
     } catch (error: any) {
-      console.error(error.response.data);
+      setAlertMessage(error.response.data.message);
+      setIsAlert(true);
     }
     setLoading((prev) => ({ ...prev, getMem: false }));
   }, [appToken]);
@@ -134,14 +135,14 @@ const UserDetailScreen = () => {
         labId: appLabId ?? "",
         userId: id as string,
       };
-      const response = await labMemberControllerApi.deleteMember(param, {
+      await labMemberControllerApi.deleteMember(param, {
         headers: { Authorization: `Bearer ${appToken}` },
       });
-
       console.log("Success delete member");
       router.back();
     } catch (error: any) {
-      console.error(error.response.data);
+      setAlertMessage(error.response.data.message);
+      setIsAlert(true);
     }
     setLoading((prev) => ({ ...prev, deleteMem: false }));
   };
@@ -257,7 +258,7 @@ const UserDetailScreen = () => {
             alignItems: "center",
           }}
         >
-          Detail Information
+          Detail Member
         </Text>
 
         <IconButton
@@ -282,8 +283,18 @@ const UserDetailScreen = () => {
         }
       >
         <View style={styles.container}>
+          {/* Form */}
           <View style={styles.formField}>
-            {/* Form */}
+            {/* Member info */}
+            <Text
+              variant="titleMedium"
+              style={{
+                fontFamily: "Poppins-SemiBold",
+                alignSelf: "flex-start",
+              }}
+            >
+              Member Information
+            </Text>
             {/* Fullname */}
             <Controller
               control={control}
@@ -454,30 +465,41 @@ const UserDetailScreen = () => {
                 </View>
               )}
             />
-
-            {/* Permission */}
-            <View style={styles.permissionContainer}>
+            <View style={{ gap: 8, marginTop: 10 }}>
+              {/* Member info */}
               <Text
+                variant="titleMedium"
                 style={{
-                  fontSize: 13,
-                  color: isEditMode ? "#777" : "rgba(28, 27, 31, 0.38)",
+                  fontFamily: "Poppins-SemiBold",
+                  alignSelf: "flex-start",
                 }}
               >
-                Status
+                Access Permission
               </Text>
-              {loading.updateStatus ? (
-                <ActivityIndicator
-                  animating={true}
-                  size={16}
-                  style={{ marginLeft: 10 }}
-                />
-              ) : (
-                <Switch
-                  value={isActive}
-                  color="#44CC77"
-                  onValueChange={handleSetPermission}
-                />
-              )}
+              {/* Permission */}
+              <View style={styles.permissionContainer}>
+                <Text
+                  style={{
+                    fontSize: 13,
+                    color: "#777",
+                  }}
+                >
+                  Status
+                </Text>
+                {loading.updateStatus ? (
+                  <ActivityIndicator
+                    animating={true}
+                    size={16}
+                    style={{ marginLeft: 10 }}
+                  />
+                ) : (
+                  <Switch
+                    value={isActive}
+                    color="#44CC77"
+                    onValueChange={handleSetPermission}
+                  />
+                )}
+              </View>
             </View>
           </View>
 

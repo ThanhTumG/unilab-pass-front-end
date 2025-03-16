@@ -187,18 +187,19 @@ const ProfileScreen = (props: Props) => {
     const param: LogoutRequest = {
       token: appToken as string,
     };
-    await authenticationControllerApi
-      .logout({ logoutRequest: param })
-      .then((response) => {
-        console.log("Log out successfully");
-        setAppIsLoggedIn(false);
-        setAppIsEvent(false);
-        removeAppUser();
-        removeAppEvent();
-        removeAppToken();
-        router.replace("/(auth)/LoginScreen");
-      })
-      .catch((error) => console.error(error));
+    try {
+      await authenticationControllerApi.logout({ logoutRequest: param });
+      console.log("Log out successfully");
+      setAppIsLoggedIn(false);
+      setAppIsEvent(false);
+      removeAppUser();
+      removeAppEvent();
+      removeAppToken();
+      router.replace("/(auth)/LoginScreen");
+    } catch (error: any) {
+      setAlertMessage(error.response.data.message);
+      setIsSnackBarVisible(true);
+    }
     setLoading((prev) => ({ ...prev, logOut: false }));
   };
 
@@ -231,7 +232,8 @@ const ProfileScreen = (props: Props) => {
         });
       }
     } catch (error: any) {
-      console.error(error.response.data);
+      setAlertMessage("Failed to get the current event");
+      setIsSnackBarVisible(true);
     }
     setLoading((prev) => ({ ...prev, getEvent: false }));
   }, [appToken]);
@@ -266,7 +268,7 @@ const ProfileScreen = (props: Props) => {
           source={require("../../assets/images/profile-avatar.png")}
         />
 
-        <Text variant="titleMedium" style={styles.adminName} numberOfLines={2}>
+        <Text variant="bodyLarge" style={styles.adminName} numberOfLines={2}>
           {appUserName}
         </Text>
       </View>
@@ -281,7 +283,6 @@ const ProfileScreen = (props: Props) => {
       />
 
       {/* Content */}
-
       <ScrollView
         refreshControl={
           <RefreshControl
@@ -494,15 +495,14 @@ const ProfileScreen = (props: Props) => {
       </Portal>
 
       {/* Modal */}
+      {/* Lab information */}
       <Portal>
         <View style={[styles.portal, { display: visible ? "flex" : "none" }]}>
           <Modal
             animationType="slide"
             transparent={true}
             visible={visible}
-            onRequestClose={() => {
-              setVisible(!visible);
-            }}
+            onRequestClose={() => setVisible(!visible)}
           >
             <View style={[styles.modalContainer]}>
               {/* Model Content */}
@@ -654,9 +654,9 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   adminName: {
-    fontFamily: "Poppins-SemiBold",
-    maxWidth: 200,
-    maxHeight: 60,
+    fontFamily: "Poppins-Medium",
+    maxWidth: 133,
+    maxHeight: 62,
   },
   content: {
     flex: 1,
