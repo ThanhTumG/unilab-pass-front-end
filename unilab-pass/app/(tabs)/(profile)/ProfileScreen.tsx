@@ -36,6 +36,7 @@ import {
   LaboratoryControllerApiUpdateLabRequest,
   LogoutRequest,
 } from "api/index";
+import VerifyPasswordModal from "components/VerifyPasswordModal";
 
 // Types
 type Props = {};
@@ -53,6 +54,7 @@ const ProfileScreen = (props: Props) => {
   const [confirmDelEventDialog, setConfirmDelEventDialog] =
     useState<boolean>(false);
   const [visible, setVisible] = useState(false);
+  const [isVerifyPassModal, setIsVerifyPassModal] = useState(false);
   const [isSnackBarVisible, setIsSnackBarVisible] = useState(false);
   const [alertMessage, setAlertMessage] = useState("");
 
@@ -132,7 +134,6 @@ const ProfileScreen = (props: Props) => {
         { eventId: appEventId ?? "" },
         { headers: { Authorization: `Bearer ${appToken}` } }
       );
-
       setAppIsEvent(false);
       removeAppEvent();
       setIsSnackBarVisible(true);
@@ -148,25 +149,26 @@ const ProfileScreen = (props: Props) => {
   const handleSubmitLabInfoForm = async (data: LabInformationFormType) => {
     if (loading.updateLab) return;
     setLoading((prev) => ({ ...prev, updateLab: true }));
-    const param: LaboratoryControllerApiUpdateLabRequest = {
-      labId: appLabId ?? "",
-      labUpdateRequest: {
-        name: data.labName,
-        location: data.location,
-      },
-    };
-    await laboratoryControllerApi
-      .updateLab(param, { headers: { Authorization: `Bearer ${appToken}` } })
-      .then((response) => {
-        setAppUser({ labName: data.labName, labLocation: data.location });
-        setVisible(false);
-        setAlertMessage("Successfully update lab");
-        setIsSnackBarVisible(true);
-      })
-      .catch((error) => {
-        setAlertMessage(error.response.data.message);
-        setIsSnackBarVisible(true);
+    try {
+      const param: LaboratoryControllerApiUpdateLabRequest = {
+        labId: appLabId ?? "",
+        labUpdateRequest: {
+          name: data.labName,
+          location: data.location,
+        },
+      };
+      await laboratoryControllerApi.updateLab(param, {
+        headers: { Authorization: `Bearer ${appToken}` },
       });
+      setAppUser({ labName: data.labName, labLocation: data.location });
+      setVisible(false);
+      setAlertMessage("Successfully update lab");
+      setIsSnackBarVisible(true);
+    } catch (error: any) {
+      setAlertMessage(error.response.data.message);
+      setIsSnackBarVisible(true);
+    }
+
     setLoading((prev) => ({ ...prev, updateLab: false }));
   };
 
@@ -240,7 +242,12 @@ const ProfileScreen = (props: Props) => {
 
   // Handle route change password
   const handleChangePassword = () => {
-    router.push("/(stack)/ChangePasswordScreen");
+    router.push("/ChangePasswordScreen");
+  };
+
+  // Handle change scan mode
+  const handleChangeMode = () => {
+    setIsVerifyPassModal(true);
   };
 
   // Handle refresh
@@ -258,14 +265,14 @@ const ProfileScreen = (props: Props) => {
   // Template
   return (
     <ImageBackground
-      source={require("../../assets/images/background-without-logo.png")}
+      source={require("../../../assets/images/background-without-logo.png")}
       style={[styles.background]}
     >
       {/* Title */}
       <View style={styles.titleContainer}>
         <Avatar.Image
           size={72}
-          source={require("../../assets/images/profile-avatar.png")}
+          source={require("../../../assets/images/profile-avatar.png")}
         />
 
         <Text variant="bodyLarge" style={styles.adminName} numberOfLines={2}>
@@ -328,7 +335,7 @@ const ProfileScreen = (props: Props) => {
                     variant="bodyMedium"
                     style={[styles.smallBody, { color: "#1B61B5" }]}
                   >
-                    Change info
+                    Edit
                   </Text>
                 </TouchableRipple>
               </View>
@@ -365,7 +372,10 @@ const ProfileScreen = (props: Props) => {
               <Text variant="bodyMedium" style={styles.smallBody}>
                 Manage Lab Mode
               </Text>
-              <TouchableRipple>
+              <TouchableRipple
+                onPress={handleChangeMode}
+                rippleColor={"#fcfcfc"}
+              >
                 <Text variant="bodyMedium" style={[styles.smallAction]}>
                   Only scan mode
                 </Text>
@@ -402,7 +412,7 @@ const ProfileScreen = (props: Props) => {
                       style={{
                         justifyContent: "center",
                       }}
-                      onPress={() => router.push("/(stack)/DetailEventScreen")}
+                      onPress={() => router.push("/DetailEventScreen")}
                       rippleColor={"#fcfcfc"}
                     >
                       <Text
@@ -420,7 +430,7 @@ const ProfileScreen = (props: Props) => {
               <View style={{ gap: 4 }}>
                 <TouchableRipple
                   rippleColor={"#fcfcfc"}
-                  onPress={() => router.push("/(stack)/CreateEventScreen")}
+                  onPress={() => router.push("/CreateEventScreen")}
                 >
                   <Text variant="bodyMedium" style={styles.smallAction}>
                     Add event
@@ -478,21 +488,6 @@ const ProfileScreen = (props: Props) => {
           </Button>
         </View>
       </ScrollView>
-
-      {/* Snackbar */}
-      <Portal>
-        <Snackbar
-          visible={isSnackBarVisible}
-          onDismiss={() => setIsSnackBarVisible(false)}
-          duration={3000}
-          action={{
-            label: "Close",
-            onPress: () => setIsSnackBarVisible(false),
-          }}
-        >
-          {alertMessage}
-        </Snackbar>
-      </Portal>
 
       {/* Modal */}
       {/* Lab information */}
@@ -613,6 +608,27 @@ const ProfileScreen = (props: Props) => {
         </View>
       </Portal>
 
+      {/* Verify password */}
+      <VerifyPasswordModal
+        visible={isVerifyPassModal}
+        setVisible={setIsVerifyPassModal}
+      />
+
+      {/* Snackbar */}
+      <Portal>
+        <Snackbar
+          visible={isSnackBarVisible}
+          onDismiss={() => setIsSnackBarVisible(false)}
+          duration={3000}
+          action={{
+            label: "Close",
+            onPress: () => setIsSnackBarVisible(false),
+          }}
+        >
+          {alertMessage}
+        </Snackbar>
+      </Portal>
+
       {/* Alert Dialog */}
       <WarningDialog
         title="Warning"
@@ -677,7 +693,6 @@ const styles = StyleSheet.create({
   smallBodyContainer: {
     flexDirection: "row",
     justifyContent: "space-between",
-    // alignItems: "center",
     alignSelf: "stretch",
   },
   smallBody: {

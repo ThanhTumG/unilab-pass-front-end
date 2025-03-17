@@ -16,7 +16,7 @@ const RecordActivityScreen = (props: Props) => {
   // Handle route scan screen
   const handleRouteScanScreen = (isCheckIn: boolean) => {
     router.push({
-      pathname: "/(stack)/ScanQRScreen",
+      pathname: "/ScanQRScreen",
       params: { recordType: isCheckIn ? "CHECKIN" : "CHECKOUT" },
     });
   };
@@ -24,7 +24,7 @@ const RecordActivityScreen = (props: Props) => {
   // Template
   return (
     <ImageBackground
-      source={require("../../assets/images/background-without-logo.png")}
+      source={require("../../../assets/images/background-without-logo.png")}
       style={[styles.background]}
     >
       {/* Title */}

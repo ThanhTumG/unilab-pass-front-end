@@ -10,6 +10,7 @@ interface UserStoreStatesType {
   appLabId: string | null;
   appLabName: string | null;
   appLabLocation: string | null;
+  appIsOnlyScanMode: boolean;
 }
 
 // Actions type
@@ -24,6 +25,7 @@ interface SetAppUserParamsType {
 
 interface UserStoreActionsType {
   setAppIsFetchedUser: (isFetched: boolean) => void;
+  setAppIsOnlyScanMode: (isOnlyScan: boolean) => void;
   setAppUser: (params: SetAppUserParamsType) => void;
   removeAppUser: () => void;
 }
@@ -37,6 +39,7 @@ const DEFAULT_USER_STORE_STATES: UserStoreStatesType = {
   appLabId: null,
   appLabName: null,
   appLabLocation: null,
+  appIsOnlyScanMode: false,
 };
 
 // Define store
@@ -50,6 +53,10 @@ const useUserStore = create<UserStoreStatesType & UserStoreActionsType>()(
       setAppIsFetchedUser: (isFetched) =>
         set(() => ({
           appIsFetchedUser: isFetched,
+        })),
+      setAppIsOnlyScanMode: (isOnlyScan) =>
+        set(() => ({
+          appIsOnlyScanMode: isOnlyScan,
         })),
       setAppUser: ({
         userId,

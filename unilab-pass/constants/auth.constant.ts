@@ -54,12 +54,16 @@ const ForgotPasswordFormSchema = z.object({
     .email({ message: "Invalid email" }),
 });
 
+// Verify password form
+const VerifyPasswordFormSchema = z.object({
+  password: z.string().min(1, { message: "Password is required" }),
+});
+
 // Change password form
 const ChangePasswordFormSchema = z.object({
   password: z
     .object({
       oldPassword: z
-
         .string()
         .min(1, {
           message: "Password is required",
@@ -98,6 +102,12 @@ const DEFAULT_FORGOT_PASSWORD_FORM_VALUES: z.infer<
   email: "",
 };
 
+const DEFAULT_VERIFY_PASSWORD_FORM_VALUES: z.infer<
+  typeof VerifyPasswordFormSchema
+> = {
+  password: "",
+};
+
 const DEFAULT_CHANGE_PASSWORD_FORM_VALUES: z.infer<
   typeof ChangePasswordFormSchema
 > = {
@@ -106,6 +116,7 @@ const DEFAULT_CHANGE_PASSWORD_FORM_VALUES: z.infer<
     newPassword: "",
   },
 };
+
 const OTP_EXPIRED_DURATION_MILLISECONDS = 5000 * 60; // 5 mins
 
 export {
@@ -113,9 +124,11 @@ export {
   SignupFormSchema,
   ForgotPasswordFormSchema,
   ChangePasswordFormSchema,
+  VerifyPasswordFormSchema,
   DEFAULT_LOGIN_FORM_VALUES,
   DEFAULT_SIGNUP_FORM_VALUES,
   OTP_EXPIRED_DURATION_MILLISECONDS,
   DEFAULT_FORGOT_PASSWORD_FORM_VALUES,
   DEFAULT_CHANGE_PASSWORD_FORM_VALUES,
+  DEFAULT_VERIFY_PASSWORD_FORM_VALUES,
 };

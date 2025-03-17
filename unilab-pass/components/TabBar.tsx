@@ -1,4 +1,5 @@
 // Core
+import { useEffect, useState } from "react";
 import { StyleSheet } from "react-native";
 import { Surface } from "react-native-paper";
 import { BottomTabBarProps } from "@react-navigation/bottom-tabs";
@@ -6,15 +7,41 @@ import { BottomTabBarProps } from "@react-navigation/bottom-tabs";
 // App
 import TabBarButton from "./TabBarButton";
 
+//
+const stackTabScreen = ["(member)", "(record)", "(profile)"];
+
 // Component
 const TabBar = ({ state, descriptors, navigation }: BottomTabBarProps) => {
+  // States
+  const [isVisible, setIsVisible] = useState(true);
+
   // Colors
   const primaryColor = "rgba(27, 97, 181, 0.89)";
   const greyColor = "#6C6C6C";
 
+  // Effects
+  useEffect(() => {
+    const checkTabStack = () => {
+      const currentTabRoute = state.routes[state.index];
+      const currentTabName = currentTabRoute.name;
+      if (stackTabScreen.includes(currentTabName) && currentTabRoute.state) {
+        const stackIndex = currentTabRoute.state.index ?? 0;
+        if (stackIndex !== 0) {
+          setIsVisible(false);
+          return;
+        }
+      }
+      setIsVisible(true);
+    };
+    checkTabStack();
+  }, [state]);
+
   // Template
   return (
-    <Surface style={[styles.tabbar, styles.alginCenter]} elevation={5}>
+    <Surface
+      style={[styles.tabbar, { display: isVisible ? "flex" : "none" }]}
+      elevation={5}
+    >
       {state.routes.map((route, index) => {
         const { options } = descriptors[route.key];
         const label =
@@ -57,11 +84,9 @@ export default TabBar;
 
 // Styles
 const styles = StyleSheet.create({
-  alginCenter: {
+  tabbar: {
     justifyContent: "center",
     alignItems: "center",
-  },
-  tabbar: {
     position: "absolute",
     flexDirection: "row",
     bottom: 0,

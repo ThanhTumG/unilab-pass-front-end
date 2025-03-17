@@ -31,6 +31,7 @@ export default function RootLayout() {
   // Store
   const { appIsLoggedIn, removeAppToken } = useAuthStore();
 
+  // Router
   const router = useRouter();
 
   // Effects
@@ -101,7 +102,6 @@ export default function RootLayout() {
               options={{ headerShown: false }}
             />
             <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-            <Stack.Screen name="(stack)" options={{ headerShown: false }} />
           </Stack>
         )}
 

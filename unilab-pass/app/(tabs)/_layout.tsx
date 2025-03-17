@@ -8,12 +8,7 @@ import TabBar from "components/TabBar";
 export default function TabLayout() {
   // Template
   return (
-    <Tabs
-      tabBar={(props) => <TabBar {...props} />}
-      screenOptions={{
-        tabBarActiveTintColor: "blue",
-      }}
-    >
+    <Tabs tabBar={(props) => <TabBar {...props} />}>
       <Tabs.Screen
         name="HomeScreen"
         options={{
@@ -29,21 +24,21 @@ export default function TabLayout() {
         }}
       />
       <Tabs.Screen
-        name="RecordActivityScreen"
+        name="(record)"
         options={{
           title: "Record",
           headerShown: false,
         }}
       />
       <Tabs.Screen
-        name="AccountManagementScreen"
+        name="(member)"
         options={{
           title: "Account",
           headerShown: false,
         }}
       />
       <Tabs.Screen
-        name="ProfileScreen"
+        name="(profile)"
         options={{
           title: "Profile",
           headerShown: false,

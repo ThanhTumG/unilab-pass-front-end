@@ -1,6 +1,6 @@
 // Core
 import React, { useEffect } from "react";
-import { TouchableRipple } from "react-native-paper";
+import { Icon, TouchableRipple } from "react-native-paper";
 import {
   GestureResponderEvent,
   StyleProp,
@@ -15,9 +15,6 @@ import Animated, {
   withSpring,
 } from "react-native-reanimated";
 
-// App
-import icons from "assets/Icon";
-
 // Types
 type Props = {
   isFocused: boolean;
@@ -29,6 +26,17 @@ type Props = {
     | (((event: GestureResponderEvent) => void) &
         ((e: GestureResponderEvent) => void))
     | undefined;
+};
+interface Icons {
+  [key: string]: string; // Index signature
+}
+
+const icons: Icons = {
+  HomeScreen: "home-variant-outline",
+  AccessManagementScreen: "history",
+  "(record)": "qrcode-scan",
+  "(member)": "account-multiple-outline",
+  "(profile)": "account-circle-outline",
 };
 
 // Component
@@ -76,9 +84,7 @@ const TabBarButton = ({
       <View style={styles.tabbarItem}>
         {/* Icon */}
         <Animated.View style={animatedIconStyle}>
-          {icons[routeName]({
-            color,
-          })}
+          <Icon source={icons[routeName]} size={28} color={color} />
         </Animated.View>
 
         {/* Label */}

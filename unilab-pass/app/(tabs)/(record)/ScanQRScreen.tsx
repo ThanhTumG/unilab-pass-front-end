@@ -29,7 +29,7 @@ import {
 type Props = {};
 
 // Component
-const ScanScreen = (props: Props) => {
+const ScanQRScreen = (props: Props) => {
   // Stated
   const [idDetected, setIdDetected] = useState<string>();
   const [isPendingGetMem, setIsPendingGetMem] = useState<boolean>(false);
@@ -94,7 +94,7 @@ const ScanScreen = (props: Props) => {
         );
 
         router.push({
-          pathname: "/(stack)/RecordScreen",
+          pathname: "/RecordScreen",
           params: {
             id: idDetected,
             firstName: response.data.result?.guestName,
@@ -124,7 +124,7 @@ const ScanScreen = (props: Props) => {
           const { firstName, lastName, email, id }: MyUserResponse =
             response.data.result?.myUserResponse ?? {};
           router.push({
-            pathname: "/(stack)/RecordScreen",
+            pathname: "/RecordScreen",
             params: { firstName, lastName, email, id, recordType },
           });
         } else {
@@ -232,7 +232,7 @@ const ScanScreen = (props: Props) => {
   );
 };
 
-export default ScanScreen;
+export default ScanQRScreen;
 
 // Styles
 const styles = StyleSheet.create({

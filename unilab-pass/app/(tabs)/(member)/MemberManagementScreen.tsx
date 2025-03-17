@@ -34,7 +34,7 @@ type MemberType = {
 };
 
 // Component
-const ManageAccountScreen = (props: Props) => {
+const MemberManagementScreen = (props: Props) => {
   // States
   const [searchQuery, setSearchQuery] = React.useState("");
   const [memberList, setMemberList] = useState<MemberType[]>();
@@ -56,12 +56,15 @@ const ManageAccountScreen = (props: Props) => {
   // Method
   // Handle get detail account
   const handleViewDetailMember = (id: string) => {
-    router.push(`/(stack)/detail/${id}`);
+    router.push({
+      pathname: "/(tabs)/(member)/DetailMemberScreen",
+      params: { id },
+    });
   };
 
   // Handle create new member
   const handleCreateNewMember = () => {
-    router.push("/(stack)/CreateMemberScreen");
+    router.push("/(tabs)/(member)/CreateMemberScreen");
   };
 
   // Handle get members
@@ -113,7 +116,7 @@ const ManageAccountScreen = (props: Props) => {
   // Template
   return (
     <ImageBackground
-      source={require("../../assets/images/background-without-logo.png")}
+      source={require("../../../assets/images/background-without-logo.png")}
       style={[styles.background]}
     >
       {/* Title */}
@@ -175,7 +178,7 @@ const ManageAccountScreen = (props: Props) => {
   );
 };
 
-export default ManageAccountScreen;
+export default MemberManagementScreen;
 
 // Styles
 const styles = StyleSheet.create({

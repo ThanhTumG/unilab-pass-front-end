@@ -43,7 +43,7 @@ const OPTIONS = [
 ];
 
 // Component
-const UserDetailScreen = () => {
+const DetailMemberScreen = () => {
   // States
   const [isEditMode, setIsEditMode] = useState<boolean>(false);
   const [loading, setLoading] = useState({
@@ -552,7 +552,7 @@ const UserDetailScreen = () => {
   );
 };
 
-export default UserDetailScreen;
+export default DetailMemberScreen;
 
 // Styles
 const styles = StyleSheet.create({

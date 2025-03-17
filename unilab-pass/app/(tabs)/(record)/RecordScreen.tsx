@@ -292,7 +292,9 @@ const RecordScreen = (props: Props) => {
         content="Member's activity is successfully recorded."
         visible={isSuccessDialog}
         setVisible={setIsSuccessDialog}
-        onCloseDialog={() => router.replace("/(tabs)/RecordActivityScreen")}
+        onCloseDialog={() => {
+          router.dismissAll();
+        }}
       />
     </View>
   );
