@@ -1,5 +1,6 @@
 // Core
 import React, { useState } from "react";
+import { useRouter } from "expo-router";
 import { Controller, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Modal, StyleSheet, View } from "react-native";
@@ -13,7 +14,7 @@ import {
 } from "react-native-paper";
 
 // App
-import { useAuthStore } from "stores";
+import { useAuthStore, useUserStore } from "stores";
 import { VerifyPasswordFormType } from "constants/auth.type";
 import {
   AuthenticationControllerApi,
@@ -33,16 +34,20 @@ type Props = {
 // Component
 const VerifyPasswordModal = ({ visible, setVisible }: Props) => {
   // States
-  const [isHidePassword, setIsHidePassword] = useState<boolean>(false);
+  const [isHidePassword, setIsHidePassword] = useState<boolean>(true);
   const [isSnackBarVisible, setIsSnackBarVisible] = useState(false);
   const [alertMessage, setAlertMessage] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+
+  // Router
+  const router = useRouter();
 
   // Server
   const authenticationControllerApi = new AuthenticationControllerApi();
 
   // Store
   const { appToken } = useAuthStore();
+  const { appIsOnlyScanMode, setAppIsOnlyScanMode } = useUserStore();
 
   // Forms
   // Lab information form
@@ -70,9 +75,17 @@ const VerifyPasswordModal = ({ visible, setVisible }: Props) => {
       const response = await authenticationControllerApi.checkPassword(param, {
         headers: { Authorization: `Bearer ${appToken}` },
       });
-      console.log(response.data.result);
-      setAlertMessage("verify password");
-      setIsSnackBarVisible(true);
+      const auth = response.data.result?.authenticated;
+      if (auth) {
+        setAppIsOnlyScanMode(!appIsOnlyScanMode);
+        setVisible(false);
+        reset();
+        if (appIsOnlyScanMode) router.replace("/ProfileScreen");
+        else router.replace("/(tabs)/(record)/RecordActivityScreen");
+      } else {
+        setAlertMessage("Incorrect password");
+        setIsSnackBarVisible(true);
+      }
     } catch (error: any) {
       setAlertMessage(error.response.data.message);
       setIsSnackBarVisible(true);

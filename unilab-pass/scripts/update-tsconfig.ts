@@ -10,7 +10,7 @@ if (fs.existsSync(tsconfigPath)) {
   delete config.compilerOptions.rootDir; // Remove rootDir
   fs.writeFileSync(tsconfigPath, JSON.stringify(config, null, 2));
   console.log(
-    "✅ Updated tsconfig.json: Removed rootDir and set target to ESNext"
+    "Updated tsconfig.json: Removed rootDir and set target to ESNext"
   );
 }
 
@@ -29,5 +29,5 @@ if (fs.existsSync(baseTsPath)) {
   );
 
   fs.writeFileSync(baseTsPath, content);
-  console.log("✅ Updated base.ts: Replaced axios import and instance");
+  console.log("Updated base.ts: Replaced axios import and instance");
 }

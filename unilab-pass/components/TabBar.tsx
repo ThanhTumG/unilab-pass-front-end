@@ -5,15 +5,19 @@ import { Surface } from "react-native-paper";
 import { BottomTabBarProps } from "@react-navigation/bottom-tabs";
 
 // App
+import { useUserStore } from "stores";
 import TabBarButton from "./TabBarButton";
 
-//
+// Stack tab
 const stackTabScreen = ["(member)", "(record)", "(profile)"];
 
 // Component
 const TabBar = ({ state, descriptors, navigation }: BottomTabBarProps) => {
   // States
   const [isVisible, setIsVisible] = useState(true);
+
+  // Store
+  const { appIsOnlyScanMode } = useUserStore();
 
   // Colors
   const primaryColor = "rgba(27, 97, 181, 0.89)";
@@ -26,7 +30,7 @@ const TabBar = ({ state, descriptors, navigation }: BottomTabBarProps) => {
       const currentTabName = currentTabRoute.name;
       if (stackTabScreen.includes(currentTabName) && currentTabRoute.state) {
         const stackIndex = currentTabRoute.state.index ?? 0;
-        if (stackIndex !== 0) {
+        if (stackIndex !== 0 || appIsOnlyScanMode) {
           setIsVisible(false);
           return;
         }

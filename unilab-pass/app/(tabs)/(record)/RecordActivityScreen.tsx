@@ -1,18 +1,38 @@
 // Core
-import React from "react";
+import React, { useState } from "react";
 import { useRouter } from "expo-router";
-import { Button, Text } from "react-native-paper";
+import { Button, IconButton, Text } from "react-native-paper";
 import { ImageBackground, StyleSheet, View } from "react-native";
+
+// App
+import { useUserStore } from "stores";
+import useBackHandler from "utils/useBackHandler";
+import VerifyPasswordModal from "components/VerifyPasswordModal";
 
 // Types
 type Props = {};
 
 // Component
 const RecordActivityScreen = (props: Props) => {
+  // States
+  const [isVerifyPassModal, setIsVerifyPassModal] = useState(false);
+
   // Route
   const router = useRouter();
 
+  // Store
+  const { appIsOnlyScanMode } = useUserStore();
+
   // Methods
+  // handle back
+  useBackHandler(() => {
+    if (appIsOnlyScanMode) {
+      return true;
+    }
+    router.back();
+    return true;
+  });
+
   // Handle route scan screen
   const handleRouteScanScreen = (isCheckIn: boolean) => {
     router.push({
@@ -27,9 +47,20 @@ const RecordActivityScreen = (props: Props) => {
       source={require("../../../assets/images/background-without-logo.png")}
       style={[styles.background]}
     >
+      {/* Exit mode button */}
+      {appIsOnlyScanMode && (
+        <IconButton
+          icon={"chevron-left"}
+          size={28}
+          iconColor="#808080"
+          style={{ position: "absolute", left: 10, zIndex: 10 }}
+          onPress={() => setIsVerifyPassModal(true)}
+        />
+      )}
+
       {/* Title */}
       <Text variant="headlineLarge" style={styles.title}>
-        Select Record Type
+        {appIsOnlyScanMode ? "Only Scan Mode" : "Select Record Type"}
       </Text>
 
       {/* Action button */}
@@ -69,6 +100,12 @@ const RecordActivityScreen = (props: Props) => {
           </Text>
         </Button>
       </View>
+
+      {/* Verify password */}
+      <VerifyPasswordModal
+        visible={isVerifyPassModal}
+        setVisible={setIsVerifyPassModal}
+      />
     </ImageBackground>
   );
 };
