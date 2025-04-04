@@ -67,6 +67,12 @@ export interface LogDetailRespond {
      * @type {string}
      * @memberof LogDetailRespond
      */
+    'logType'?: LogDetailRespondLogTypeEnum;
+    /**
+     * 
+     * @type {string}
+     * @memberof LogDetailRespond
+     */
     'photoURL'?: string;
 }
 
@@ -82,5 +88,11 @@ export const LogDetailRespondStatusEnum = {
 } as const;
 
 export type LogDetailRespondStatusEnum = typeof LogDetailRespondStatusEnum[keyof typeof LogDetailRespondStatusEnum];
+export const LogDetailRespondLogTypeEnum = {
+    LEGAL: 'LEGAL',
+    ILLEGAL: 'ILLEGAL'
+} as const;
+
+export type LogDetailRespondLogTypeEnum = typeof LogDetailRespondLogTypeEnum[keyof typeof LogDetailRespondLogTypeEnum];
 
 

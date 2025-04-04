@@ -223,15 +223,16 @@ export const MyUserControllerApiAxiosParamCreator = function (configuration?: Co
          * 
          * @summary Update User
          * @param {string} userId 
-         * @param {MyUserUpdateRequest} myUserUpdateRequest 
+         * @param {MyUserUpdateRequest} request 
+         * @param {any} [file] 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        updateMyUser: async (userId: string, myUserUpdateRequest: MyUserUpdateRequest, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+        updateMyUser: async (userId: string, request: MyUserUpdateRequest, file?: any, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
             // verify required parameter 'userId' is not null or undefined
             assertParamExists('updateMyUser', 'userId', userId)
-            // verify required parameter 'myUserUpdateRequest' is not null or undefined
-            assertParamExists('updateMyUser', 'myUserUpdateRequest', myUserUpdateRequest)
+            // verify required parameter 'request' is not null or undefined
+            assertParamExists('updateMyUser', 'request', request)
             const localVarPath = `/users/{userId}`
                 .replace(`{${"userId"}}`, encodeURIComponent(String(userId)));
             // use dummy base URL string because the URL constructor only accepts absolute URLs.
@@ -244,19 +245,28 @@ export const MyUserControllerApiAxiosParamCreator = function (configuration?: Co
             const localVarRequestOptions = { method: 'PUT', ...baseOptions, ...options};
             const localVarHeaderParameter = {} as any;
             const localVarQueryParameter = {} as any;
+            const localVarFormParams = new ((configuration && configuration.formDataCtor) || FormData)();
 
             // authentication BearerAuthentication required
             // http bearer authentication required
             await setBearerAuthToObject(localVarHeaderParameter, configuration)
 
 
+            if (request !== undefined) { 
+                localVarFormParams.append('request', { name: "request", type: "application/json", string: JSON.stringify(request) });
+            }
     
-            localVarHeaderParameter['Content-Type'] = 'application/json';
-
+            if (file !== undefined) { 
+                localVarFormParams.append('file', file as any);
+            }
+    
+    
+            localVarHeaderParameter['Content-Type'] = 'multipart/form-data';
+    
             setSearchParams(localVarUrlObj, localVarQueryParameter);
             let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
             localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
-            localVarRequestOptions.data = serializeDataIfNeeded(myUserUpdateRequest, localVarRequestOptions, configuration)
+            localVarRequestOptions.data = localVarFormParams;
 
             return {
                 url: toPathString(localVarUrlObj),
@@ -340,12 +350,13 @@ export const MyUserControllerApiFp = function(configuration?: Configuration) {
          * 
          * @summary Update User
          * @param {string} userId 
-         * @param {MyUserUpdateRequest} myUserUpdateRequest 
+         * @param {MyUserUpdateRequest} request 
+         * @param {any} [file] 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async updateMyUser(userId: string, myUserUpdateRequest: MyUserUpdateRequest, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<CustomApiResponseMyUserResponse>> {
-            const localVarAxiosArgs = await localVarAxiosParamCreator.updateMyUser(userId, myUserUpdateRequest, options);
+        async updateMyUser(userId: string, request: MyUserUpdateRequest, file?: any, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<CustomApiResponseMyUserResponse>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.updateMyUser(userId, request, file, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
             const localVarOperationServerBasePath = operationServerMap['MyUserControllerApi.updateMyUser']?.[localVarOperationServerIndex]?.url;
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
@@ -416,7 +427,7 @@ export const MyUserControllerApiFactory = function (configuration?: Configuratio
          * @throws {RequiredError}
          */
         updateMyUser(requestParameters: MyUserControllerApiUpdateMyUserRequest, options?: RawAxiosRequestConfig): AxiosPromise<CustomApiResponseMyUserResponse> {
-            return localVarFp.updateMyUser(requestParameters.userId, requestParameters.myUserUpdateRequest, options).then((request) => request(axios, basePath));
+            return localVarFp.updateMyUser(requestParameters.userId, requestParameters.request, requestParameters.file, options).then((request) => request(axios, basePath));
         },
     };
 };
@@ -481,7 +492,14 @@ export interface MyUserControllerApiUpdateMyUserRequest {
      * @type {MyUserUpdateRequest}
      * @memberof MyUserControllerApiUpdateMyUser
      */
-    readonly myUserUpdateRequest: MyUserUpdateRequest
+    readonly request: MyUserUpdateRequest
+
+    /**
+     * 
+     * @type {any}
+     * @memberof MyUserControllerApiUpdateMyUser
+     */
+    readonly file?: any
 }
 
 /**
@@ -558,7 +576,7 @@ export class MyUserControllerApi extends BaseAPI {
      * @memberof MyUserControllerApi
      */
     public updateMyUser(requestParameters: MyUserControllerApiUpdateMyUserRequest, options?: RawAxiosRequestConfig) {
-        return MyUserControllerApiFp(this.configuration).updateMyUser(requestParameters.userId, requestParameters.myUserUpdateRequest, options).then((request) => request(this.axios, this.basePath));
+        return MyUserControllerApiFp(this.configuration).updateMyUser(requestParameters.userId, requestParameters.request, requestParameters.file, options).then((request) => request(this.axios, this.basePath));
     }
 }
 

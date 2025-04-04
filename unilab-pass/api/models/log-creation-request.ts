@@ -39,11 +39,11 @@ export interface LogCreationRequest {
      */
     'recordType'?: LogCreationRequestRecordTypeEnum;
     /**
-     * 
+     * Illegal/legal identification field for facial authentication process (if wrong 3 times is illegal)
      * @type {string}
      * @memberof LogCreationRequest
      */
-    'photoURL'?: string;
+    'logType'?: LogCreationRequestLogTypeEnum;
 }
 
 export const LogCreationRequestRecordTypeEnum = {
@@ -52,5 +52,11 @@ export const LogCreationRequestRecordTypeEnum = {
 } as const;
 
 export type LogCreationRequestRecordTypeEnum = typeof LogCreationRequestRecordTypeEnum[keyof typeof LogCreationRequestRecordTypeEnum];
+export const LogCreationRequestLogTypeEnum = {
+    LEGAL: 'LEGAL',
+    ILLEGAL: 'ILLEGAL'
+} as const;
+
+export type LogCreationRequestLogTypeEnum = typeof LogCreationRequestLogTypeEnum[keyof typeof LogCreationRequestLogTypeEnum];
 
 

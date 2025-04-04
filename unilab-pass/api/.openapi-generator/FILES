@@ -9,6 +9,7 @@ api/event-log-controller-api.ts
 api/lab-member-controller-api.ts
 api/laboratory-controller-api.ts
 api/log-controller-api.ts
+api/model-controller-api.ts
 api/my-user-controller-api.ts
 api/role-controller-api.ts
 base.ts
@@ -39,7 +40,9 @@ models/custom-api-response-list-log-respond.ts
 models/custom-api-response-list-my-user-response.ts
 models/custom-api-response-list-role-response.ts
 models/custom-api-response-log-detail-respond.ts
+models/custom-api-response-log-respond.ts
 models/custom-api-response-my-user-response.ts
+models/custom-api-response-object.ts
 models/custom-api-response-role-response.ts
 models/custom-api-response-string.ts
 models/custom-api-response-verification-code-response.ts

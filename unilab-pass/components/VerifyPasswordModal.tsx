@@ -72,20 +72,13 @@ const VerifyPasswordModal = ({ visible, setVisible }: Props) => {
           password: data.password,
         },
       };
-      const response = await authenticationControllerApi.checkPassword(param, {
+      await authenticationControllerApi.checkPassword(param, {
         headers: { Authorization: `Bearer ${appToken}` },
       });
-      const auth = response.data.result?.authenticated;
-      if (auth) {
-        setAppIsOnlyScanMode(!appIsOnlyScanMode);
-        setVisible(false);
-        reset();
-        if (appIsOnlyScanMode) router.replace("/ProfileScreen");
-        else router.replace("/(tabs)/(record)/RecordActivityScreen");
-      } else {
-        setAlertMessage("Incorrect password");
-        setIsSnackBarVisible(true);
-      }
+      reset();
+      router.replace("/(tabs)/(record)/RecordActivityScreen");
+      setAppIsOnlyScanMode(!appIsOnlyScanMode);
+      setVisible(false);
     } catch (error: any) {
       setAlertMessage(error.response.data.message);
       setIsSnackBarVisible(true);

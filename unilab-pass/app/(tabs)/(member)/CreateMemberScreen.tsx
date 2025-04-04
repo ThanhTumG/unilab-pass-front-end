@@ -4,7 +4,14 @@ import { Controller, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Dropdown } from "react-native-paper-dropdown";
 import { ScrollView, StyleSheet, View } from "react-native";
-import { Button, Snackbar, Text, TextInput } from "react-native-paper";
+import {
+  Button,
+  Icon,
+  Snackbar,
+  Text,
+  TextInput,
+  TouchableRipple,
+} from "react-native-paper";
 
 // App
 import { splitFullName } from "lib/utils";
@@ -26,6 +33,7 @@ import {
   MyUserControllerApiUpdateMyUserRequest,
 } from "api/index";
 import ScreenHeader from "components/ScreenHeader";
+import ScanFaceModal from "components/ScanFaceModal";
 
 // Types
 type Props = {};
@@ -46,6 +54,8 @@ const CreateMemberScreen = (props: Props) => {
     createMem: false,
     updateMem: false,
   });
+  const [photoUri, setPhotoUri] = useState<string[]>([]);
+  const [isVisibleModal, setIsVisibleModal] = useState(false);
 
   // Server
   const labMemberControllerApi = new LabMemberControllerApi();
@@ -69,29 +79,40 @@ const CreateMemberScreen = (props: Props) => {
   // Methods
   // handle submit form
   const handleAddMember = async (data: DetailUserInformationFormType) => {
-    if (loading.createMem) return;
+    if (loading.createMem || !photoUri.length) return;
     setLoading((prev) => ({ ...prev, createMem: true }));
     const { firstName, lastName } = splitFullName(data.fullName);
-    const param: LabMemberControllerApiAddLabMemberRequest = {
-      request: {
-        labId: appLabId ?? "",
-        userId: data.id,
-        dob: data.birth,
-        gender: data.gender,
-        email: data.email,
-        firstName: firstName,
-        lastName: lastName,
-        role: "MEMBER",
-      },
+    const fileUri = photoUri[photoUri.length - 1];
+    const file = {
+      uri: fileUri,
+      type: "image/jpeg",
+      name: `${data.id}_create_mem_photo.jpg`,
     };
+    const request = {
+      labId: appLabId ?? "",
+      userId: data.id,
+      dob: data.birth,
+      gender: data.gender,
+      email: data.email,
+      firstName: firstName,
+      lastName: lastName,
+      role: "MEMBER",
+    };
+
     try {
+      const param: LabMemberControllerApiAddLabMemberRequest = {
+        request: request,
+        file: file,
+      };
       await labMemberControllerApi.addLabMember(param, {
-        headers: { Authorization: `Bearer ${appToken}` },
+        headers: {
+          Authorization: `Bearer ${appToken}`,
+        },
       });
-      console.log("Successfully create member");
-      setAlertMessage("Successfully create member");
+      setAlertMessage("Successfully add member");
       setIsAlert(true);
       reset();
+      setPhotoUri([]);
     } catch (error: any) {
       const errLog = error.response.data;
       if (errLog.code === 1018) {
@@ -107,19 +128,26 @@ const CreateMemberScreen = (props: Props) => {
 
   // Handle update member info
   const handleUpdateMem = async (data: DetailUserInformationFormType) => {
-    if (loading.updateMem) return;
+    if (loading.updateMem || !photoUri.length) return;
     setLoading((prev) => ({ ...prev, updateMem: true }));
     try {
+      const fileUri = photoUri[0];
+      const file = {
+        uri: fileUri,
+        type: "image/jpeg",
+        name: `${data.id}_update_mem_photo.jpg`,
+      };
       const { firstName, lastName } = splitFullName(data.fullName);
       const param: MyUserControllerApiUpdateMyUserRequest = {
         userId: data.id,
-        myUserUpdateRequest: {
+        request: {
           firstName: firstName,
           lastName: lastName,
           dob: data.birth,
           gender: data.gender,
           roles: [],
         },
+        file: file,
       };
       await myUserControllerApi.updateMyUser(param, {
         headers: { Authorization: `Bearer ${appToken}` },
@@ -341,7 +369,7 @@ const CreateMemberScreen = (props: Props) => {
             />
           </View>
 
-          {/* <View style={{ marginTop: 37, gap: 10 }}>
+          <View style={{ marginTop: 37, gap: 10 }}>
             <Text
               variant="titleMedium"
               style={{ fontFamily: "Poppins-SemiBold" }}
@@ -351,24 +379,30 @@ const CreateMemberScreen = (props: Props) => {
             <TouchableRipple
               style={styles.faceAuth}
               onPress={() => {
-                console.log("ngan");
+                setIsVisibleModal(true);
               }}
             >
               <View style={{ justifyContent: "center", alignItems: "center" }}>
                 <Icon
-                  source={"plus-circle-outline"}
-                  color="#A6A6A6"
+                  source={
+                    photoUri.length
+                      ? "check-circle-outline"
+                      : "plus-circle-outline"
+                  }
+                  color={photoUri.length ? "#3bb300" : "#A6A6A6"}
                   size={30}
                 />
                 <Text
                   variant="bodySmall"
                   style={{ fontFamily: "Poppins-Regular", color: "#A6A6A6" }}
                 >
-                  click here to scan face
+                  {photoUri.length
+                    ? `Face record successfully`
+                    : "click here to scan face"}
                 </Text>
               </View>
             </TouchableRipple>
-          </View> */}
+          </View>
 
           {/* Action Button */}
           <Button
@@ -382,6 +416,13 @@ const CreateMemberScreen = (props: Props) => {
           </Button>
         </View>
       </ScrollView>
+
+      {/* Camera */}
+      <ScanFaceModal
+        visible={isVisibleModal}
+        setVisible={setIsVisibleModal}
+        setPhotoUri={setPhotoUri}
+      />
 
       {/* Alert Dialog */}
       <WarningDialog
@@ -417,10 +458,10 @@ const styles = StyleSheet.create({
     justifyContent: "space-between",
     alignItems: "center",
     minHeight: "100%",
+    paddingBottom: 30,
   },
   scrollView: {
     marginTop: 80,
-    paddingBottom: 30,
   },
   title: {
     fontFamily: "Poppins-SemiBold",
@@ -459,7 +500,7 @@ const styles = StyleSheet.create({
     borderRadius: 5,
   },
   actButton: {
-    marginTop: 80,
+    marginTop: 60,
     borderRadius: 5,
     minWidth: 300,
     minHeight: 40,

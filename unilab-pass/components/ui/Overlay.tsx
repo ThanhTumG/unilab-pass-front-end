@@ -1,50 +1,121 @@
 // Core
 import React from "react";
 import { View, StyleSheet, Dimensions } from "react-native";
+import Svg, { ClipPath, Defs, Ellipse, G, Path, Rect } from "react-native-svg";
 
+// Screen
 const { width, height } = Dimensions.get("window");
-const scannerSize = 250;
+
+const CORNER_SIZE = 30;
+const CORNER_THICKNESS = 4;
+const QR_OVERLAY_WIDTH = width * 0.7;
+const QR_OVERLAY_HEIGHT = height * 0.4;
+
+const ellipseWidth = width * 0.82;
+const ellipseHeight = height * 0.55;
 
 // Component
+// QRScannerOverlay Component
 const QRScannerOverlay = () => {
-  // Template
   return (
-    <View style={styles.overlay}>
-      <View style={styles.top} />
-      <View style={styles.middle}>
-        <View style={styles.side} />
-        <View style={styles.scannerArea} />
-        <View style={styles.side} />
-      </View>
-      <View style={styles.bottom} />
+    <View style={styles.container}>
+      <Svg height={QR_OVERLAY_HEIGHT} width={QR_OVERLAY_WIDTH}>
+        <Path
+          d={`M${CORNER_THICKNESS},${
+            CORNER_SIZE + CORNER_THICKNESS
+          } V${CORNER_THICKNESS} H${CORNER_SIZE + CORNER_THICKNESS}`}
+          stroke="white"
+          strokeWidth={CORNER_THICKNESS}
+          fill="none"
+        />
+
+        <Path
+          d={`M${
+            QR_OVERLAY_WIDTH - CORNER_SIZE - CORNER_THICKNESS
+          },${CORNER_THICKNESS} H${QR_OVERLAY_WIDTH - CORNER_THICKNESS} V${
+            CORNER_SIZE + CORNER_THICKNESS
+          }`}
+          stroke="white"
+          strokeWidth={CORNER_THICKNESS}
+          fill="none"
+        />
+
+        <Path
+          d={`M${CORNER_THICKNESS},${
+            QR_OVERLAY_HEIGHT - CORNER_SIZE - CORNER_THICKNESS
+          } V${QR_OVERLAY_HEIGHT - CORNER_THICKNESS} H${
+            CORNER_SIZE + CORNER_THICKNESS
+          }`}
+          stroke="white"
+          strokeWidth={CORNER_THICKNESS}
+          fill="none"
+        />
+
+        <Path
+          d={`M${QR_OVERLAY_WIDTH - CORNER_SIZE - CORNER_THICKNESS},${
+            QR_OVERLAY_HEIGHT - CORNER_THICKNESS
+          }  H${QR_OVERLAY_WIDTH - CORNER_THICKNESS}
+          
+          V${QR_OVERLAY_HEIGHT - CORNER_SIZE - CORNER_THICKNESS}`}
+          stroke="white"
+          strokeWidth={CORNER_THICKNESS}
+          fill="none"
+        />
+      </Svg>
     </View>
   );
 };
 
+// FaceScannerOverlay Component
+const FaceScannerOverlay = () => {
+  // Template
+  return (
+    <View style={styles.container}>
+      {/* SVG Overlay */}
+      <Svg height={height} width={width} style={StyleSheet.absoluteFill}>
+        <Defs>
+          <ClipPath id="clip">
+            <Rect x={0} y={0} width={width} height={height} />
+            <Ellipse
+              cx={width / 2}
+              cy={height / 2}
+              rx={ellipseWidth / 2}
+              ry={ellipseHeight / 2}
+            />
+          </ClipPath>
+        </Defs>
+
+        <G clipPath="url(#clip)">
+          <Rect
+            x={0}
+            y={0}
+            width={width}
+            height={height}
+            fill="rgba(0, 0, 0, 0.5)"
+          />
+        </G>
+
+        <Ellipse
+          cx={width / 2}
+          cy={height / 2}
+          rx={ellipseWidth / 2}
+          ry={ellipseHeight / 2}
+          fill="none"
+          stroke="white"
+          strokeWidth={2}
+        />
+      </Svg>
+    </View>
+  );
+};
+
+export { QRScannerOverlay, FaceScannerOverlay };
+
 // Styles
 const styles = StyleSheet.create({
-  overlay: {
-    position: "absolute",
-    width: "100%",
-    height: "100%",
-    backgroundColor: "rgba(0, 0, 0, 0.5)",
-  },
-  top: { width: "100%", height: (height - scannerSize) / 2 },
-  middle: {
-    flexDirection: "row",
+  container: {
+    ...StyleSheet.absoluteFillObject,
+    justifyContent: "center",
     alignItems: "center",
   },
-  side: {
-    flex: 1,
-    backgroundColor: "rgba(0, 0, 0, 0.5)",
-  },
-  scannerArea: {
-    width: scannerSize,
-    height: scannerSize,
-    borderRadius: 10,
-    backgroundColor: "transparent",
-  },
-  bottom: { width: "100%", flex: 1 },
 });
-
-export default QRScannerOverlay;

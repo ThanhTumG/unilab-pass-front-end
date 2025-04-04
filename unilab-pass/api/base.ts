@@ -19,7 +19,7 @@ import type { Configuration } from './configuration';
 import type { AxiosPromise, AxiosInstance, RawAxiosRequestConfig } from 'axios';
 import API from "./axios-instance";
 
-export const BASE_PATH = "https://unilabpass-backend.onrender.com/identity".replace(/\/+$/, "");
+export const BASE_PATH = "https://unilabpass-backend.onrender.com/api".replace(/\/+$/, "");
 
 /**
  *

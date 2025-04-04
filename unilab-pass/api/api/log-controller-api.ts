@@ -26,7 +26,7 @@ import type { CustomApiResponseListLogRespond } from '../models';
 // @ts-ignore
 import type { CustomApiResponseLogDetailRespond } from '../models';
 // @ts-ignore
-import type { CustomApiResponseString } from '../models';
+import type { CustomApiResponseLogRespond } from '../models';
 // @ts-ignore
 import type { CustomApiResponseWeeklyReportResponse } from '../models';
 // @ts-ignore
@@ -40,13 +40,14 @@ export const LogControllerApiAxiosParamCreator = function (configuration?: Confi
         /**
          * 
          * @summary Add new log into lab
-         * @param {LogCreationRequest} logCreationRequest 
+         * @param {LogCreationRequest} request 
+         * @param {any} [file] 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        createNewLog: async (logCreationRequest: LogCreationRequest, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
-            // verify required parameter 'logCreationRequest' is not null or undefined
-            assertParamExists('createNewLog', 'logCreationRequest', logCreationRequest)
+        createNewLog: async (request: LogCreationRequest, file?: any, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'request' is not null or undefined
+            assertParamExists('createNewLog', 'request', request)
             const localVarPath = `/logs`;
             // use dummy base URL string because the URL constructor only accepts absolute URLs.
             const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
@@ -58,19 +59,28 @@ export const LogControllerApiAxiosParamCreator = function (configuration?: Confi
             const localVarRequestOptions = { method: 'POST', ...baseOptions, ...options};
             const localVarHeaderParameter = {} as any;
             const localVarQueryParameter = {} as any;
+            const localVarFormParams = new ((configuration && configuration.formDataCtor) || FormData)();
 
             // authentication BearerAuthentication required
             // http bearer authentication required
             await setBearerAuthToObject(localVarHeaderParameter, configuration)
 
 
+            if (request !== undefined) { 
+                localVarFormParams.append('request', { name: "request", type: "application/json", string: JSON.stringify(request) });
+            }
     
-            localVarHeaderParameter['Content-Type'] = 'application/json';
-
+            if (file !== undefined) { 
+                localVarFormParams.append('file', file as any);
+            }
+    
+    
+            localVarHeaderParameter['Content-Type'] = 'multipart/form-data';
+    
             setSearchParams(localVarUrlObj, localVarQueryParameter);
             let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
             localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
-            localVarRequestOptions.data = serializeDataIfNeeded(logCreationRequest, localVarRequestOptions, configuration)
+            localVarRequestOptions.data = localVarFormParams;
 
             return {
                 url: toPathString(localVarUrlObj),
@@ -204,12 +214,13 @@ export const LogControllerApiFp = function(configuration?: Configuration) {
         /**
          * 
          * @summary Add new log into lab
-         * @param {LogCreationRequest} logCreationRequest 
+         * @param {LogCreationRequest} request 
+         * @param {any} [file] 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async createNewLog(logCreationRequest: LogCreationRequest, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<CustomApiResponseString>> {
-            const localVarAxiosArgs = await localVarAxiosParamCreator.createNewLog(logCreationRequest, options);
+        async createNewLog(request: LogCreationRequest, file?: any, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<CustomApiResponseLogRespond>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.createNewLog(request, file, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
             const localVarOperationServerBasePath = operationServerMap['LogControllerApi.createNewLog']?.[localVarOperationServerIndex]?.url;
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
@@ -270,8 +281,8 @@ export const LogControllerApiFactory = function (configuration?: Configuration, 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        createNewLog(requestParameters: LogControllerApiCreateNewLogRequest, options?: RawAxiosRequestConfig): AxiosPromise<CustomApiResponseString> {
-            return localVarFp.createNewLog(requestParameters.logCreationRequest, options).then((request) => request(axios, basePath));
+        createNewLog(requestParameters: LogControllerApiCreateNewLogRequest, options?: RawAxiosRequestConfig): AxiosPromise<CustomApiResponseLogRespond> {
+            return localVarFp.createNewLog(requestParameters.request, requestParameters.file, options).then((request) => request(axios, basePath));
         },
         /**
          * 
@@ -317,7 +328,14 @@ export interface LogControllerApiCreateNewLogRequest {
      * @type {LogCreationRequest}
      * @memberof LogControllerApiCreateNewLog
      */
-    readonly logCreationRequest: LogCreationRequest
+    readonly request: LogCreationRequest
+
+    /**
+     * 
+     * @type {any}
+     * @memberof LogControllerApiCreateNewLog
+     */
+    readonly file?: any
 }
 
 /**
@@ -378,7 +396,7 @@ export class LogControllerApi extends BaseAPI {
      * @memberof LogControllerApi
      */
     public createNewLog(requestParameters: LogControllerApiCreateNewLogRequest, options?: RawAxiosRequestConfig) {
-        return LogControllerApiFp(this.configuration).createNewLog(requestParameters.logCreationRequest, options).then((request) => request(this.axios, this.basePath));
+        return LogControllerApiFp(this.configuration).createNewLog(requestParameters.request, requestParameters.file, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**

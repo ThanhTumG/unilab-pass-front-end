@@ -156,12 +156,12 @@ const DetailMemberScreen = () => {
       const { firstName, lastName } = splitFullName(data.fullName);
       const param: MyUserControllerApiUpdateMyUserRequest = {
         userId: id as string,
-        myUserUpdateRequest: {
+        request: {
           firstName: firstName,
           lastName: lastName,
           dob: data.birth,
           gender: data.gender,
-          roles: [],
+          roles: ["MEMBER"],
         },
       };
       await myUserControllerApi.updateMyUser(param, {
@@ -277,7 +277,7 @@ const DetailMemberScreen = () => {
           <RefreshControl
             colors={[theme.colors.primary]}
             tintColor={theme.colors.primary}
-            refreshing={loading.getMem}
+            refreshing={loading.getMem || loading.deleteMem}
             onRefresh={onRefresh}
           />
         }

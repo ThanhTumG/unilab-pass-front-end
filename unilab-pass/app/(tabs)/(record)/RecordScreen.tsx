@@ -16,6 +16,8 @@ import {
   LogControllerApiCreateNewLogRequest,
 } from "api/index";
 import ScreenHeader from "components/ScreenHeader";
+import useRecordStore from "stores/useRecordStore";
+import useBackHandler from "utils/useBackHandler";
 
 // Types
 type Props = {};
@@ -30,7 +32,6 @@ const RecordScreen = (props: Props) => {
   const [isSuccessDialog, setIsSuccessDialog] = useState<boolean>(false);
 
   // Params
-  const { firstName, lastName, email, id, recordType } = useLocalSearchParams();
 
   // Router
   const router = useRouter();
@@ -43,8 +44,22 @@ const RecordScreen = (props: Props) => {
   const { appToken } = useAuthStore();
   const { appLabName, appLabId } = useUserStore();
   const { appIsEvent, appEventName, appEventId } = useEventStore();
+  const {
+    appRecordType,
+    appVisitorId,
+    appVisitorEmail,
+    appVisitorName,
+    appRecordImg,
+    removeAppRecord,
+  } = useRecordStore();
 
   // Methods
+  // Handle back
+  useBackHandler(() => {
+    router.dismissAll();
+    return true;
+  });
+
   // Handle post new record
   const handleRecord = async () => {
     if (isPendingPostRecord) return;
@@ -53,19 +68,25 @@ const RecordScreen = (props: Props) => {
     // If is event, create event record
     if (appIsEvent) {
       try {
+        const file = {
+          uri: appRecordImg,
+          type: "image/jpeg",
+          name: `${appVisitorId}_event_record_photo.jpg`,
+        };
         const param: EventLogControllerApiAddEventLogRequest = {
           request: {
             eventId: appEventId ?? "",
-            guestId: id as string,
-            recordType: recordType === "CHECKIN" ? "CHECKIN" : "CHECKOUT",
-            photoURL: "",
+            guestId: appVisitorId ?? "",
+            recordType: appRecordType ?? undefined,
           },
+          file: file,
         };
+        console.log(param.request);
         await eventLogControllerApi.addEventLog(param, {
           headers: { Authorization: `Bearer ${appToken}` },
         });
         setIsSuccessDialog(true);
-        setAlertMessage("Record activity successfully");
+        removeAppRecord();
       } catch (error: any) {
         setAlertMessage(error.response.data.message);
         setIsAlert(true);
@@ -76,19 +97,25 @@ const RecordScreen = (props: Props) => {
 
     // Normal record
     try {
+      const file = {
+        uri: appRecordImg,
+        type: "image/jpeg",
+        name: `${appVisitorId}_normal_record_photo.jpg`,
+      };
       const param: LogControllerApiCreateNewLogRequest = {
-        logCreationRequest: {
+        request: {
           labId: appLabId ?? "",
-          userId: id as string,
-          recordType: recordType === "CHECKIN" ? "CHECKIN" : "CHECKOUT",
-          photoURL: "",
+          userId: appVisitorId ?? "",
+          recordType: appRecordType ?? undefined,
+          logType: "LEGAL",
         },
+        file: file,
       };
       await logControllerApi.createNewLog(param, {
         headers: { Authorization: `Bearer ${appToken}` },
       });
-      setAlertMessage("Record activity successfully");
       setIsSuccessDialog(true);
+      removeAppRecord();
     } catch (error: any) {
       setAlertMessage(error.response.data.message);
       setIsAlert(true);
@@ -133,14 +160,7 @@ const RecordScreen = (props: Props) => {
                 fontFamily: "Poppins-Regular",
                 marginTop: 8,
               }}
-              value={
-                firstName
-                  ? getFullName({
-                      firstName: firstName as string,
-                      lastName: lastName as string,
-                    })
-                  : "Not found"
-              }
+              value={appVisitorName ?? "Not Found"}
               label="Full Name"
             />
 
@@ -156,7 +176,7 @@ const RecordScreen = (props: Props) => {
               mode="outlined"
               disabled
               style={styles.inputField}
-              value={id as string}
+              value={appVisitorId ?? "Not Found"}
               contentStyle={{
                 fontFamily: "Poppins-Regular",
                 marginTop: 8,
@@ -176,7 +196,7 @@ const RecordScreen = (props: Props) => {
               mode="outlined"
               disabled
               style={styles.inputField}
-              value={(email as string) ?? "Not found"}
+              value={appVisitorEmail ?? "Not found"}
               contentStyle={{
                 fontFamily: "Poppins-Regular",
                 marginTop: 8,
@@ -229,7 +249,7 @@ const RecordScreen = (props: Props) => {
               mode="outlined"
               disabled
               style={styles.inputField}
-              value={recordType as string}
+              value={appRecordType ?? undefined}
               contentStyle={{
                 fontFamily: "Poppins-Regular",
                 marginTop: 8,

@@ -114,7 +114,7 @@ const OTPVerificationScreen = (props: Props) => {
   // Effects
   useFocusEffect(
     useCallback(() => {
-      handleResendOtp();
+      if (!isLoadingResend) handleResendOtp();
     }, [])
   );
 

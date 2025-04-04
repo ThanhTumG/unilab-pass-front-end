@@ -56,26 +56,34 @@ const SignUpScreen = (props: Props) => {
   const handleOnSubmit = async (data: SignupFormType) => {
     if (isLoading) return;
     setIsLoading(true);
-    const { firstName, lastName } = splitFullName(data.fullName);
-    const param: MyUserCreationRequest = {
-      email: data.email,
-      password: data.password.default,
-      firstName: firstName,
-      lastName: lastName,
-    };
-    await myUserControllerApi
-      .createMyUser({ myUserCreationRequest: param })
-      .then(() => {
+    try {
+      const { firstName, lastName } = splitFullName(data.fullName);
+      const param: MyUserCreationRequest = {
+        email: data.email,
+        password: data.password.default,
+        firstName: firstName,
+        lastName: lastName,
+      };
+      await myUserControllerApi
+        .createMyUser({ myUserCreationRequest: param })
+        .then(() => {
+          console.info("Successfully sign up");
+          router.push({
+            pathname: "/OTPVerificationScreen",
+            params: { email: data.email },
+          });
+        });
+    } catch (error: any) {
+      if (error.response.data.code == 1002) {
         console.info("Successfully sign up");
         router.push({
           pathname: "/OTPVerificationScreen",
           params: { email: data.email },
         });
-      })
-      .catch((error) => {
-        setAlertMessage(error.response.data.message);
-        setIsAlert(true);
-      });
+      }
+      setAlertMessage(error.response.data.message);
+      setIsAlert(true);
+    }
     setIsLoading(false);
   };
 

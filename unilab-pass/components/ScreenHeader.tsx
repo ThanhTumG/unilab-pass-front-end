@@ -35,7 +35,10 @@ const ScreenHeader = ({ title }: Props) => {
         size={28}
         iconColor="#808080"
         style={{ position: "absolute", left: 10, zIndex: 10 }}
-        onPress={() => router.back()}
+        onPress={() => {
+          if (title == "Record Activity") router.dismissAll();
+          else router.back();
+        }}
       />
       {/* Title */}
       <Text

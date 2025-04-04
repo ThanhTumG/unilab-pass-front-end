@@ -1,5 +1,5 @@
 generatorName: typescript-axios
-inputSpec: "https://unilabpass-backend.onrender.com/identity/v3/api-docs"
+inputSpec: "https://unilabpass-backend.onrender.com/api/v3/api-docs"
 outputDir: "api"
 apiPackage: api
 modelPackage: models

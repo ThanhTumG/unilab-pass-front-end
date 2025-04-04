@@ -1,7 +1,7 @@
 // Core
 import { StyleSheet, View } from "react-native";
-import React, { useEffect, useState } from "react";
-import { useLocalSearchParams, useRouter } from "expo-router";
+import React, { useCallback, useEffect, useState } from "react";
+import { useFocusEffect, useLocalSearchParams, useRouter } from "expo-router";
 import {
   ActivityIndicator,
   IconButton,
@@ -16,14 +16,17 @@ import {
 } from "react-native-vision-camera";
 
 // App
-import { isNumberCharList } from "lib/utils";
+import { getFullName, isNumberCharList } from "lib/utils";
 import useEventStore from "stores/useEventStore";
 import { useAuthStore, useUserStore } from "stores";
+import { SuccessDialog } from "components/CustomDialog";
+import { QRScannerOverlay } from "components/ui/Overlay";
 import {
   EventGuestControllerApi,
   LabMemberControllerApi,
   MyUserResponse,
 } from "api/index";
+import useRecordStore from "stores/useRecordStore";
 
 // Types
 type Props = {};
@@ -35,6 +38,8 @@ const ScanQRScreen = (props: Props) => {
   const [isPendingGetMem, setIsPendingGetMem] = useState<boolean>(false);
   const [alertMessage, setAlertMessage] = useState("");
   const [isAlert, setIsAlert] = useState<boolean>(false);
+  const [isSuccessDialog, setIsSuccessDialog] = useState<boolean>(false);
+  const [param, setParam] = useState({});
 
   // Camera permission
   const { hasPermission, requestPermission } = useCameraPermission();
@@ -53,6 +58,7 @@ const ScanQRScreen = (props: Props) => {
   const { appToken } = useAuthStore();
   const { appLabId } = useUserStore();
   const { appIsEvent, appEventId } = useEventStore();
+  const { setAppRecord } = useRecordStore();
 
   // Code scanner
   const codeScanner = useCodeScanner({
@@ -68,7 +74,7 @@ const ScanQRScreen = (props: Props) => {
   // Methods
   // Handle get id
   const handleOnDetectId = (id: string | undefined) => {
-    if (!id) return;
+    if (!id || id === idDetected) return;
     if (isNumberCharList(id)) {
       setIdDetected(id);
       return;
@@ -77,10 +83,16 @@ const ScanQRScreen = (props: Props) => {
     setIsAlert(true);
   };
 
+  // Handle route face recognition screen
+  const handleRouteFaceReg = () => {
+    router.push({
+      pathname: "/ScanFaceScreen",
+    });
+  };
+
   // Effects
   useEffect(() => {
     if (!idDetected) return;
-
     const handleGetGuest = async () => {
       if (isPendingGetMem) return;
       setIsPendingGetMem(true);
@@ -92,15 +104,11 @@ const ScanQRScreen = (props: Props) => {
           },
           { headers: { Authorization: `Bearer ${appToken}` } }
         );
-
-        router.push({
-          pathname: "/RecordScreen",
-          params: {
-            id: idDetected,
-            firstName: response.data.result?.guestName,
-            recordType,
-          },
+        setAppRecord({
+          visitorId: idDetected,
+          visitorName: response.data.result?.guestName,
         });
+        setIsSuccessDialog(true);
       } catch (error: any) {
         setAlertMessage(error.response.data.message);
         setIsAlert(true);
@@ -118,21 +126,21 @@ const ScanQRScreen = (props: Props) => {
           },
           { headers: { Authorization: `Bearer ${appToken}` } }
         );
-
         if (response.data.result?.status === "ACTIVE") {
           console.log("User is in lab");
           const { firstName, lastName, email, id }: MyUserResponse =
             response.data.result?.myUserResponse ?? {};
-          router.push({
-            pathname: "/RecordScreen",
-            params: { firstName, lastName, email, id, recordType },
+          setAppRecord({
+            visitorId: id,
+            visitorName: getFullName({ firstName, lastName }),
+            visitorEmail: email,
           });
+          setIsSuccessDialog(true);
         } else {
           setAlertMessage("This member status is BLOCKED");
           setIsAlert(true);
         }
       } catch (error: any) {
-        console.log(error.response.data.message);
         setAlertMessage(error.response.data.message);
         setIsAlert(true);
       }
@@ -141,9 +149,7 @@ const ScanQRScreen = (props: Props) => {
 
     if (appIsEvent) {
       handleGetGuest();
-      return;
-    }
-    handleGetDetailMember();
+    } else handleGetDetailMember();
   }, [idDetected]);
 
   // Effects
@@ -158,6 +164,12 @@ const ScanQRScreen = (props: Props) => {
       });
     }
   }, [hasPermission, requestPermission]);
+
+  useFocusEffect(
+    useCallback(() => {
+      setIdDetected(undefined);
+    }, [])
+  );
 
   // If no permission
   if (!hasPermission) {
@@ -216,6 +228,9 @@ const ScanQRScreen = (props: Props) => {
         </>
       )}
 
+      {/* Overlay */}
+      <QRScannerOverlay />
+
       {/* Snackbar */}
       <Snackbar
         visible={isAlert}
@@ -228,6 +243,15 @@ const ScanQRScreen = (props: Props) => {
       >
         {alertMessage}
       </Snackbar>
+
+      {/* Success Dialog */}
+      <SuccessDialog
+        title={"Success"}
+        content="Verify ID successfully"
+        visible={isSuccessDialog}
+        setVisible={setIsSuccessDialog}
+        onCloseDialog={handleRouteFaceReg}
+      />
     </View>
   );
 };

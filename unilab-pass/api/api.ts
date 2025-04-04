@@ -21,6 +21,7 @@ export * from './api/event-log-controller-api';
 export * from './api/lab-member-controller-api';
 export * from './api/laboratory-controller-api';
 export * from './api/log-controller-api';
+export * from './api/model-controller-api';
 export * from './api/my-user-controller-api';
 export * from './api/role-controller-api';
 

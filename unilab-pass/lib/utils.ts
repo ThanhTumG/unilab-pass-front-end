@@ -1,6 +1,8 @@
 import dayjs from "dayjs";
 import utc from "dayjs/plugin/utc";
 import timezone from "dayjs/plugin/timezone";
+import { Face } from "react-native-vision-camera-face-detector";
+import { Dimensions } from "react-native";
 
 dayjs.extend(utc);
 dayjs.extend(timezone);
@@ -65,4 +67,29 @@ export const combineDate = (
     .second(0)
     .millisecond(0)
     .format("YYYY-MM-DDTHH:mm:ss");
+};
+
+// Check if face view is frontal
+export const checkFaceViewIsFrontal = (face: Face) => {
+  const { width, height } = Dimensions.get("window");
+  const { yawAngle, pitchAngle, rollAngle, bounds } = face;
+
+  const isFacingFront =
+    Math.abs(yawAngle) < 7 &&
+    Math.abs(pitchAngle) < 7 &&
+    Math.abs(rollAngle) < 7;
+
+  const screenCenterX = width / 2;
+  const screenCenterY = height / 2;
+  const faceCenterX = bounds.x / 2 + bounds.width / 2;
+  const faceCenterY = bounds.y + bounds.height * 0.6;
+  const isCentered =
+    Math.abs(faceCenterX - screenCenterX) < 25 &&
+    Math.abs(faceCenterY - screenCenterY) < 45;
+  const minFaceWidth = width * 0.63;
+  const maxFaceWidth = width * 0.93;
+  const isProperSize =
+    bounds.width >= minFaceWidth && bounds.width <= maxFaceWidth;
+
+  return isFacingFront && isCentered && isProperSize;
 };

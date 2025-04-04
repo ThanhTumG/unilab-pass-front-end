@@ -38,12 +38,6 @@ export interface EventLogCreationRequest {
      * @memberof EventLogCreationRequest
      */
     'recordType'?: EventLogCreationRequestRecordTypeEnum;
-    /**
-     * 
-     * @type {string}
-     * @memberof EventLogCreationRequest
-     */
-    'photoURL'?: string;
 }
 
 export const EventLogCreationRequestRecordTypeEnum = {

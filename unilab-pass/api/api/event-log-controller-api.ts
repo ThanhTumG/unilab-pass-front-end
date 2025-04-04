@@ -26,8 +26,6 @@ import type { CustomApiResponseEventLogRespond } from '../models';
 // @ts-ignore
 import type { CustomApiResponseListEventLogRespond } from '../models';
 // @ts-ignore
-import type { CustomApiResponseString } from '../models';
-// @ts-ignore
 import type { EventLogCreationRequest } from '../models';
 /**
  * EventLogControllerApi - axios parameter creator
@@ -39,12 +37,15 @@ export const EventLogControllerApiAxiosParamCreator = function (configuration?: 
          * 
          * @summary Add new event log
          * @param {EventLogCreationRequest} request 
+         * @param {any} file 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        addEventLog: async (request: EventLogCreationRequest, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+        addEventLog: async (request: EventLogCreationRequest, file: any, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
             // verify required parameter 'request' is not null or undefined
             assertParamExists('addEventLog', 'request', request)
+            // verify required parameter 'file' is not null or undefined
+            assertParamExists('addEventLog', 'file', file)
             const localVarPath = `/event/logs`;
             // use dummy base URL string because the URL constructor only accepts absolute URLs.
             const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
@@ -56,22 +57,28 @@ export const EventLogControllerApiAxiosParamCreator = function (configuration?: 
             const localVarRequestOptions = { method: 'POST', ...baseOptions, ...options};
             const localVarHeaderParameter = {} as any;
             const localVarQueryParameter = {} as any;
+            const localVarFormParams = new ((configuration && configuration.formDataCtor) || FormData)();
 
             // authentication BearerAuthentication required
             // http bearer authentication required
             await setBearerAuthToObject(localVarHeaderParameter, configuration)
 
-            if (request !== undefined) {
-                for (const [key, value] of Object.entries(request)) {
-                    localVarQueryParameter[key] = value;
-                }
+
+            if (request !== undefined) { 
+                localVarFormParams.append('request', { name: "request", type: "application/json", string: JSON.stringify(request) });
             }
-
-
+    
+            if (file !== undefined) { 
+                localVarFormParams.append('file', file as any);
+            }
+    
+    
+            localVarHeaderParameter['Content-Type'] = 'multipart/form-data';
     
             setSearchParams(localVarUrlObj, localVarQueryParameter);
             let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
             localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+            localVarRequestOptions.data = localVarFormParams;
 
             return {
                 url: toPathString(localVarUrlObj),
@@ -168,11 +175,12 @@ export const EventLogControllerApiFp = function(configuration?: Configuration) {
          * 
          * @summary Add new event log
          * @param {EventLogCreationRequest} request 
+         * @param {any} file 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async addEventLog(request: EventLogCreationRequest, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<CustomApiResponseString>> {
-            const localVarAxiosArgs = await localVarAxiosParamCreator.addEventLog(request, options);
+        async addEventLog(request: EventLogCreationRequest, file: any, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<CustomApiResponseEventLogRespond>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.addEventLog(request, file, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
             const localVarOperationServerBasePath = operationServerMap['EventLogControllerApi.addEventLog']?.[localVarOperationServerIndex]?.url;
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
@@ -220,8 +228,8 @@ export const EventLogControllerApiFactory = function (configuration?: Configurat
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        addEventLog(requestParameters: EventLogControllerApiAddEventLogRequest, options?: RawAxiosRequestConfig): AxiosPromise<CustomApiResponseString> {
-            return localVarFp.addEventLog(requestParameters.request, options).then((request) => request(axios, basePath));
+        addEventLog(requestParameters: EventLogControllerApiAddEventLogRequest, options?: RawAxiosRequestConfig): AxiosPromise<CustomApiResponseEventLogRespond> {
+            return localVarFp.addEventLog(requestParameters.request, requestParameters.file, options).then((request) => request(axios, basePath));
         },
         /**
          * 
@@ -258,6 +266,13 @@ export interface EventLogControllerApiAddEventLogRequest {
      * @memberof EventLogControllerApiAddEventLog
      */
     readonly request: EventLogCreationRequest
+
+    /**
+     * 
+     * @type {any}
+     * @memberof EventLogControllerApiAddEventLog
+     */
+    readonly file: any
 }
 
 /**
@@ -304,7 +319,7 @@ export class EventLogControllerApi extends BaseAPI {
      * @memberof EventLogControllerApi
      */
     public addEventLog(requestParameters: EventLogControllerApiAddEventLogRequest, options?: RawAxiosRequestConfig) {
-        return EventLogControllerApiFp(this.configuration).addEventLog(requestParameters.request, options).then((request) => request(this.axios, this.basePath));
+        return EventLogControllerApiFp(this.configuration).addEventLog(requestParameters.request, requestParameters.file, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**

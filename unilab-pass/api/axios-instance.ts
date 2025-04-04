@@ -2,7 +2,7 @@ import axios from "axios";
 import { useAuthStore } from "../stores";
 
 const API = axios.create({
-  baseURL: "https://unilabpass-backend.onrender.com/identity",
+  baseURL: "https://unilabpass-backend.onrender.com/api",
 });
 
 API.interceptors.response.use(
@@ -14,7 +14,6 @@ API.interceptors.response.use(
       "/auth/login",
       "/users/signup",
       "/users/myInfo",
-      "/auth/change-pass",
     ];
 
     if (excludeRefreshRoutes.includes(originalRequest.url)) {

@@ -92,7 +92,7 @@ const MemberManagementScreen = (props: Props) => {
           };
           return Obj;
         }) ?? [];
-      console.log("Successfully get members");
+      console.log("Successfully get members", newLabMemberList);
       setMemberList(newLabMemberList);
     } catch (error: any) {
       console.error(error.response.data);

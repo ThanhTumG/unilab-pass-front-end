@@ -61,6 +61,12 @@ export interface MyUserResponse {
     'gender'?: string;
     /**
      * 
+     * @type {string}
+     * @memberof MyUserResponse
+     */
+    'photoURL'?: string;
+    /**
+     * 
      * @type {Set<RoleResponse>}
      * @memberof MyUserResponse
      */
