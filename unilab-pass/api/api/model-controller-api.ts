@@ -70,14 +70,17 @@ export const ModelControllerApiAxiosParamCreator = function (configuration?: Con
          * @summary Verify
          * @param {any} image1 
          * @param {string} userId 
+         * @param {string} labId 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        verify: async (image1: any, userId: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+        verify: async (image1: any, userId: string, labId: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
             // verify required parameter 'image1' is not null or undefined
             assertParamExists('verify', 'image1', image1)
             // verify required parameter 'userId' is not null or undefined
             assertParamExists('verify', 'userId', userId)
+            // verify required parameter 'labId' is not null or undefined
+            assertParamExists('verify', 'labId', labId)
             const localVarPath = `/model/verify`;
             // use dummy base URL string because the URL constructor only accepts absolute URLs.
             const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
@@ -102,6 +105,10 @@ export const ModelControllerApiAxiosParamCreator = function (configuration?: Con
     
             if (userId !== undefined) { 
                 localVarFormParams.append('userId', userId as any);
+            }
+    
+            if (labId !== undefined) { 
+                localVarFormParams.append('labId', labId as any);
             }
     
     
@@ -144,11 +151,12 @@ export const ModelControllerApiFp = function(configuration?: Configuration) {
          * @summary Verify
          * @param {any} image1 
          * @param {string} userId 
+         * @param {string} labId 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async verify(image1: any, userId: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<CustomApiResponseObject>> {
-            const localVarAxiosArgs = await localVarAxiosParamCreator.verify(image1, userId, options);
+        async verify(image1: any, userId: string, labId: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<CustomApiResponseObject>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.verify(image1, userId, labId, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
             const localVarOperationServerBasePath = operationServerMap['ModelControllerApi.verify']?.[localVarOperationServerIndex]?.url;
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
@@ -180,7 +188,7 @@ export const ModelControllerApiFactory = function (configuration?: Configuration
          * @throws {RequiredError}
          */
         verify(requestParameters: ModelControllerApiVerifyRequest, options?: RawAxiosRequestConfig): AxiosPromise<CustomApiResponseObject> {
-            return localVarFp.verify(requestParameters.image1, requestParameters.userId, options).then((request) => request(axios, basePath));
+            return localVarFp.verify(requestParameters.image1, requestParameters.userId, requestParameters.labId, options).then((request) => request(axios, basePath));
         },
     };
 };
@@ -204,6 +212,13 @@ export interface ModelControllerApiVerifyRequest {
      * @memberof ModelControllerApiVerify
      */
     readonly userId: string
+
+    /**
+     * 
+     * @type {string}
+     * @memberof ModelControllerApiVerify
+     */
+    readonly labId: string
 }
 
 /**
@@ -233,7 +248,7 @@ export class ModelControllerApi extends BaseAPI {
      * @memberof ModelControllerApi
      */
     public verify(requestParameters: ModelControllerApiVerifyRequest, options?: RawAxiosRequestConfig) {
-        return ModelControllerApiFp(this.configuration).verify(requestParameters.image1, requestParameters.userId, options).then((request) => request(this.axios, this.basePath));
+        return ModelControllerApiFp(this.configuration).verify(requestParameters.image1, requestParameters.userId, requestParameters.labId, options).then((request) => request(this.axios, this.basePath));
     }
 }
 

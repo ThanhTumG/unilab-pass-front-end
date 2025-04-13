@@ -21,6 +21,7 @@ type Props = {
 };
 
 // Component
+// Warn Dialog
 const WarningDialog = ({
   visible,
   setVisible,
@@ -67,6 +68,58 @@ const WarningDialog = ({
   );
 };
 
+// Error Dialog
+const ErrorDialog = ({
+  visible,
+  setVisible,
+  title,
+  content,
+  onConfirm,
+  onCloseDialog,
+}: Props) => {
+  const hideDialog = () => {
+    setVisible(false);
+    onCloseDialog && onCloseDialog();
+  };
+
+  // Template
+  return (
+    <Portal>
+      <Dialog visible={visible} onDismiss={hideDialog}>
+        <View style={styles.header}>
+          <Text style={styles.title} variant="titleMedium">
+            {title}
+          </Text>
+          <Icon source={"close-circle"} size={22} color="#ff6666" />
+        </View>
+        <Divider />
+        <Dialog.Content style={styles.content}>
+          <Text style={styles.contentText} variant="bodyMedium">
+            {content}
+          </Text>
+        </Dialog.Content>
+        <Dialog.Actions>
+          <Button
+            contentStyle={styles.btn}
+            onPress={hideDialog}
+            labelStyle={[styles.label, { color: "#333" }]}
+          >
+            Cancel
+          </Button>
+          <Button
+            contentStyle={styles.btn}
+            labelStyle={[styles.label]}
+            onPress={onConfirm}
+          >
+            Ok
+          </Button>
+        </Dialog.Actions>
+      </Dialog>
+    </Portal>
+  );
+};
+
+// Success Dialog
 const SuccessDialog = ({
   visible,
   setVisible,
@@ -108,7 +161,7 @@ const SuccessDialog = ({
   );
 };
 
-export { WarningDialog, SuccessDialog };
+export { WarningDialog, ErrorDialog, SuccessDialog };
 
 // Styles
 const styles = StyleSheet.create({

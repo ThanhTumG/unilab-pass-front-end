@@ -75,9 +75,9 @@ export const checkFaceViewIsFrontal = (face: Face) => {
   const { yawAngle, pitchAngle, rollAngle, bounds } = face;
 
   const isFacingFront =
-    Math.abs(yawAngle) < 7 &&
-    Math.abs(pitchAngle) < 7 &&
-    Math.abs(rollAngle) < 7;
+    Math.abs(yawAngle) < 8 &&
+    Math.abs(pitchAngle) < 8 &&
+    Math.abs(rollAngle) < 8;
 
   const screenCenterX = width / 2;
   const screenCenterY = height / 2;
@@ -85,11 +85,11 @@ export const checkFaceViewIsFrontal = (face: Face) => {
   const faceCenterY = bounds.y + bounds.height * 0.6;
   const isCentered =
     Math.abs(faceCenterX - screenCenterX) < 25 &&
-    Math.abs(faceCenterY - screenCenterY) < 45;
-  const minFaceWidth = width * 0.63;
-  const maxFaceWidth = width * 0.93;
+    Math.abs(faceCenterY - screenCenterY) < 55;
+  const minFaceWidth = width * 0.6;
+  const maxFaceWidth = width * 0.95;
   const isProperSize =
     bounds.width >= minFaceWidth && bounds.width <= maxFaceWidth;
-
+  console.log(isFacingFront, isCentered, isProperSize);
   return isFacingFront && isCentered && isProperSize;
 };

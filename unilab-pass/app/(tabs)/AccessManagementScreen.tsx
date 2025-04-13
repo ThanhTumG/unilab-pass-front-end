@@ -15,6 +15,7 @@ import Record from "components/Record";
 import FilterAccess from "components/FilterAccess";
 import { useAuthStore, useUserStore } from "stores";
 import { LogControllerApi, LogRespond } from "api/index";
+import MemberPhotoModal from "components/MemberPhotoModal";
 
 // Types
 type Props = {};
@@ -25,6 +26,8 @@ const ManageAccessScreen = (props: Props) => {
   const [searchQuery, setSearchQuery] = React.useState("");
   const [isPendingGetLog, setIsPendingGetLog] = useState<boolean>(false);
   const [logList, setLogList] = useState<LogRespond[]>();
+  const [isShowPhoto, setIsShowPhoto] = useState(false);
+  const [photoURL, setPhotoURL] = useState<string>("");
 
   // Theme
   const theme = useTheme();
@@ -47,7 +50,7 @@ const ManageAccessScreen = (props: Props) => {
         { labId: appLabId ?? "" },
         { headers: { Authorization: `Bearer ${appToken}` } }
       );
-      console.log("Successfully get all log");
+      console.log("Successfully get all log", response.data.result);
       setLogList(response.data.result);
     } catch (error: any) {
       console.error(error.response.data);
@@ -59,6 +62,12 @@ const ManageAccessScreen = (props: Props) => {
   // Handle filter
   const handleFilterAccess = (markedDates: any) => {
     console.log(markedDates);
+  };
+
+  // Handle press record
+  const handlePressRecord = (photoUrl: string) => {
+    setPhotoURL(photoUrl);
+    setIsShowPhoto(true);
   };
 
   // Handle refresh
@@ -120,10 +129,23 @@ const ManageAccessScreen = (props: Props) => {
             item: LogRespond;
             index: number;
           }) => {
-            return <Record item={item} isEven={index % 2 == 1} />;
+            return (
+              <Record
+                item={item}
+                isEven={index % 2 == 1}
+                onPress={() => handlePressRecord(item.photoURL ?? "")}
+              />
+            );
           }}
         />
       </View>
+
+      {/* Member Photo */}
+      <MemberPhotoModal
+        visible={isShowPhoto}
+        setVisible={setIsShowPhoto}
+        photoURL={photoURL}
+      />
     </ImageBackground>
   );
 };

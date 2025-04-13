@@ -11,6 +11,7 @@ import Record from "components/Record";
 import useEventStore from "stores/useEventStore";
 import { EventLogControllerApi, EventLogRespond } from "api/index";
 import ScreenHeader from "components/ScreenHeader";
+import MemberPhotoModal from "components/MemberPhotoModal";
 
 // Types
 type Props = {};
@@ -22,6 +23,8 @@ const DetailEventScreen = (props: Props) => {
   const [logList, setLogList] = useState<EventLogRespond[]>();
   const [alertMessage, setAlertMessage] = useState("");
   const [isAlert, setIsAlert] = useState(false);
+  const [isShowPhoto, setIsShowPhoto] = useState(false);
+  const [photoURL, setPhotoURL] = useState<string>("");
 
   // Theme
   const theme = useTheme();
@@ -54,6 +57,12 @@ const DetailEventScreen = (props: Props) => {
       setIsPendingGetLog(false);
     }
   }, [appEventId]);
+
+  // Handle press record
+  function handlePressRecord(photoUrl: string) {
+    setPhotoURL(photoUrl);
+    setIsShowPhoto(true);
+  }
 
   // Handle refresh
   const onRefresh = useCallback(() => {
@@ -195,10 +204,23 @@ const DetailEventScreen = (props: Props) => {
               status: item.status,
               userId: item.guestId,
             };
-            return <Record item={returnItem} isEven={index % 2 == 1} />;
+            return (
+              <Record
+                onPress={() => handlePressRecord(item.photoURL ?? "")}
+                item={returnItem}
+                isEven={index % 2 == 1}
+              />
+            );
           }}
         />
       </View>
+
+      {/* Member Photo */}
+      <MemberPhotoModal
+        visible={isShowPhoto}
+        setVisible={setIsShowPhoto}
+        photoURL={photoURL}
+      />
 
       {/* Snackbar */}
       <Snackbar

@@ -8,7 +8,7 @@ interface RecordStoreStatesType {
   appVisitorName: string | null;
   appVisitorEmail: string | null;
   appRecordImg: string | null;
-  appFailTime: number | null;
+  appFailTime: number;
 }
 
 // Actions type

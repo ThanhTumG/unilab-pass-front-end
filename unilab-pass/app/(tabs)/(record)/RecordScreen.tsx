@@ -86,8 +86,8 @@ const RecordScreen = (props: Props) => {
           headers: { Authorization: `Bearer ${appToken}` },
         });
         setIsSuccessDialog(true);
-        removeAppRecord();
       } catch (error: any) {
+        console.log(error.response.data);
         setAlertMessage(error.response.data.message);
         setIsAlert(true);
       }
@@ -115,7 +115,6 @@ const RecordScreen = (props: Props) => {
         headers: { Authorization: `Bearer ${appToken}` },
       });
       setIsSuccessDialog(true);
-      removeAppRecord();
     } catch (error: any) {
       setAlertMessage(error.response.data.message);
       setIsAlert(true);
@@ -314,6 +313,7 @@ const RecordScreen = (props: Props) => {
         setVisible={setIsSuccessDialog}
         onCloseDialog={() => {
           router.dismissAll();
+          removeAppRecord();
         }}
       />
     </View>

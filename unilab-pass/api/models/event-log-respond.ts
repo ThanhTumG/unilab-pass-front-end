@@ -72,7 +72,8 @@ export const EventLogRespondRecordTypeEnum = {
 export type EventLogRespondRecordTypeEnum = typeof EventLogRespondRecordTypeEnum[keyof typeof EventLogRespondRecordTypeEnum];
 export const EventLogRespondStatusEnum = {
     SUCCESS: 'SUCCESS',
-    BLOCKED: 'BLOCKED'
+    BLOCKED: 'BLOCKED',
+    ILLEGAL: 'ILLEGAL'
 } as const;
 
 export type EventLogRespondStatusEnum = typeof EventLogRespondStatusEnum[keyof typeof EventLogRespondStatusEnum];

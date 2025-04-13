@@ -22,11 +22,16 @@ import {
 } from "react-native-vision-camera-face-detector";
 
 // App
-import { useAuthStore } from "stores";
-import { ModelControllerApi, ModelControllerApiVerifyRequest } from "api/index";
+import { useAuthStore, useUserStore } from "stores";
+import {
+  LogControllerApi,
+  LogControllerApiCreateNewLogRequest,
+  ModelControllerApi,
+  ModelControllerApiVerifyRequest,
+} from "api/index";
 import { checkFaceViewIsFrontal } from "lib/utils";
 import { FaceScannerOverlay } from "components/ui/Overlay";
-import { SuccessDialog } from "components/CustomDialog";
+import { ErrorDialog, SuccessDialog } from "components/CustomDialog";
 import useRecordStore from "stores/useRecordStore";
 import useEventStore from "stores/useEventStore";
 
@@ -34,8 +39,11 @@ import useEventStore from "stores/useEventStore";
 type Props = {};
 
 interface VerifyResult {
-  code: number;
-  samePerson: boolean;
+  isIllegal: boolean;
+  result: {
+    code: number;
+    samePerson: boolean;
+  };
 }
 
 // Component
@@ -48,7 +56,11 @@ const ScanFaceScreen = (props: Props) => {
   const [faceMsg, setFaceMsg] = useState("");
   const [isActive, setIsActive] = useState(false);
   const [isUpload, setIsUpload] = useState(false);
+  const [isPostIllegalLog, setIsPostIllegalLog] = useState<boolean>(false);
   const [isSuccessDialog, setIsSuccessDialog] = useState<boolean>(false);
+  const [isErrorDialog, setIsErrorDialog] = useState<boolean>(false);
+  const [isVerifyErr, setIsVerifyErr] = useState<boolean>(false);
+  const [isFailDialog, setIsFailDialog] = useState<boolean>(false);
 
   // Ref
   const camera = useRef<Camera>(null);
@@ -73,10 +85,13 @@ const ScanFaceScreen = (props: Props) => {
 
   // Server
   const modelControllerApi = new ModelControllerApi();
+  const logControllerApi = new LogControllerApi();
 
   // Store
   const { appToken } = useAuthStore();
-  const { appVisitorId, setAppRecord } = useRecordStore();
+  const { appLabId } = useUserStore();
+  const { appVisitorId, appRecordType, setAppRecord, removeAppRecord } =
+    useRecordStore();
   const { appIsEvent } = useEventStore();
 
   // Methods
@@ -95,6 +110,40 @@ const ScanFaceScreen = (props: Props) => {
     }
   };
 
+  // Handle post illegal log
+  const handleIllegalRecord = async (token?: string) => {
+    setIsPostIllegalLog(true);
+    const finalToken = token || appToken;
+    try {
+      const file = {
+        uri: photoUri[photoUri.length - 1],
+        type: "image/jpeg",
+        name: `${appVisitorId}_normal_record_photo.jpg`,
+      };
+      const param: LogControllerApiCreateNewLogRequest = {
+        request: {
+          labId: appLabId ?? "",
+          userId: appVisitorId ?? "",
+          recordType: appRecordType ?? undefined,
+          logType: "ILLEGAL",
+        },
+        file: file,
+      };
+      console.log(param.request);
+      await logControllerApi.createNewLog(param, {
+        headers: { Authorization: `Bearer ${finalToken}` },
+      });
+      setAppRecord({ failTime: 0 });
+      setIsFailDialog(true);
+      removeAppRecord();
+    } catch (error: any) {
+      setAppRecord({ failTime: 0 });
+      setAlertMessage(error.response.data.message);
+      setIsAlert(true);
+    }
+    setIsPostIllegalLog(false);
+  };
+
   // Handle verify face
   const handleVerifyFace = async () => {
     if (isUpload || !photoUri[0]) return;
@@ -111,21 +160,31 @@ const ScanFaceScreen = (props: Props) => {
       const param: ModelControllerApiVerifyRequest = {
         userId: appVisitorId ?? "",
         image1: file,
+        labId: appLabId ?? "",
       };
-
       const response = await modelControllerApi.verify(param, {
         headers: {
           Authorization: `Bearer ${appToken}`,
         },
       });
-
       const isVerify = response.data.result as VerifyResult;
-      console.log(isVerify?.samePerson);
-      setAppRecord({ recordImg: fileUri });
-
-      setIsSuccessDialog(true);
+      console.log(isVerify);
+      if (isVerify.isIllegal) {
+        const { appToken: latestToken } = useAuthStore.getState();
+        handleIllegalRecord(latestToken ?? "");
+      } else {
+        if (isVerify?.result.samePerson) {
+          setAppRecord({ recordImg: fileUri });
+          setPhotoUri([]);
+          setAppRecord({ failTime: 0 });
+          setIsSuccessDialog(true);
+        } else {
+          setIsErrorDialog(true);
+        }
+      }
     } catch (error: any) {
-      console.log("Error:", error);
+      console.log("Error:", error.response.data);
+      setIsVerifyErr(true);
     } finally {
       setIsUpload(false);
     }
@@ -164,6 +223,13 @@ const ScanFaceScreen = (props: Props) => {
     if (!photoUri[0]) return;
     setAppRecord({ recordImg: photoUri[photoUri.length - 1] });
     setIsSuccessDialog(true);
+  };
+
+  // Handle verify face again
+  const handleVerifyAgain = () => {
+    setPhotoUri([]);
+    setIsCapturing(false);
+    setIsErrorDialog(false);
   };
 
   // Frame processor
@@ -273,7 +339,7 @@ const ScanFaceScreen = (props: Props) => {
         </Text>
       )}
 
-      {isUpload && (
+      {(isUpload || isPostIllegalLog) && (
         <View
           style={[
             StyleSheet.absoluteFill,
@@ -320,6 +386,41 @@ const ScanFaceScreen = (props: Props) => {
         visible={isSuccessDialog}
         setVisible={setIsSuccessDialog}
         onCloseDialog={() => router.push("/RecordScreen")}
+      />
+
+      {/* Error Dialog */}
+      <ErrorDialog
+        title="Error"
+        content={`Face verification failed, please try again.`}
+        visible={isErrorDialog}
+        setVisible={setIsErrorDialog}
+        onConfirm={handleVerifyAgain}
+      />
+
+      {/* Error Dialog */}
+      <ErrorDialog
+        title="Error"
+        content={"Something was wrong, please try again later."}
+        visible={isVerifyErr}
+        setVisible={setIsVerifyErr}
+        onConfirm={() => {
+          setIsVerifyErr(false), router.dismissAll();
+        }}
+        onCloseDialog={() => router.dismissAll()}
+      />
+
+      {/* Record Fail Dialog */}
+      <ErrorDialog
+        title="Error"
+        content={
+          "Face authentication failed too many times. Access temporarily locked."
+        }
+        visible={isFailDialog}
+        setVisible={setIsFailDialog}
+        onConfirm={() => {
+          setIsFailDialog(false), router.dismissAll();
+        }}
+        onCloseDialog={() => router.dismissAll()}
       />
     </View>
   );

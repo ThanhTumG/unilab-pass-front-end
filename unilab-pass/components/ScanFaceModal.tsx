@@ -205,7 +205,7 @@ const ScanFaceModal = ({ visible, setVisible, setPhotoUri }: Props) => {
                 }}
               >
                 <Text variant="titleMedium" style={styles.title}>
-                  Face recognition
+                  Face Capture
                 </Text>
               </View>
             </View>

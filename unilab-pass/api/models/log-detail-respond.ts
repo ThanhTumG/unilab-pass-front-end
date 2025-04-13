@@ -84,7 +84,8 @@ export const LogDetailRespondRecordTypeEnum = {
 export type LogDetailRespondRecordTypeEnum = typeof LogDetailRespondRecordTypeEnum[keyof typeof LogDetailRespondRecordTypeEnum];
 export const LogDetailRespondStatusEnum = {
     SUCCESS: 'SUCCESS',
-    BLOCKED: 'BLOCKED'
+    BLOCKED: 'BLOCKED',
+    ILLEGAL: 'ILLEGAL'
 } as const;
 
 export type LogDetailRespondStatusEnum = typeof LogDetailRespondStatusEnum[keyof typeof LogDetailRespondStatusEnum];
