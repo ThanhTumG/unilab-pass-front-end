@@ -8,6 +8,7 @@ import {
   ActivityIndicator,
   Button,
   Snackbar,
+  Surface,
   Text,
   TextInput,
 } from "react-native-paper";
@@ -160,7 +161,11 @@ const SelectLabScreen = (props: Props) => {
       source={require("../assets/images/background.png")}
       style={styles.background}
     >
-      <ActivityIndicator animating={true} />
+      <Surface
+        style={{ padding: 10, backgroundColor: "#fff", borderRadius: 45 }}
+      >
+        <ActivityIndicator animating={true} size={20} />
+      </Surface>
     </ImageBackground>
   ) : (
     <ImageBackground
@@ -180,7 +185,7 @@ const SelectLabScreen = (props: Props) => {
           value={labId}
           onSelect={setLabId}
           menuContentStyle={{
-            marginTop: 25,
+            marginTop: 22,
           }}
           menuUpIcon={
             <TextInput.Icon icon="menu-up" color="#333" pointerEvents="none" />

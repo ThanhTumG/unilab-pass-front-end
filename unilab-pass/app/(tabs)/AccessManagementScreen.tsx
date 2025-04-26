@@ -1,7 +1,7 @@
 // Core
 import { FlatList } from "react-native";
 import { useFocusEffect } from "expo-router";
-import React, { useCallback, useState } from "react";
+import React, { useCallback, useMemo, useState } from "react";
 import { Icon, Searchbar, Text, useTheme } from "react-native-paper";
 import {
   ImageBackground,
@@ -12,6 +12,8 @@ import {
 
 // App
 import Record from "components/Record";
+import { getFullName } from "lib/utils";
+import EmptyIcon from "components/ui/EmptyIcon";
 import FilterAccess from "components/FilterAccess";
 import { useAuthStore, useUserStore } from "stores";
 import { LogControllerApi, LogRespond } from "api/index";
@@ -20,14 +22,32 @@ import MemberPhotoModal from "components/MemberPhotoModal";
 // Types
 type Props = {};
 
+type MarkedDatesType = {
+  currentDate: string;
+  markedDates: {
+    startDate?: string;
+    endDate?: string;
+  };
+  mode: "week" | "month";
+};
+
 // Component
 const ManageAccessScreen = (props: Props) => {
   // States
+  const initialDate = new Date().toISOString().split("T")[0];
   const [searchQuery, setSearchQuery] = React.useState("");
   const [isPendingGetLog, setIsPendingGetLog] = useState<boolean>(false);
   const [logList, setLogList] = useState<LogRespond[]>();
   const [isShowPhoto, setIsShowPhoto] = useState(false);
   const [photoURL, setPhotoURL] = useState<string>("");
+  const [markedDates, setMarkedDates] = useState<MarkedDatesType>({
+    currentDate: initialDate,
+    markedDates: {
+      startDate: undefined,
+      endDate: undefined,
+    },
+    mode: "week",
+  });
 
   // Theme
   const theme = useTheme();
@@ -36,13 +56,13 @@ const ManageAccessScreen = (props: Props) => {
   const logControllerApi = new LogControllerApi();
 
   // Store
-  const { appLabId } = useUserStore();
+  const { appLabId, appIsFetchedRecord, setAppIsFetchedRecord } =
+    useUserStore();
 
   // Methods
   // Handle get all log
   const handleGetAllLog = useCallback(async () => {
     const { appToken } = useAuthStore.getState();
-
     if (isPendingGetLog) return;
     setIsPendingGetLog(true);
     try {
@@ -50,8 +70,17 @@ const ManageAccessScreen = (props: Props) => {
         { labId: appLabId ?? "" },
         { headers: { Authorization: `Bearer ${appToken}` } }
       );
-      console.log("Successfully get all log", response.data.result);
+      console.log("Successfully get all log");
       setLogList(response.data.result);
+      setMarkedDates({
+        currentDate: initialDate,
+        markedDates: {
+          startDate: undefined,
+          endDate: undefined,
+        },
+        mode: "week",
+      });
+      setSearchQuery("");
     } catch (error: any) {
       console.error(error.response.data);
     } finally {
@@ -59,10 +88,41 @@ const ManageAccessScreen = (props: Props) => {
     }
   }, [appLabId]);
 
-  // Handle filter
-  const handleFilterAccess = (markedDates: any) => {
-    console.log(markedDates);
-  };
+  // Memo
+  const filterLogList = useMemo(() => {
+    // Filter logList by markedDates
+    return logList?.filter((log) => {
+      const startDate = markedDates.markedDates.startDate;
+      const endDate = markedDates.markedDates.endDate;
+
+      const isFilByDate = startDate && endDate;
+      const recordDate = new Date(log.recordTime ?? "");
+      const start = isFilByDate ? new Date(startDate) : undefined;
+      const end = isFilByDate ? new Date(endDate) : undefined;
+      end && end.setHours(23, 59, 59, 999);
+
+      const isDateInRange =
+        start && end ? recordDate >= start && recordDate <= end : undefined;
+
+      const isSearch = searchQuery !== "";
+
+      const query = searchQuery.toLowerCase();
+      const userFullName = getFullName({
+        firstName: log.userFirstName,
+        lastName: log.userLastName,
+      });
+      const userIdMatch = log.userId?.toLowerCase().includes(query) ?? false;
+      const userNameMatch = userFullName.toLowerCase().includes(query) ?? false;
+
+      return isFilByDate && isSearch
+        ? isDateInRange && (userIdMatch || userNameMatch)
+        : isFilByDate
+        ? isDateInRange
+        : isSearch
+        ? userIdMatch || userNameMatch
+        : true;
+    });
+  }, [markedDates, searchQuery]);
 
   // Handle press record
   const handlePressRecord = (photoUrl: string) => {
@@ -78,8 +138,11 @@ const ManageAccessScreen = (props: Props) => {
   // Effects
   useFocusEffect(
     useCallback(() => {
-      handleGetAllLog();
-    }, [handleGetAllLog])
+      if (!appIsFetchedRecord) {
+        setAppIsFetchedRecord(true);
+        handleGetAllLog();
+      }
+    }, [handleGetAllLog, appIsFetchedRecord])
   );
 
   // Template
@@ -105,14 +168,17 @@ const ManageAccessScreen = (props: Props) => {
 
       {/* Filter */}
       <View style={{ position: "absolute", top: 35, right: 20 }}>
-        <FilterAccess onSubmit={handleFilterAccess} />
+        <FilterAccess
+          markedDates={markedDates}
+          setMarkedDates={setMarkedDates}
+        />
       </View>
       {/* </View> */}
 
       {/* Table */}
       <View style={styles.recordListContainer}>
         <FlatList
-          data={logList}
+          data={filterLogList ?? logList}
           keyExtractor={(item) => item.id ?? ""}
           refreshControl={
             <RefreshControl
@@ -138,6 +204,9 @@ const ManageAccessScreen = (props: Props) => {
             );
           }}
         />
+
+        {((filterLogList && filterLogList?.length == 0) ||
+          logList?.length == 0) && <EmptyIcon />}
       </View>
 
       {/* Member Photo */}

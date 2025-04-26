@@ -8,7 +8,6 @@ interface RecordStoreStatesType {
   appVisitorName: string | null;
   appVisitorEmail: string | null;
   appRecordImg: string | null;
-  appFailTime: number;
 }
 
 // Actions type
@@ -18,7 +17,6 @@ interface SetAppRecordParamsType {
   visitorName?: string;
   visitorEmail?: string;
   recordImg?: string;
-  failTime?: number;
 }
 
 interface RecordStoreActionsType {
@@ -33,7 +31,6 @@ const DEFAULT_RECORD_STORE_STATES: RecordStoreStatesType = {
   appVisitorName: null,
   appVisitorEmail: null,
   appRecordImg: null,
-  appFailTime: 0,
 };
 
 // Define store
@@ -50,7 +47,6 @@ const useRecordStore = create<RecordStoreStatesType & RecordStoreActionsType>()(
         visitorName,
         visitorEmail,
         recordImg,
-        failTime,
       }) => {
         // Set user data
         set((state) => ({
@@ -59,11 +55,10 @@ const useRecordStore = create<RecordStoreStatesType & RecordStoreActionsType>()(
           appVisitorName: visitorName ?? state.appVisitorName,
           appVisitorEmail: visitorEmail ?? state.appVisitorEmail,
           appRecordImg: recordImg ?? state.appRecordImg,
-          appFailTime: failTime ?? state.appFailTime,
         }));
       },
       removeAppRecord: () => {
-        // Reset user data
+        // Reset record data
         set(() => ({
           ...DEFAULT_RECORD_STORE_STATES,
         }));

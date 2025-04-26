@@ -89,7 +89,7 @@ const ScanFaceScreen = (props: Props) => {
 
   // Store
   const { appToken } = useAuthStore();
-  const { appLabId } = useUserStore();
+  const { appLabId, setAppIsFetchedRecord } = useUserStore();
   const { appVisitorId, appRecordType, setAppRecord, removeAppRecord } =
     useRecordStore();
   const { appIsEvent } = useEventStore();
@@ -133,11 +133,10 @@ const ScanFaceScreen = (props: Props) => {
       await logControllerApi.createNewLog(param, {
         headers: { Authorization: `Bearer ${finalToken}` },
       });
-      setAppRecord({ failTime: 0 });
       setIsFailDialog(true);
+      setAppIsFetchedRecord(false);
       removeAppRecord();
     } catch (error: any) {
-      setAppRecord({ failTime: 0 });
       setAlertMessage(error.response.data.message);
       setIsAlert(true);
     }
@@ -168,7 +167,7 @@ const ScanFaceScreen = (props: Props) => {
         },
       });
       const isVerify = response.data.result as VerifyResult;
-      console.log(isVerify);
+      console.log(appLabId);
       if (isVerify.isIllegal) {
         const { appToken: latestToken } = useAuthStore.getState();
         handleIllegalRecord(latestToken ?? "");
@@ -176,7 +175,6 @@ const ScanFaceScreen = (props: Props) => {
         if (isVerify?.result.samePerson) {
           setAppRecord({ recordImg: fileUri });
           setPhotoUri([]);
-          setAppRecord({ failTime: 0 });
           setIsSuccessDialog(true);
         } else {
           setIsErrorDialog(true);

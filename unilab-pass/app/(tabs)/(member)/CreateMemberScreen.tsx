@@ -1,9 +1,11 @@
 // Core
+import dayjs from "dayjs";
 import React, { useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Dropdown } from "react-native-paper-dropdown";
-import { ScrollView, StyleSheet, View } from "react-native";
+import DateTimePicker from "@react-native-community/datetimepicker";
+import { Pressable, ScrollView, StyleSheet, View } from "react-native";
 import {
   Button,
   Icon,
@@ -56,6 +58,7 @@ const CreateMemberScreen = (props: Props) => {
   });
   const [photoUri, setPhotoUri] = useState<string[]>([]);
   const [isVisibleModal, setIsVisibleModal] = useState(false);
+  const [isDatePicker, setIsDatePicker] = useState(false);
 
   // Server
   const labMemberControllerApi = new LabMemberControllerApi();
@@ -63,7 +66,7 @@ const CreateMemberScreen = (props: Props) => {
 
   // Store
   const { appToken } = useAuthStore();
-  const { appLabId } = useUserStore();
+  const { appLabId, setAppIsFetchedMember } = useUserStore();
 
   // Form
   const {
@@ -79,6 +82,8 @@ const CreateMemberScreen = (props: Props) => {
   // Methods
   // handle submit form
   const handleAddMember = async (data: DetailUserInformationFormType) => {
+    const { appToken: token } = useAuthStore.getState();
+
     if (loading.createMem || !photoUri.length) return;
     setLoading((prev) => ({ ...prev, createMem: true }));
     const { firstName, lastName } = splitFullName(data.fullName);
@@ -91,7 +96,7 @@ const CreateMemberScreen = (props: Props) => {
     const request = {
       labId: appLabId ?? "",
       userId: data.id,
-      dob: data.birth,
+      dob: data.birth ? dayjs(data.birth).format("YYYY-MM-DD") : undefined,
       gender: data.gender,
       email: data.email,
       firstName: firstName,
@@ -106,13 +111,14 @@ const CreateMemberScreen = (props: Props) => {
       };
       await labMemberControllerApi.addLabMember(param, {
         headers: {
-          Authorization: `Bearer ${appToken}`,
+          Authorization: `Bearer ${token}`,
         },
       });
       setAlertMessage("Successfully add member");
       setIsAlert(true);
       reset();
       setPhotoUri([]);
+      setAppIsFetchedMember(false);
     } catch (error: any) {
       const errLog = error.response.data;
       if (errLog.code === 1018) {
@@ -143,7 +149,7 @@ const CreateMemberScreen = (props: Props) => {
         request: {
           firstName: firstName,
           lastName: lastName,
-          dob: data.birth,
+          dob: data.birth ? dayjs(data.birth).format("YYYY-MM-DD") : undefined,
           gender: data.gender,
           roles: [],
         },
@@ -260,31 +266,55 @@ const CreateMemberScreen = (props: Props) => {
               name="birth"
               render={({ field: { onChange, onBlur, value } }) => (
                 <View>
-                  <TextInput
-                    theme={{
-                      colors: {
-                        primary: "#2B56F0",
-                        onSurfaceVariant: "#777",
-                      },
+                  <Pressable
+                    onPress={() => {
+                      setIsDatePicker((prev) => !prev);
                     }}
-                    placeholder="YYYY-MM-DD"
-                    textColor="#333"
-                    mode="outlined"
-                    style={styles.inputField}
-                    contentStyle={{
-                      fontFamily: "Poppins-Regular",
-                      marginTop: 8,
-                    }}
-                    label="Birth"
-                    onChangeText={onChange}
-                    onBlur={onBlur}
-                    value={value}
-                    error={!!errors.birth}
-                  />
-                  {errors.birth && (
-                    <Text
-                      style={styles.error}
-                    >{`${errors.birth.message}`}</Text>
+                  >
+                    <View pointerEvents="none">
+                      <TextInput
+                        theme={{
+                          colors: {
+                            primary: "#2B56F0",
+                            onSurfaceVariant: "#777",
+                          },
+                        }}
+                        textColor="#333"
+                        mode="outlined"
+                        style={styles.inputField}
+                        contentStyle={{
+                          fontFamily: "Poppins-Regular",
+                          marginTop: 8,
+                        }}
+                        right={
+                          <TextInput.Icon
+                            style={{ marginTop: 16 }}
+                            icon={isDatePicker ? "menu-up" : "menu-down"}
+                          />
+                        }
+                        label="Birth"
+                        value={value ? dayjs(value).format("YYYY-MM-DD") : ""}
+                      />
+                    </View>
+                  </Pressable>
+
+                  {isDatePicker && (
+                    <DateTimePicker
+                      value={value ?? new Date()}
+                      mode="date"
+                      display="spinner"
+                      onChange={(event, date) => {
+                        setIsDatePicker(false);
+                        if (event.type === "set" && date) {
+                          const localDate = dayjs(date)
+                            .utc()
+                            .tz("Asia/Ho_Chi_Minh")
+                            .startOf("day")
+                            .toDate();
+                          onChange(localDate);
+                        }
+                      }}
+                    />
                   )}
                 </View>
               )}

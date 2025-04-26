@@ -3,7 +3,9 @@ import { create } from "zustand";
 // Types
 // States type
 interface UserStoreStatesType {
-  appIsFetchedUser: boolean;
+  appIsFetchedWeeklyReport: boolean;
+  appIsFetchedRecord: boolean;
+  appIsFetchedMember: boolean;
   appUserId: string | null;
   appUserName: string | null;
   appUserEmail: string | null;
@@ -24,15 +26,20 @@ interface SetAppUserParamsType {
 }
 
 interface UserStoreActionsType {
-  setAppIsFetchedUser: (isFetched: boolean) => void;
+  setAppIsFetchedWeeklyReport: (isFetched: boolean) => void;
+  setAppIsFetchedMember: (isFetched: boolean) => void;
+  setAppIsFetchedRecord: (isFetched: boolean) => void;
   setAppIsOnlyScanMode: (isOnlyScan: boolean) => void;
   setAppUser: (params: SetAppUserParamsType) => void;
+  resetAllFetchStatus: () => void;
   removeAppUser: () => void;
 }
 
 // Constants
 const DEFAULT_USER_STORE_STATES: UserStoreStatesType = {
-  appIsFetchedUser: false,
+  appIsFetchedWeeklyReport: false,
+  appIsFetchedRecord: false,
+  appIsFetchedMember: false,
   appUserId: null,
   appUserName: null,
   appUserEmail: null,
@@ -50,9 +57,29 @@ const useUserStore = create<UserStoreStatesType & UserStoreActionsType>()(
       ...DEFAULT_USER_STORE_STATES,
 
       // Actions
-      setAppIsFetchedUser: (isFetched) =>
+      setAppIsFetchedWeeklyReport: (isFetched) =>
         set(() => ({
-          appIsFetchedUser: isFetched,
+          appIsFetchedWeeklyReport: isFetched,
+        })),
+      setAppIsFetchedRecord: (isFetched) =>
+        set((state) => ({
+          appIsFetchedRecord: isFetched,
+          appIsFetchedWeeklyReport: isFetched
+            ? state.appIsFetchedWeeklyReport
+            : isFetched,
+        })),
+      setAppIsFetchedMember: (isFetched) =>
+        set((state) => ({
+          appIsFetchedMember: isFetched,
+          appIsFetchedWeeklyReport: isFetched
+            ? state.appIsFetchedWeeklyReport
+            : isFetched,
+        })),
+      resetAllFetchStatus: () =>
+        set(() => ({
+          appIsFetchedWeeklyReport: false,
+          appIsFetchedRecord: false,
+          appIsFetchedMember: false,
         })),
       setAppIsOnlyScanMode: (isOnlyScan) =>
         set(() => ({

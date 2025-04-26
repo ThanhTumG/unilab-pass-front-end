@@ -10,8 +10,10 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import * as SplashScreen from "expo-splash-screen";
 
 // App
-import { useAuthStore } from "stores";
+import { useAuthStore, useUserStore } from "stores";
 import eventBus from "utils/eventBus";
+import useRecordStore from "stores/useRecordStore";
+import useEventStore from "stores/useEventStore";
 
 // Prevent the splash screen from auto-hiding before asset loading is complete.
 SplashScreen.preventAutoHideAsync();
@@ -30,6 +32,9 @@ export default function RootLayout() {
 
   // Store
   const { appIsLoggedIn, removeAppToken } = useAuthStore();
+  const { removeAppUser } = useUserStore();
+  const { removeAppRecord } = useRecordStore();
+  const { removeAppEvent } = useEventStore();
 
   // Router
   const router = useRouter();
@@ -45,6 +50,9 @@ export default function RootLayout() {
     const handleLogout = () => {
       console.log("logout");
       removeAppToken();
+      removeAppEvent();
+      removeAppRecord();
+      removeAppUser();
       router.replace("/(auth)/LoginScreen");
     };
     eventBus.on("logout", handleLogout);

@@ -13,10 +13,7 @@ const EventFormSchema = z.object({
     .min(1, {
       message: "Name is required",
     })
-    .max(100, { message: "Name is too long" })
-    .regex(/^[\p{L}]+(?:\s[\p{L}]+)*$/u, {
-      message: "Name must not contain special character",
-    }),
+    .max(100, { message: "Name is too long" }),
   timeRange: z.object({
     startDate: z.coerce.date().optional(),
     endDate: z.coerce.date().optional(),

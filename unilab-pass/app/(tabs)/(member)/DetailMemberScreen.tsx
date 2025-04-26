@@ -1,9 +1,17 @@
 // Core
+import dayjs from "dayjs";
 import React, { useCallback, useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Dropdown } from "react-native-paper-dropdown";
-import { View, StyleSheet, ScrollView, RefreshControl } from "react-native";
+import DateTimePicker from "@react-native-community/datetimepicker";
+import {
+  View,
+  StyleSheet,
+  ScrollView,
+  RefreshControl,
+  Pressable,
+} from "react-native";
 import { useFocusEffect, useLocalSearchParams, useRouter } from "expo-router";
 import {
   ActivityIndicator,
@@ -56,6 +64,7 @@ const DetailMemberScreen = () => {
   const [isActive, setIsActive] = useState<boolean>();
   const [alertMessage, setAlertMessage] = useState("");
   const [isAlert, setIsAlert] = useState(false);
+  const [isDatePicker, setIsDatePicker] = useState(false);
 
   // Param
   const { id } = useLocalSearchParams();
@@ -72,14 +81,14 @@ const DetailMemberScreen = () => {
 
   // Store
   const { appToken } = useAuthStore();
-  const { appLabId } = useUserStore();
+  const { appLabId, setAppIsFetchedMember, setAppIsFetchedRecord } =
+    useUserStore();
 
   // Form
   const {
     control,
     handleSubmit,
     getValues,
-    setValue,
     reset,
     formState: { errors },
   } = useForm<DetailUserInformationFormType>({
@@ -112,7 +121,7 @@ const DetailMemberScreen = () => {
           lastName: memberInfo?.lastName,
         }),
         id: memberInfo?.id,
-        birth: memberInfo?.dob,
+        birth: memberInfo?.dob ? new Date(memberInfo.dob) : undefined,
         email: memberInfo?.email,
         gender: memberInfo?.gender,
         permission: response.data.result?.status === "ACTIVE",
@@ -139,6 +148,8 @@ const DetailMemberScreen = () => {
         headers: { Authorization: `Bearer ${appToken}` },
       });
       console.log("Success delete member");
+      setAppIsFetchedMember(false);
+      setAppIsFetchedRecord(false);
       router.back();
     } catch (error: any) {
       setAlertMessage(error.response.data.message);
@@ -159,7 +170,7 @@ const DetailMemberScreen = () => {
         request: {
           firstName: firstName,
           lastName: lastName,
-          dob: data.birth,
+          dob: data.birth ? dayjs(data.birth).format("YYYY-MM-DD") : undefined,
           gender: data.gender,
           roles: ["MEMBER"],
         },
@@ -169,8 +180,9 @@ const DetailMemberScreen = () => {
       });
 
       console.log("Successfully update member info");
-      setValue("permission", data.permission);
       setIsEditMode(false);
+      setAppIsFetchedMember(false);
+      setAppIsFetchedRecord(false);
       setAlertMessage("Successfully update member info");
       setIsAlert(true);
     } catch (error: any) {
@@ -199,6 +211,7 @@ const DetailMemberScreen = () => {
 
       console.log("Successfully update status");
       setIsActive(!isActive);
+      setAppIsFetchedMember(false);
       setAlertMessage("Successfully update status");
       setIsAlert(true);
     } catch {
@@ -354,31 +367,57 @@ const DetailMemberScreen = () => {
               name="birth"
               render={({ field: { onChange, onBlur, value } }) => (
                 <View>
-                  <TextInput
-                    theme={{
-                      colors: {
-                        primary: "#2B56F0",
-                        onSurfaceVariant: "#777",
-                      },
-                    }}
+                  <Pressable
                     disabled={!isEditMode}
-                    textColor="#333"
-                    mode="outlined"
-                    style={styles.inputField}
-                    contentStyle={{
-                      fontFamily: "Poppins-Regular",
-                      marginTop: 8,
+                    onPress={() => {
+                      setIsDatePicker((prev) => !prev);
                     }}
-                    label="Birth"
-                    onChangeText={onChange}
-                    onBlur={onBlur}
-                    value={value}
-                    error={!!errors.birth}
-                  />
-                  {errors.birth && (
-                    <Text
-                      style={styles.error}
-                    >{`${errors.birth.message}`}</Text>
+                  >
+                    <View pointerEvents="none">
+                      <TextInput
+                        theme={{
+                          colors: {
+                            primary: "#2B56F0",
+                            onSurfaceVariant: "#777",
+                          },
+                        }}
+                        disabled={!isEditMode}
+                        textColor="#333"
+                        mode="outlined"
+                        style={styles.inputField}
+                        contentStyle={{
+                          fontFamily: "Poppins-Regular",
+                          marginTop: 8,
+                        }}
+                        right={
+                          <TextInput.Icon
+                            style={{ marginTop: 16 }}
+                            icon={isDatePicker ? "menu-up" : "menu-down"}
+                          />
+                        }
+                        label="Birth"
+                        value={value ? dayjs(value).format("YYYY-MM-DD") : ""}
+                      />
+                    </View>
+                  </Pressable>
+
+                  {isDatePicker && (
+                    <DateTimePicker
+                      value={value ?? new Date()}
+                      mode="date"
+                      display="spinner"
+                      onChange={(event, date) => {
+                        setIsDatePicker(false);
+                        if (event.type === "set" && date) {
+                          const localDate = dayjs(date)
+                            .utc()
+                            .tz("Asia/Ho_Chi_Minh")
+                            .startOf("day")
+                            .toDate();
+                          onChange(localDate);
+                        }
+                      }}
+                    />
                   )}
                 </View>
               )}
@@ -392,26 +431,17 @@ const DetailMemberScreen = () => {
                 <View>
                   <Dropdown
                     mode="outlined"
-                    // label="Gender"
                     placeholder="Gender"
                     options={OPTIONS}
                     value={value}
                     onSelect={(value) => onChange(value)}
                     menuUpIcon={
-                      <TextInput.Icon
-                        icon="menu-up"
-                        color="#333"
-                        pointerEvents="none"
-                      />
+                      <TextInput.Icon icon="menu-up" pointerEvents="none" />
                     }
                     disabled={!isEditMode}
                     error={!!errors.gender}
                     menuDownIcon={
-                      <TextInput.Icon
-                        icon="menu-down"
-                        color="#333"
-                        pointerEvents="none"
-                      />
+                      <TextInput.Icon icon="menu-down" pointerEvents="none" />
                     }
                     menuContentStyle={{
                       marginTop: 25,
@@ -508,20 +538,21 @@ const DetailMemberScreen = () => {
             <Button
               labelStyle={{ fontFamily: "Poppins-Medium" }}
               mode="contained"
-              style={[styles.actButton, { backgroundColor: "#FF6666" }]}
-              onPress={() => setIsWarnDialog(true)}
-            >
-              Delete
-            </Button>
-            <Button
-              labelStyle={{ fontFamily: "Poppins-Medium" }}
-              mode="contained"
               disabled={!isEditMode}
               style={[styles.actButton]}
               onPress={handleSubmit(handleUpdateMem)}
               loading={loading.updateMem}
             >
               Apply
+            </Button>
+            <Button
+              labelStyle={{ fontFamily: "Poppins-Medium", color: "#d32f2f" }}
+              rippleColor={"transparent"}
+              mode="outlined"
+              style={[styles.actButton, { borderColor: "#d32f2f" }]}
+              onPress={() => setIsWarnDialog(true)}
+            >
+              Delete
             </Button>
           </View>
         </View>
@@ -599,15 +630,14 @@ const styles = StyleSheet.create({
     width: 300,
   },
   actionButtonContainer: {
-    flexDirection: "row",
     justifyContent: "center",
     alignItems: "center",
-    gap: 60,
-    marginTop: 60,
+    gap: 17,
+    marginTop: 40,
   },
   actButton: {
     borderRadius: 5,
-    width: 120,
+    minWidth: 300,
     minHeight: 40,
   },
 });

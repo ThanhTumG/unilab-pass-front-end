@@ -1,11 +1,10 @@
 // Core
 import React, { useState } from "react";
 import { ScrollView, StyleSheet, View } from "react-native";
-import { useLocalSearchParams, useRouter } from "expo-router";
+import { useRouter } from "expo-router";
 import { Button, Snackbar, Text, TextInput } from "react-native-paper";
 
 // App
-import { getFullName } from "lib/utils";
 import useEventStore from "stores/useEventStore";
 import { useAuthStore, useUserStore } from "stores";
 import { SuccessDialog } from "components/CustomDialog";
@@ -42,7 +41,7 @@ const RecordScreen = (props: Props) => {
 
   // Store
   const { appToken } = useAuthStore();
-  const { appLabName, appLabId } = useUserStore();
+  const { appLabName, appLabId, setAppIsFetchedRecord } = useUserStore();
   const { appIsEvent, appEventName, appEventId } = useEventStore();
   const {
     appRecordType,
@@ -115,6 +114,7 @@ const RecordScreen = (props: Props) => {
         headers: { Authorization: `Bearer ${appToken}` },
       });
       setIsSuccessDialog(true);
+      setAppIsFetchedRecord(false);
     } catch (error: any) {
       setAlertMessage(error.response.data.message);
       setIsAlert(true);

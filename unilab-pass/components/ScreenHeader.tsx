@@ -24,7 +24,7 @@ const ScreenHeader = ({ title }: Props) => {
         top: 0,
         flexDirection: "row",
         alignItems: "center",
-        backgroundColor: "#FCFCFC",
+        backgroundColor: "transparent",
         width: "100%",
         paddingVertical: 20,
       }}

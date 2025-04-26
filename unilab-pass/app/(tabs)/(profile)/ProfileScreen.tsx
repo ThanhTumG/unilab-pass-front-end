@@ -1,16 +1,7 @@
 // Core
-import {
-  ImageBackground,
-  Modal,
-  RefreshControl,
-  ScrollView,
-  StyleSheet,
-  View,
-} from "react-native";
-import React, { useCallback, useState } from "react";
-import { Controller, useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { useFocusEffect, useRouter } from "expo-router";
+import React, { useState } from "react";
+import { ImageBackground, ScrollView, StyleSheet, View } from "react-native";
+import { useRouter } from "expo-router";
 import {
   Avatar,
   Button,
@@ -18,25 +9,15 @@ import {
   Portal,
   Snackbar,
   Text,
-  TextInput,
-  TouchableRipple,
-  useTheme,
 } from "react-native-paper";
 
 // App
+import ProfileItem from "components/ProfileItem";
 import useEventStore from "stores/useEventStore";
+import useRecordStore from "stores/useRecordStore";
 import { useAuthStore, useUserStore } from "stores";
-import { WarningDialog } from "components/CustomDialog";
-import { LabInformationFormType } from "constants/userInfor.type";
-import { LabInformationFormSchema } from "constants/userInfor.constant";
-import {
-  AuthenticationControllerApi,
-  EventControllerApi,
-  LaboratoryControllerApi,
-  LaboratoryControllerApiUpdateLabRequest,
-  LogoutRequest,
-} from "api/index";
 import VerifyPasswordModal from "components/VerifyPasswordModal";
+import { AuthenticationControllerApi, LogoutRequest } from "api/index";
 
 // Types
 type Props = {};
@@ -50,10 +31,6 @@ const ProfileScreen = (props: Props) => {
     deleteLab: false,
     getEvent: false,
   });
-  const [isWarnDialog, setIsWarnDialog] = useState<boolean>(false);
-  const [confirmDelEventDialog, setConfirmDelEventDialog] =
-    useState<boolean>(false);
-  const [visible, setVisible] = useState(false);
   const [isVerifyPassModal, setIsVerifyPassModal] = useState(false);
   const [isSnackBarVisible, setIsSnackBarVisible] = useState(false);
   const [alertMessage, setAlertMessage] = useState("");
@@ -61,126 +38,16 @@ const ProfileScreen = (props: Props) => {
   // Router
   const router = useRouter();
 
-  // Theme
-  const theme = useTheme();
-
   // Store
-  const { setAppIsLoggedIn, appToken, removeAppToken } = useAuthStore();
-  const {
-    appUserName,
-    appLabName,
-    appLabId,
-    setAppUser,
-    appLabLocation,
-    removeAppUser,
-  } = useUserStore();
-  const {
-    appEventName,
-    appEventId,
-    appIsEvent,
-    setAppIsEvent,
-    removeAppEvent,
-    setAppEvent,
-  } = useEventStore();
+  const { appToken, removeAppToken } = useAuthStore();
+  const { appUserName, removeAppUser, resetAllFetchStatus } = useUserStore();
+  const { removeAppEvent } = useEventStore();
+  const { removeAppRecord } = useRecordStore();
 
   // Server
   const authenticationControllerApi = new AuthenticationControllerApi();
-  const laboratoryControllerApi = new LaboratoryControllerApi();
-  const eventControllerApi = new EventControllerApi();
-
-  // Forms
-  // Lab information form
-  const {
-    control,
-    handleSubmit,
-    reset,
-    formState: { errors },
-  } = useForm<LabInformationFormType>({
-    resolver: zodResolver(LabInformationFormSchema),
-    defaultValues: {
-      labName: appLabName ?? undefined,
-      location: appLabLocation ?? undefined,
-    },
-  });
 
   // Methods
-  // Handle delete lab
-  const handleDeleteLab = async () => {
-    if (loading.deleteLab) return;
-    setLoading((prev) => ({ ...prev, deleteLab: true }));
-    const param = appLabId ?? "";
-    await laboratoryControllerApi
-      .deleteLab(
-        { labId: param },
-        { headers: { Authorization: `Bearer ${appToken}` } }
-      )
-      .then((response) => {
-        setAppUser({ labId: undefined, labName: undefined });
-        setAppIsEvent(false);
-        removeAppEvent();
-        setIsWarnDialog(false);
-        router.replace("/SelectLabScreen");
-      })
-      .catch((error) => {
-        console.log(error.response.data);
-      });
-    setLoading((prev) => ({ ...prev, deleteLab: false }));
-  };
-
-  // Handle remove event
-  const handleDeleteEvent = async () => {
-    try {
-      await eventControllerApi.deleteEvent(
-        { eventId: appEventId ?? "" },
-        { headers: { Authorization: `Bearer ${appToken}` } }
-      );
-      setAppIsEvent(false);
-      removeAppEvent();
-      setIsSnackBarVisible(true);
-      setConfirmDelEventDialog(false);
-      setAlertMessage("Successfully delete event");
-    } catch (error: any) {
-      setAlertMessage(error.response.data.message);
-      setIsSnackBarVisible(true);
-    }
-  };
-
-  // Handle submit update lab info
-  const handleSubmitLabInfoForm = async (data: LabInformationFormType) => {
-    if (loading.updateLab) return;
-    setLoading((prev) => ({ ...prev, updateLab: true }));
-    try {
-      const param: LaboratoryControllerApiUpdateLabRequest = {
-        labId: appLabId ?? "",
-        labUpdateRequest: {
-          name: data.labName,
-          location: data.location,
-        },
-      };
-      await laboratoryControllerApi.updateLab(param, {
-        headers: { Authorization: `Bearer ${appToken}` },
-      });
-      setAppUser({ labName: data.labName, labLocation: data.location });
-      setVisible(false);
-      setAlertMessage("Successfully update lab");
-      setIsSnackBarVisible(true);
-    } catch (error: any) {
-      setAlertMessage(error.response.data.message);
-      setIsSnackBarVisible(true);
-    }
-
-    setLoading((prev) => ({ ...prev, updateLab: false }));
-  };
-
-  // Handle cancel modal
-  const handleCancelModal = () => {
-    setVisible(false);
-    reset({
-      labName: appLabName ?? "",
-      location: appLabLocation ?? "",
-    });
-  };
-
   // Handle log out
   const handleLogout = async () => {
     if (loading.logOut) return;
@@ -192,8 +59,7 @@ const ProfileScreen = (props: Props) => {
     try {
       await authenticationControllerApi.logout({ logoutRequest: param });
       console.log("Log out successfully");
-      setAppIsLoggedIn(false);
-      setAppIsEvent(false);
+      removeAppRecord();
       removeAppUser();
       removeAppEvent();
       removeAppToken();
@@ -207,38 +73,11 @@ const ProfileScreen = (props: Props) => {
 
   // Handle switch lab
   const handleSwitchLab = () => {
-    setAppIsEvent(false);
+    removeAppRecord();
     removeAppEvent();
+    resetAllFetchStatus();
     router.replace("/SelectLabScreen");
   };
-
-  // Handle get current event
-  const handleGetCurrentEv = useCallback(async () => {
-    if (loading.getEvent) return;
-    setLoading((prev) => ({ ...prev, getEvent: true }));
-    try {
-      const { appToken } = useAuthStore.getState();
-      const response = await eventControllerApi.getCurrentEvent(
-        { labId: appLabId ?? "" },
-        { headers: { Authorization: `Bearer ${appToken}` } }
-      );
-      console.log("Success get current event");
-      const event = response.data.result;
-      if (event?.id) {
-        setAppIsEvent(true);
-        setAppEvent({
-          eventId: event.id,
-          eventName: event.name,
-          startTime: event.startTime,
-          endTime: event.endTime,
-        });
-      }
-    } catch (error: any) {
-      setAlertMessage("Failed to get the current event");
-      setIsSnackBarVisible(true);
-    }
-    setLoading((prev) => ({ ...prev, getEvent: false }));
-  }, [appToken]);
 
   // Handle route change password
   const handleChangePassword = () => {
@@ -249,18 +88,6 @@ const ProfileScreen = (props: Props) => {
   const handleChangeMode = () => {
     setIsVerifyPassModal(true);
   };
-
-  // Handle refresh
-  const onRefresh = useCallback(() => {
-    handleGetCurrentEv();
-  }, [handleGetCurrentEv]);
-
-  // Effects
-  useFocusEffect(
-    useCallback(() => {
-      handleGetCurrentEv();
-    }, [handleGetCurrentEv])
-  );
 
   // Template
   return (
@@ -284,195 +111,29 @@ const ProfileScreen = (props: Props) => {
       <Divider
         style={{
           height: 1,
-          marginVertical: 20,
+          marginTop: 20,
           width: "100%",
         }}
       />
 
       {/* Content */}
-      <ScrollView
-        refreshControl={
-          <RefreshControl
-            colors={[theme.colors.primary]}
-            tintColor={theme.colors.primary}
-            refreshing={loading.getEvent}
-            onRefresh={onRefresh}
-          />
-        }
-      >
+      <ScrollView style={{ alignSelf: "stretch" }}>
         <View style={styles.content}>
-          {/* Lab information */}
-          <View style={styles.smallContainer}>
-            <Text variant="titleMedium" style={styles.smallTitle}>
-              Current Lab
-            </Text>
-            <View style={styles.smallBodyContainer}>
-              <View
-                style={{
-                  flexDirection: "row",
-                  alignItems: "flex-start",
-                  gap: 4,
-                }}
-              >
-                <Text
-                  variant="bodyMedium"
-                  style={[styles.smallBody, { maxWidth: 100 }]}
-                  numberOfLines={2}
-                >
-                  {appLabName}
-                </Text>
-                <Text variant="bodyMedium" style={styles.smallBody}>
-                  -
-                </Text>
-                <TouchableRipple
-                  style={{
-                    justifyContent: "center",
-                  }}
-                  onPress={() => setVisible(true)}
-                  rippleColor={"#fcfcfc"}
-                >
-                  <Text
-                    variant="bodyMedium"
-                    style={[styles.smallBody, { color: "#1B61B5" }]}
-                  >
-                    Edit
-                  </Text>
-                </TouchableRipple>
-              </View>
-              <View style={{ gap: 4 }}>
-                <TouchableRipple
-                  onPress={handleSwitchLab}
-                  rippleColor={"#fcfcfc"}
-                >
-                  <Text variant="bodyMedium" style={[styles.smallAction]}>
-                    Switch Lab
-                  </Text>
-                </TouchableRipple>
-                <TouchableRipple
-                  rippleColor={"#fcfcfc"}
-                  onPress={() => setIsWarnDialog(true)}
-                >
-                  <Text
-                    variant="bodyMedium"
-                    style={[styles.smallAction, { color: "#FF3333" }]}
-                  >
-                    Delete Lab
-                  </Text>
-                </TouchableRipple>
-              </View>
-            </View>
-          </View>
+          <ProfileItem title="Only Scan Mode" onPress={handleChangeMode} />
 
-          {/* Lab Mode */}
-          <View style={styles.smallContainer}>
-            <Text variant="titleMedium" style={styles.smallTitle}>
-              Mode
-            </Text>
-            <View style={styles.smallBodyContainer}>
-              <Text variant="bodyMedium" style={styles.smallBody}>
-                Manage Lab Mode
-              </Text>
-              <TouchableRipple
-                onPress={handleChangeMode}
-                rippleColor={"#fcfcfc"}
-              >
-                <Text variant="bodyMedium" style={[styles.smallAction]}>
-                  Only scan mode
-                </Text>
-              </TouchableRipple>
-            </View>
-          </View>
+          <ProfileItem title="Switch Lab" onPress={handleSwitchLab} />
 
-          {/* Event */}
-          <View style={styles.smallContainer}>
-            <Text variant="titleMedium" style={styles.smallTitle}>
-              Current Event
-            </Text>
-            <View style={styles.smallBodyContainer}>
-              <View
-                style={{
-                  flexDirection: "row",
-                  alignItems: "flex-start",
-                  gap: 4,
-                }}
-              >
-                <Text
-                  variant="bodyMedium"
-                  numberOfLines={2}
-                  style={[styles.smallBody, { maxWidth: 100 }]}
-                >
-                  {appIsEvent ? appEventName : "No event now"}
-                </Text>
-                {appIsEvent && (
-                  <>
-                    <Text variant="bodyMedium" style={styles.smallBody}>
-                      -
-                    </Text>
-                    <TouchableRipple
-                      style={{
-                        justifyContent: "center",
-                      }}
-                      onPress={() => router.push("/DetailEventScreen")}
-                      rippleColor={"#fcfcfc"}
-                    >
-                      <Text
-                        variant="bodyMedium"
-                        style={[styles.smallBody, { color: "#1B61B5" }]}
-                      >
-                        Detail info
-                      </Text>
-                    </TouchableRipple>
-                  </>
-                )}
-              </View>
+          <ProfileItem
+            title="Lab Information"
+            onPress={() => router.push("/LabManageScreen")}
+          />
 
-              {/* Add event button */}
-              <View style={{ gap: 4 }}>
-                <TouchableRipple
-                  rippleColor={"#fcfcfc"}
-                  onPress={() => router.push("/CreateEventScreen")}
-                >
-                  <Text variant="bodyMedium" style={styles.smallAction}>
-                    Add event
-                  </Text>
-                </TouchableRipple>
+          <ProfileItem
+            title="Manage Event"
+            onPress={() => router.push("/EventViewScreen")}
+          />
 
-                {appIsEvent && (
-                  <TouchableRipple
-                    rippleColor={"#fcfcfc"}
-                    onPress={() => setConfirmDelEventDialog(true)}
-                  >
-                    <Text
-                      variant="bodyMedium"
-                      style={[styles.smallAction, { color: "#FF3333" }]}
-                    >
-                      Delete event
-                    </Text>
-                  </TouchableRipple>
-                )}
-              </View>
-            </View>
-          </View>
-
-          {/* Security */}
-          <View style={styles.smallContainer}>
-            <Text variant="titleMedium" style={styles.smallTitle}>
-              Security
-            </Text>
-            <View style={styles.smallBodyContainer}>
-              <Text variant="bodyMedium" style={styles.smallBody}>
-                Password
-              </Text>
-              <TouchableRipple
-                rippleColor={"#fcfcfc"}
-                onPress={handleChangePassword}
-              >
-                <Text variant="bodyMedium" style={[styles.smallAction]}>
-                  Change password
-                </Text>
-              </TouchableRipple>
-            </View>
-          </View>
+          <ProfileItem title="Change Password" onPress={handleChangePassword} />
 
           {/* Log out */}
           <Button
@@ -488,125 +149,6 @@ const ProfileScreen = (props: Props) => {
           </Button>
         </View>
       </ScrollView>
-
-      {/* Modal */}
-      {/* Lab information */}
-      <Portal>
-        <View style={[styles.portal, { display: visible ? "flex" : "none" }]}>
-          <Modal
-            animationType="slide"
-            transparent={true}
-            visible={visible}
-            onRequestClose={() => setVisible(!visible)}
-          >
-            <View style={[styles.modalContainer]}>
-              {/* Model Content */}
-              <View style={styles.modalView}>
-                {/* Title */}
-                <Text
-                  style={{ fontFamily: "Poppins-SemiBold" }}
-                  variant="titleMedium"
-                >
-                  Lab information
-                </Text>
-
-                {/* Content */}
-                <View style={styles.labInfoContainer}>
-                  {/* Form */}
-                  {/* Lab name */}
-                  <Controller
-                    control={control}
-                    name="labName"
-                    render={({ field: { onChange, onBlur, value } }) => (
-                      <View style={styles.inputForm}>
-                        <TextInput
-                          theme={{
-                            colors: {
-                              primary: "#2B56F0",
-                              onSurfaceVariant: "#777",
-                            },
-                          }}
-                          textColor="#333"
-                          outlineColor="#F2F6FC"
-                          outlineStyle={{ borderRadius: 5 }}
-                          mode="outlined"
-                          style={styles.inputField}
-                          contentStyle={{ fontFamily: "Poppins-Regular" }}
-                          label="Lab name"
-                          onChangeText={onChange}
-                          onBlur={onBlur}
-                          value={value}
-                          error={!!errors.labName}
-                        />
-                        {errors.labName && (
-                          <Text
-                            style={styles.error}
-                          >{`${errors.labName.message}`}</Text>
-                        )}
-                      </View>
-                    )}
-                  />
-
-                  {/* Lab location */}
-                  <Controller
-                    control={control}
-                    name="location"
-                    render={({ field: { onChange, onBlur, value } }) => (
-                      <View style={styles.inputForm}>
-                        <TextInput
-                          theme={{
-                            colors: {
-                              primary: "#2B56F0",
-                              onSurfaceVariant: "#777",
-                            },
-                          }}
-                          textColor="#333"
-                          outlineColor="#F2F6FC"
-                          outlineStyle={{ borderRadius: 5 }}
-                          mode="outlined"
-                          style={styles.inputField}
-                          contentStyle={{ fontFamily: "Poppins-Regular" }}
-                          label="Location"
-                          onChangeText={onChange}
-                          onBlur={onBlur}
-                          value={value}
-                          error={!!errors.location}
-                        />
-                        {errors.location && (
-                          <Text
-                            style={styles.error}
-                          >{`${errors.location.message}`}</Text>
-                        )}
-                      </View>
-                    )}
-                  />
-                </View>
-
-                {/* Bottom button */}
-                <View style={styles.buttonContainer}>
-                  <Button
-                    mode="outlined"
-                    contentStyle={styles.buttonContent}
-                    style={{ borderRadius: 4 }}
-                    onPress={handleCancelModal}
-                  >
-                    Cancel
-                  </Button>
-                  <Button
-                    mode="contained"
-                    style={{ borderRadius: 4 }}
-                    contentStyle={styles.buttonContent}
-                    onPress={handleSubmit(handleSubmitLabInfoForm)}
-                    loading={loading.updateLab}
-                  >
-                    Apply
-                  </Button>
-                </View>
-              </View>
-            </View>
-          </Modal>
-        </View>
-      </Portal>
 
       {/* Verify password */}
       <VerifyPasswordModal
@@ -628,24 +170,6 @@ const ProfileScreen = (props: Props) => {
           {alertMessage}
         </Snackbar>
       </Portal>
-
-      {/* Alert Dialog */}
-      <WarningDialog
-        title="Warning"
-        content="Are you sure you want to delete this lab?"
-        visible={isWarnDialog}
-        setVisible={setIsWarnDialog}
-        onConfirm={handleDeleteLab}
-      />
-
-      {/* Alert Dialog */}
-      <WarningDialog
-        title="Warning"
-        content="Are you sure you want to delete this event?"
-        visible={confirmDelEventDialog}
-        setVisible={setConfirmDelEventDialog}
-        onConfirm={handleDeleteEvent}
-      />
     </ImageBackground>
   );
 };
@@ -675,88 +199,12 @@ const styles = StyleSheet.create({
     maxHeight: 62,
   },
   content: {
-    flex: 1,
-    minWidth: "88%",
-    maxWidth: 333,
-    justifyContent: "flex-start",
-    alignItems: "center",
-    gap: 25,
-  },
-  smallContainer: {
-    alignItems: "flex-start",
-    alignSelf: "stretch",
-    gap: 5,
-  },
-  smallTitle: {
-    fontFamily: "Poppins-Medium",
-  },
-  smallBodyContainer: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignSelf: "stretch",
-  },
-  smallBody: {
-    fontFamily: "Poppins-Light",
-  },
-  smallAction: {
-    textAlign: "right",
-    fontFamily: "Poppins-Regular",
-    color: "#1B61B5",
-  },
-  inputForm: {
-    gap: 3,
-  },
-  inputField: {
-    maxHeight: 77,
-    width: 300,
-    backgroundColor: "#F2F6FC",
-  },
-  portal: {
-    flex: 1,
-    backgroundColor: "rgba(0, 0, 0, 0.25)",
-  },
-  modalContainer: {
-    flex: 1,
-    justifyContent: "flex-end",
-  },
-  modalView: {
-    backgroundColor: "#F5F5F5",
-    alignSelf: "stretch",
-    justifyContent: "flex-start",
-    alignItems: "center",
-    minHeight: 350,
-    borderTopLeftRadius: 15,
-    borderTopRightRadius: 15,
-    paddingTop: 20,
-    gap: 20,
-  },
-  buttonContainer: {
-    paddingVertical: 20,
-    paddingHorizontal: 40,
-    marginTop: "auto",
-    alignSelf: "stretch",
-    backgroundColor: "white",
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-  },
-  buttonContent: {
-    width: 100,
-  },
-  error: {
-    marginLeft: 2,
-    color: "red",
-    fontFamily: "Poppins-Light",
-    fontSize: 12,
-  },
-  labInfoContainer: {
-    backgroundColor: "#fff",
+    marginTop: 10,
+    paddingHorizontal: 15,
     flex: 1,
     justifyContent: "flex-start",
     alignItems: "center",
-    paddingHorizontal: 17,
-    paddingVertical: 10,
     gap: 15,
-    borderRadius: 7,
+    paddingBottom: 83,
   },
 });

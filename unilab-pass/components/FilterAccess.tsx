@@ -1,5 +1,5 @@
 // Core
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { StyleSheet, View, Modal } from "react-native";
 import {
   Button,
@@ -15,29 +15,59 @@ import CustomCalendar from "./CustomCalendar";
 
 // Types
 type Props = {
-  onSubmit: (markedDates: any) => void;
+  markedDates: MarkedDatesType;
+  setMarkedDates: React.Dispatch<React.SetStateAction<MarkedDatesType>>;
 };
 type MarkedDatesType = {
   currentDate: string;
-  markedDates: string[];
+  markedDates: {
+    startDate?: string;
+    endDate?: string;
+  };
+  mode: "week" | "month";
 };
 
 // Component
-const FilterAccess = ({ onSubmit }: Props) => {
+const FilterAccess = ({ markedDates, setMarkedDates }: Props) => {
   // States
-  const initialDate = new Date().toISOString().split("T")[0];
   const [visible, setVisible] = React.useState(false);
-  const [markedDates, setMarkedDates] = useState<MarkedDatesType>({
-    currentDate: initialDate,
-    markedDates: [],
-  });
+  const [dates, setDates] = useState(markedDates);
   const [viewMode, setViewMode] = useState<"week" | "month">("week");
 
   // Methods
-  const showModal = () => setVisible(true);
+  // handle show modal
+  const handleShowModal = () => setVisible(true);
+
+  // handle apply filter
   const handleSubmit = () => {
-    onSubmit(markedDates);
+    console.log(dates.markedDates);
+    setMarkedDates(dates);
+    setVisible(false);
   };
+
+  // handle clear filter
+  const handleClear = () => {
+    setDates((prev) => ({
+      ...prev,
+      markedDates: {
+        startDate: undefined,
+        endDate: undefined,
+      },
+    }));
+    setMarkedDates((prev) => ({
+      ...prev,
+      markedDates: {
+        startDate: undefined,
+        endDate: undefined,
+      },
+    }));
+    setVisible(false);
+  };
+
+  // Effects
+  useEffect(() => {
+    setDates(markedDates);
+  }, [markedDates]);
 
   // Template
   return (
@@ -47,9 +77,13 @@ const FilterAccess = ({ onSubmit }: Props) => {
         <TouchableRipple
           borderless
           style={styles.filterBtn}
-          onPress={showModal}
+          onPress={handleShowModal}
         >
-          <Icon size={22} color="#1B61B5" source={"filter-variant"} />
+          <Icon
+            size={22}
+            color={markedDates.markedDates.startDate ? "#1B61B5" : "#404040"}
+            source={"filter-variant"}
+          />
         </TouchableRipple>
       </Surface>
 
@@ -80,8 +114,8 @@ const FilterAccess = ({ onSubmit }: Props) => {
 
                 {/* Calendar */}
                 <CustomCalendar
-                  markedDates={markedDates}
-                  setMarkedDates={setMarkedDates}
+                  markedDates={dates}
+                  setMarkedDates={setDates}
                   viewMode={viewMode}
                   setViewMode={setViewMode}
                   style={{ marginTop: 33 }}
@@ -93,9 +127,9 @@ const FilterAccess = ({ onSubmit }: Props) => {
                     mode="outlined"
                     contentStyle={styles.buttonContent}
                     style={{ borderRadius: 4 }}
-                    onPress={() => setVisible(!visible)}
+                    onPress={handleClear}
                   >
-                    Cancel
+                    Clear
                   </Button>
                   <Button
                     mode="contained"

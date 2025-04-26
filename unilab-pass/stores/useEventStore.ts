@@ -3,6 +3,7 @@ import { create } from "zustand";
 // Types
 // States type
 interface EventStoreStatesType {
+  appIsFetchedEvent: boolean;
   appIsEvent: boolean;
   appEventId: string | null;
   appEventName: string | null;
@@ -19,6 +20,7 @@ interface SetAppEventParamsType {
 }
 
 interface EventStoreActionsType {
+  setAppIsFetchedEvent: (isFetched: boolean) => void;
   setAppIsEvent: (isEvent: boolean) => void;
   setAppEvent: (params: SetAppEventParamsType) => void;
   removeAppEvent: () => void;
@@ -26,6 +28,7 @@ interface EventStoreActionsType {
 
 // Constants
 const DEFAULT_EVENT_STORE_STATES: EventStoreStatesType = {
+  appIsFetchedEvent: false,
   appIsEvent: false,
   appEventId: null,
   appEventName: null,
@@ -41,6 +44,8 @@ const useEventStore = create<EventStoreStatesType & EventStoreActionsType>()(
       ...DEFAULT_EVENT_STORE_STATES,
 
       // Actions
+      setAppIsFetchedEvent: (isFetched) =>
+        set(() => ({ appIsFetchedEvent: isFetched })),
       setAppIsEvent: (isEvent) =>
         set(() => ({
           appIsEvent: isEvent,

@@ -82,20 +82,10 @@ const CustomDropdownInput = ({
     textColor="#333"
     contentStyle={{ fontFamily: "Poppins-Regular" }}
     right={rightIcon}
-    // outlineColor="#fff"
-    // outlineStyle={[styles.shadowBox]}
   />
 );
 
 export { CustomDropdownItem, CustomDropdownInput };
 
 // Styles
-const styles = StyleSheet.create({
-  shadowBox: {
-    elevation: 5, // Box shadow for Android
-    shadowColor: "#000", // Shadow color for iOS
-    shadowOffset: { width: 0, height: 3 }, // Offset for iOS
-    shadowOpacity: 0.2, // Opacity for iOS
-    shadowRadius: 4.65, // Blur radius for iOS
-  },
-});
+const styles = StyleSheet.create({});

@@ -1,5 +1,5 @@
 // Core
-import React, { useCallback, useState } from "react";
+import React, { useCallback, useMemo, useState } from "react";
 import { useFocusEffect, useRouter } from "expo-router";
 import {
   FlatList,
@@ -22,6 +22,7 @@ import { getFullName } from "lib/utils";
 import MemberCard from "components/MemberCard";
 import { LabMemberControllerApi } from "api/index";
 import { useAuthStore, useUserStore } from "stores";
+import EmptyIcon from "components/ui/EmptyIcon";
 
 // Types
 type Props = {};
@@ -46,6 +47,7 @@ const MemberManagementScreen = (props: Props) => {
 
   // Store
   const { appLabId } = useUserStore.getState();
+  const { appIsFetchedMember, setAppIsFetchedMember } = useUserStore();
 
   // Router
   const router = useRouter();
@@ -94,6 +96,7 @@ const MemberManagementScreen = (props: Props) => {
         }) ?? [];
       console.log("Successfully get members", newLabMemberList);
       setMemberList(newLabMemberList);
+      setSearchQuery("");
     } catch (error: any) {
       console.error(error.response.data);
     } finally {
@@ -106,11 +109,28 @@ const MemberManagementScreen = (props: Props) => {
     handleGetMember();
   }, [handleGetMember]);
 
+  // Memo
+  const filterMemberLst = useMemo(() => {
+    return memberList?.filter((member) => {
+      const isSearch = searchQuery !== "";
+
+      const query = searchQuery.toLowerCase();
+      const userIdMatch = member.id.toLowerCase().includes(query) ?? false;
+      const userNameMatch =
+        member.fullName.toLowerCase().includes(query) ?? false;
+
+      return isSearch ? userIdMatch || userNameMatch : true;
+    });
+  }, [searchQuery]);
+
   // Effects
   useFocusEffect(
     useCallback(() => {
-      handleGetMember();
-    }, [handleGetMember])
+      if (!appIsFetchedMember) {
+        handleGetMember();
+        setAppIsFetchedMember(true);
+      }
+    }, [handleGetMember, appIsFetchedMember])
   );
 
   // Template
@@ -153,7 +173,7 @@ const MemberManagementScreen = (props: Props) => {
       {/* Data */}
       <View style={styles.memberListContainer}>
         <FlatList
-          data={memberList}
+          data={filterMemberLst ?? memberList}
           keyExtractor={(item) => item.id}
           refreshControl={
             <RefreshControl
@@ -173,6 +193,9 @@ const MemberManagementScreen = (props: Props) => {
             );
           }}
         />
+
+        {((filterMemberLst && filterMemberLst.length == 0) ||
+          memberList?.length == 0) && <EmptyIcon />}
       </View>
     </ImageBackground>
   );

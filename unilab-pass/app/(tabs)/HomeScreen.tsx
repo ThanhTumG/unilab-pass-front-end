@@ -20,12 +20,18 @@ import { LogControllerApi, WeeklyReportResponse } from "api/index";
 // Types
 type Props = {};
 
+// Constants
+const DEFAULT_LOG_LIST: barDataItem[] = Array.from({ length: 7 }, (_, i) => [
+  { value: 0, spacing: 0 },
+  { value: 0, frontColor: "#B27FFF", isSecondary: true },
+]).flat();
+
 // Component
 const HomeScreen = (props: Props) => {
   // States
   const [isPendingGet, setIsPendingGet] = useState<boolean>(false);
   const [weeklyReport, setWeeklyReport] = useState<WeeklyReportResponse>();
-  const [weeklyLog, setWeeklyLog] = useState<barDataItem[]>();
+  const [weeklyLog, setWeeklyLog] = useState<barDataItem[]>(DEFAULT_LOG_LIST);
 
   // Theme
   const theme = useTheme();
@@ -34,7 +40,8 @@ const HomeScreen = (props: Props) => {
   const logControllerApi = new LogControllerApi();
 
   // Store
-  const { appLabId } = useUserStore();
+  const { appLabId, appIsFetchedWeeklyReport, setAppIsFetchedWeeklyReport } =
+    useUserStore();
 
   // Methods
   // Handle get weekly reports
@@ -52,14 +59,15 @@ const HomeScreen = (props: Props) => {
       setWeeklyReport(response.data.result);
       const logList = response.data.result?.weeklyLogReport;
 
-      const newLogList = logList?.flatMap((log) => [
-        { value: log.checkInCount ?? 0, spacing: 0 },
-        {
-          value: log.checkOutCount ?? 0,
-          frontColor: "#B27FFF",
-          isSecondary: true,
-        },
-      ]);
+      const newLogList =
+        logList?.flatMap((log) => [
+          { value: log.checkInCount ?? 0, spacing: 0 },
+          {
+            value: log.checkOutCount ?? 0,
+            frontColor: "#B27FFF",
+            isSecondary: true,
+          },
+        ]) ?? DEFAULT_LOG_LIST;
       setWeeklyLog(newLogList);
     } catch (error: any) {
       console.error(error.response.data);
@@ -76,8 +84,11 @@ const HomeScreen = (props: Props) => {
   // Effects
   useFocusEffect(
     useCallback(() => {
-      handleGetWeeklyReport();
-    }, [handleGetWeeklyReport])
+      if (!appIsFetchedWeeklyReport) {
+        handleGetWeeklyReport();
+        setAppIsFetchedWeeklyReport(true);
+      }
+    }, [handleGetWeeklyReport, appIsFetchedWeeklyReport])
   );
 
   // Template

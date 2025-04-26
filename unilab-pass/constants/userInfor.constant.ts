@@ -32,9 +32,7 @@ const DetailUserInformationFormSchema = z.object({
     .min(1, { message: "Email is required" })
     .email({ message: "Invalid email" }),
   gender: z.string().min(1, { message: "Gender is required" }),
-  birth: z.string().refine((value) => validate(value, "YYYY-MM-DD"), {
-    message: "Invalid Date",
-  }),
+  birth: z.coerce.date().optional(),
   permission: z.boolean(),
 });
 
@@ -58,7 +56,7 @@ const DEFAULT_DETAIL_USER_INFORMATION_FORM_VALUES: z.infer<
   email: "",
   id: "",
   gender: "",
-  birth: "",
+  birth: undefined,
   permission: true,
 };
 

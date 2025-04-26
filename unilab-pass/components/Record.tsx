@@ -32,7 +32,7 @@ const Record = ({ item, isEven, onPress }: Props) => {
 
   // Template
   return (
-    <Card onPress={onPress}>
+    <Card style={{ borderRadius: 0 }} onPress={onPress}>
       <Card.Content
         style={[
           styles.content,

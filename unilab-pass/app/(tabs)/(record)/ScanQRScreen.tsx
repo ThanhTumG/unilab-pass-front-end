@@ -1,7 +1,7 @@
 // Core
 import { StyleSheet, View } from "react-native";
 import React, { useCallback, useEffect, useState } from "react";
-import { useFocusEffect, useLocalSearchParams, useRouter } from "expo-router";
+import { useFocusEffect, useRouter } from "expo-router";
 import {
   ActivityIndicator,
   IconButton,
@@ -39,16 +39,12 @@ const ScanQRScreen = (props: Props) => {
   const [alertMessage, setAlertMessage] = useState("");
   const [isAlert, setIsAlert] = useState<boolean>(false);
   const [isSuccessDialog, setIsSuccessDialog] = useState<boolean>(false);
-  const [param, setParam] = useState({});
 
   // Camera permission
   const { hasPermission, requestPermission } = useCameraPermission();
 
   // Router
   const router = useRouter();
-
-  // Record type
-  const { recordType } = useLocalSearchParams();
 
   // Server
   const labMemberControllerApi = new LabMemberControllerApi();
@@ -150,6 +146,8 @@ const ScanQRScreen = (props: Props) => {
     if (appIsEvent) {
       handleGetGuest();
     } else handleGetDetailMember();
+
+    setIdDetected(undefined);
   }, [idDetected]);
 
   // Effects
