@@ -17,18 +17,7 @@ const ScreenHeader = ({ title }: Props) => {
   // Template
   return (
     // Header
-    <View
-      style={{
-        position: "absolute",
-        zIndex: 10,
-        top: 0,
-        flexDirection: "row",
-        alignItems: "center",
-        backgroundColor: "transparent",
-        width: "100%",
-        paddingVertical: 20,
-      }}
-    >
+    <View style={styles.container}>
       {/* Go back button */}
       <IconButton
         icon={"chevron-left"}
@@ -60,4 +49,14 @@ const ScreenHeader = ({ title }: Props) => {
 export default ScreenHeader;
 
 // Styles
-const styles = StyleSheet.create({});
+const styles = StyleSheet.create({
+  container: {
+    position: "absolute",
+    zIndex: 10,
+    top: 0,
+    flexDirection: "row",
+    alignItems: "center",
+    width: "100%",
+    paddingVertical: 20,
+  },
+});

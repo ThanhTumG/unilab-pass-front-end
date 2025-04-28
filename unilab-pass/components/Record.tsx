@@ -12,7 +12,7 @@ import { getFullName } from "lib/utils";
 type Props = {
   item: LogRespond;
   isEven: boolean;
-  onPress: () => any;
+  onPress?: () => any;
 };
 
 // IconUri

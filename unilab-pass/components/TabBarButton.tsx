@@ -32,7 +32,7 @@ interface Icons {
 }
 
 const icons: Icons = {
-  HomeScreen: "home-variant-outline",
+  "(home)": "home-variant-outline",
   AccessManagementScreen: "history",
   "(record)": "qrcode-scan",
   "(member)": "account-multiple-outline",

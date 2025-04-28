@@ -389,7 +389,7 @@ const ScanFaceScreen = (props: Props) => {
 
       {/* Error Dialog */}
       <ErrorDialog
-        title="Error"
+        title="Failed"
         content={`Face verification failed, please try again.`}
         visible={isErrorDialog}
         setVisible={setIsErrorDialog}

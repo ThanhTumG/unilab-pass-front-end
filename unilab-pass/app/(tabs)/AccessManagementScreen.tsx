@@ -173,7 +173,6 @@ const ManageAccessScreen = (props: Props) => {
           setMarkedDates={setMarkedDates}
         />
       </View>
-      {/* </View> */}
 
       {/* Table */}
       <View style={styles.recordListContainer}>

@@ -1,8 +1,9 @@
 // Core
 import React from "react";
-import { Text } from "react-native-paper";
+import { Button, Surface, Text } from "react-native-paper";
 import { StyleSheet, View } from "react-native";
 import { BarChart, barDataItem } from "react-native-gifted-charts";
+import { useRouter } from "expo-router";
 
 // Types
 type Props = {
@@ -11,12 +12,26 @@ type Props = {
 
 // Component
 const CustomBarChart = ({ data }: Props) => {
+  // Router
+  const router = useRouter();
+
+  // Methods
+  // Handle view all log
+  const handleViewAllLog = () => {
+    router.navigate("/AccessManagementScreen");
+  };
+
   // Template
   return (
-    <View style={styles.container}>
-      <Text variant="titleMedium" style={styles.title}>
-        Weekly Activity
-      </Text>
+    <Surface style={styles.container}>
+      <View style={styles.titleContainer}>
+        <Text variant="titleMedium" style={styles.title}>
+          Weekly Activity
+        </Text>
+        <Button onPress={handleViewAllLog} labelStyle={styles.btnLabel}>
+          See all
+        </Button>
+      </View>
       <BarChart
         data={data}
         barBorderTopLeftRadius={6}
@@ -52,7 +67,7 @@ const CustomBarChart = ({ data }: Props) => {
         barWidth={15}
         spacing={8}
         isAnimated
-        animationDuration={500}
+        animationDuration={700}
       />
 
       <View style={styles.legendContainer}>
@@ -69,7 +84,7 @@ const CustomBarChart = ({ data }: Props) => {
           </Text>
         </View>
       </View>
-    </View>
+    </Surface>
   );
 };
 
@@ -82,12 +97,20 @@ const styles = StyleSheet.create({
     paddingHorizontal: 8,
     backgroundColor: "#fff",
     borderRadius: 12,
-    elevation: 3,
+  },
+  btnLabel: {
+    fontFamily: "Poppins-Medium",
+    fontSize: 14,
+  },
+  titleContainer: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    paddingLeft: 5,
+    marginBottom: 13,
   },
   title: {
     fontFamily: "Poppins-Bold",
-    marginBottom: 15,
-    marginLeft: 10,
     color: "#333",
   },
   xAxisLabel: {

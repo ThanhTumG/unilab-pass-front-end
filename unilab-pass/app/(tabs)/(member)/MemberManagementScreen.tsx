@@ -161,6 +161,7 @@ const MemberManagementScreen = (props: Props) => {
           />
         </TouchableRipple>
       </Surface>
+
       {/* Search bar */}
       <Searchbar
         placeholder="Search by ID or Name"

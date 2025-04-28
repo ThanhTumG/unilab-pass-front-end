@@ -9,7 +9,7 @@ import { useUserStore } from "stores";
 import TabBarButton from "./TabBarButton";
 
 // Stack tab
-const stackTabScreen = ["(member)", "(record)", "(profile)"];
+const stackTabScreen = ["(home)", "(member)", "(record)", "(profile)"];
 
 // Component
 const TabBar = ({ state, descriptors, navigation }: BottomTabBarProps) => {

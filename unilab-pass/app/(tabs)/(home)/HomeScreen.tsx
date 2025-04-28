@@ -1,9 +1,16 @@
 // Core
-import { useFocusEffect } from "expo-router";
-import { Text, useTheme } from "react-native-paper";
+import { useFocusEffect, useRouter } from "expo-router";
+import {
+  Icon,
+  Surface,
+  Text,
+  TouchableRipple,
+  useTheme,
+} from "react-native-paper";
 import React, { useCallback, useState } from "react";
 import { barDataItem } from "react-native-gifted-charts";
 import {
+  FlatList,
   ImageBackground,
   RefreshControl,
   ScrollView,
@@ -15,7 +22,8 @@ import {
 import CustomCard from "components/CustomCard";
 import { useAuthStore, useUserStore } from "stores";
 import CustomBarChart from "components/CustomBarChart";
-import { LogControllerApi, WeeklyReportResponse } from "api/index";
+import { LogControllerApi, LogRespond, WeeklyReportResponse } from "api/index";
+import Record from "components/Record";
 
 // Types
 type Props = {};
@@ -36,6 +44,9 @@ const HomeScreen = (props: Props) => {
   // Theme
   const theme = useTheme();
 
+  // Router
+  const router = useRouter();
+
   // Server
   const logControllerApi = new LogControllerApi();
 
@@ -55,7 +66,6 @@ const HomeScreen = (props: Props) => {
         { labId: appLabId ?? "" },
         { headers: { Authorization: `Bearer ${appToken}` } }
       );
-
       setWeeklyReport(response.data.result);
       const logList = response.data.result?.weeklyLogReport;
 
@@ -81,6 +91,11 @@ const HomeScreen = (props: Props) => {
     handleGetWeeklyReport();
   }, [handleGetWeeklyReport]);
 
+  // Handle get notification
+  const handleGetNotification = () => {
+    router.push("/(tabs)/(home)/NotificationScreen");
+  };
+
   // Effects
   useFocusEffect(
     useCallback(() => {
@@ -94,11 +109,11 @@ const HomeScreen = (props: Props) => {
   // Template
   return (
     <ImageBackground
-      source={require("../../assets/images/background-with-icon.png")}
+      source={require("../../../assets/images/background-without-logo.png")}
       style={[styles.background]}
     >
       <ScrollView
-        style={{ alignSelf: "stretch", paddingHorizontal: 10 }}
+        style={{ alignSelf: "stretch", paddingHorizontal: 10, paddingTop: 35 }}
         refreshControl={
           <RefreshControl
             colors={[theme.colors.primary]}
@@ -108,25 +123,43 @@ const HomeScreen = (props: Props) => {
           />
         }
       >
-        {/* Welcome */}
-        <Text
-          variant="titleLarge"
+        <View
           style={{
-            fontFamily: "Poppins-SemiBold",
-            color: "#333",
-            textAlignVertical: "center",
-            marginLeft: 30,
-            marginRight: "auto",
+            flexDirection: "row",
+            justifyContent: "space-between",
+            alignItems: "center",
+            paddingHorizontal: 10,
           }}
         >
-          Welcome,
-        </Text>
+          {/* Welcome */}
+          <Text
+            variant="titleLarge"
+            style={{
+              fontFamily: "Poppins-SemiBold",
+              color: "#333",
+              textAlignVertical: "center",
+            }}
+          >
+            Welcome,
+          </Text>
+
+          {/* Notification button */}
+          <Surface style={[styles.bell]} elevation={1}>
+            <TouchableRipple
+              borderless
+              style={styles.bell}
+              onPress={handleGetNotification}
+            >
+              <Icon size={22} color="#1B61B5" source={"bell-outline"} />
+            </TouchableRipple>
+          </Surface>
+        </View>
 
         {/* Card */}
         <View style={[styles.alignCenter, styles.cardContainer]}>
           <CustomCard
             title={weeklyReport?.totalUsers?.toString() ?? ""}
-            content="TOTAL USERS"
+            content="TOTAL MEMBERS"
             icon="account-multiple-outline"
             color1="#C299FF"
             color2="#8533FF"
@@ -160,11 +193,18 @@ const styles = StyleSheet.create({
     resizeMode: "cover",
     justifyContent: "flex-start",
     alignItems: "center",
-    paddingTop: 100,
   },
   cardContainer: {
     flexDirection: "row",
     gap: 17,
-    paddingVertical: 20,
+    paddingTop: 30,
+    paddingBottom: 40,
+  },
+  bell: {
+    height: 40,
+    width: 40,
+    alignItems: "center",
+    justifyContent: "center",
+    borderRadius: 25,
   },
 });
