@@ -41,3 +41,7 @@ api/
 openapi-config.yaml
 
 scripts/
+
+firebase-adminsdk.json
+
+google-services.json

@@ -19,6 +19,7 @@
       },
       "softwareKeyboardLayoutMode": "pan",
       "package": "com.thanhtumg.unilabpass",
+      "googleServicesFile": "./google-services.json",
       "permissions": [
         "android.permission.CAMERA",
         "android.permission.RECORD_AUDIO"
@@ -64,6 +65,13 @@
             "targetSdkVersion": 34,
             "buildToolsVersion": "34.0.0"
           }
+        }
+      ],
+      [
+        "expo-notifications",
+        {
+          "icon": "./assets/images/notification-icon.png",
+          "color": "#ffffff"
         }
       ]
     ],

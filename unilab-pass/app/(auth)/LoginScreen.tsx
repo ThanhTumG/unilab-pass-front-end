@@ -11,6 +11,7 @@ import {
   TouchableRipple,
   Snackbar,
 } from "react-native-paper";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 // App
 import { getFullName } from "lib/utils";
@@ -82,10 +83,12 @@ const LoginScreen = (props: Props) => {
   // Handle submit form
   const handleOnSubmit = async (data: LoginFormType) => {
     if (isLoading) return;
+    const expoPushToken = await AsyncStorage.getItem("pushNotificationToken");
 
     const param: AuthenticationRequest = {
       email: data.email,
       password: data.password,
+      expoPushToken: expoPushToken ?? "",
     };
     setIsLoading(true);
     try {

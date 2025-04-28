@@ -7,6 +7,7 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 interface AuthStoreStatesType {
   appIsLoggedIn: boolean;
   appToken: string | null;
+  appIsTokenErr: boolean;
 }
 
 // Actions type
@@ -17,6 +18,7 @@ interface SetAppTokenParamsType {
 interface AuthStoreActionsType {
   setAppIsLoggedIn: (isLoggedIn: boolean) => void;
   setAppToken: (params: SetAppTokenParamsType) => void;
+  setAppIsTokenErr: (isTokenErr: boolean) => void;
   removeAppToken: () => void;
 }
 
@@ -24,6 +26,7 @@ interface AuthStoreActionsType {
 const DEFAULT_AUTH_STORE_STATES: AuthStoreStatesType = {
   appIsLoggedIn: false,
   appToken: null,
+  appIsTokenErr: false,
 };
 
 // Define store
@@ -41,6 +44,8 @@ const useAuthStore = create<AuthStoreStatesType & AuthStoreActionsType>()(
         set(() => ({
           appToken: token,
         })),
+      setAppIsTokenErr: (isTokenErr) =>
+        set(() => ({ appIsTokenErr: isTokenErr })),
       removeAppToken: () => {
         set(() => ({
           appToken: null,

@@ -1,5 +1,6 @@
 // Core
 import React, { useState } from "react";
+import { useAudioPlayer } from "expo-audio";
 import { ScrollView, StyleSheet, View } from "react-native";
 import { useRouter } from "expo-router";
 import { Button, Snackbar, Text, TextInput } from "react-native-paper";
@@ -21,6 +22,9 @@ import useBackHandler from "utils/useBackHandler";
 // Types
 type Props = {};
 
+// Audio
+const audioSource = require("../../../assets/sounds/doorbell-tone.wav");
+
 // Component
 const RecordScreen = (props: Props) => {
   // States
@@ -30,7 +34,8 @@ const RecordScreen = (props: Props) => {
   const [isAlert, setIsAlert] = useState(false);
   const [isSuccessDialog, setIsSuccessDialog] = useState<boolean>(false);
 
-  // Params
+  // Player
+  const player = useAudioPlayer(audioSource);
 
   // Router
   const router = useRouter();
@@ -84,6 +89,7 @@ const RecordScreen = (props: Props) => {
         await eventLogControllerApi.addEventLog(param, {
           headers: { Authorization: `Bearer ${appToken}` },
         });
+        handlePlaySound();
         setIsSuccessDialog(true);
       } catch (error: any) {
         console.log(error.response.data);
@@ -113,6 +119,7 @@ const RecordScreen = (props: Props) => {
       await logControllerApi.createNewLog(param, {
         headers: { Authorization: `Bearer ${appToken}` },
       });
+      handlePlaySound();
       setIsSuccessDialog(true);
       setAppIsFetchedRecord(false);
     } catch (error: any) {
@@ -120,6 +127,16 @@ const RecordScreen = (props: Props) => {
       setIsAlert(true);
     }
     setIsPendingPostRecord(false);
+  };
+
+  // Handle play success sound
+  const handlePlaySound = async () => {
+    try {
+      await player.seekTo(0);
+      player.play();
+    } catch (error) {
+      console.error("Error play sound:", error);
+    }
   };
 
   // Template

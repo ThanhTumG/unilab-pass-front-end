@@ -14,6 +14,7 @@ import { useAuthStore, useUserStore } from "stores";
 import eventBus from "utils/eventBus";
 import useRecordStore from "stores/useRecordStore";
 import useEventStore from "stores/useEventStore";
+import { ErrorDialog } from "components/CustomDialog";
 
 // Prevent the splash screen from auto-hiding before asset loading is complete.
 SplashScreen.preventAutoHideAsync();
@@ -31,13 +32,25 @@ export default function RootLayout() {
   });
 
   // Store
-  const { appIsLoggedIn, removeAppToken } = useAuthStore();
+  const { appIsLoggedIn, removeAppToken, appIsTokenErr, setAppIsTokenErr } =
+    useAuthStore();
   const { removeAppUser } = useUserStore();
   const { removeAppRecord } = useRecordStore();
   const { removeAppEvent } = useEventStore();
 
   // Router
   const router = useRouter();
+
+  // Method
+  const handleLogout = () => {
+    console.log("logout");
+    setAppIsTokenErr(false);
+    removeAppToken();
+    removeAppEvent();
+    removeAppRecord();
+    removeAppUser();
+    router.replace("/(auth)/LoginScreen");
+  };
 
   // Effects
   useEffect(() => {
@@ -47,14 +60,6 @@ export default function RootLayout() {
   }, [loaded]);
 
   useEffect(() => {
-    const handleLogout = () => {
-      console.log("logout");
-      removeAppToken();
-      removeAppEvent();
-      removeAppRecord();
-      removeAppUser();
-      router.replace("/(auth)/LoginScreen");
-    };
     eventBus.on("logout", handleLogout);
 
     return () => {
@@ -114,6 +119,16 @@ export default function RootLayout() {
         )}
 
         <StatusBar style="auto" />
+
+        {/* Error Token */}
+        <ErrorDialog
+          visible={appIsTokenErr}
+          setVisible={() => false}
+          onCloseDialog={handleLogout}
+          onConfirm={handleLogout}
+          title="Error"
+          content={`Your account is logged in on another device.`}
+        />
       </PaperProvider>
     </SafeAreaView>
   );
