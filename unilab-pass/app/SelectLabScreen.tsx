@@ -81,8 +81,10 @@ const SelectLabScreen = (props: Props) => {
       console.log("Successfully get lab list");
       setMyLabList(newLabLst);
     } catch (error: any) {
-      setAlertMessage(error.response.data.message);
-      setIsAlert(true);
+      if (error.response) {
+        setAlertMessage(error.response.data.message);
+        setIsAlert(true);
+      }
     }
     setIsLoading(false);
   };
@@ -144,7 +146,7 @@ const SelectLabScreen = (props: Props) => {
           labName: currentLab?.label,
           labLocation: currentLab?.location,
         });
-        router.replace("/(tabs)/HomeScreen");
+        router.replace("/(tabs)/(home)/HomeScreen");
       } catch (error: any) {
         setAlertMessage(error.response.data.message);
         setIsAlert(true);

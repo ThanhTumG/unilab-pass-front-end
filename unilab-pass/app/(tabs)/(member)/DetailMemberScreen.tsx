@@ -124,7 +124,6 @@ const DetailMemberScreen = () => {
         birth: memberInfo?.dob ? new Date(memberInfo.dob) : undefined,
         email: memberInfo?.email,
         gender: memberInfo?.gender,
-        permission: response.data.result?.status === "ACTIVE",
       });
       setIsActive(response.data.result?.status === "ACTIVE");
     } catch (error: any) {
@@ -160,10 +159,9 @@ const DetailMemberScreen = () => {
 
   // Handle update member info
   const handleUpdateMem = async (data: DetailUserInformationFormType) => {
+    if (loading.updateMem) return;
+    setLoading((prev) => ({ ...prev, updateMem: true }));
     try {
-      if (loading.updateMem) return;
-      setLoading((prev) => ({ ...prev, updateMem: true }));
-
       const { firstName, lastName } = splitFullName(data.fullName);
       const param: MyUserControllerApiUpdateMyUserRequest = {
         userId: id as string,
@@ -172,13 +170,19 @@ const DetailMemberScreen = () => {
           lastName: lastName,
           dob: data.birth ? dayjs(data.birth).format("YYYY-MM-DD") : undefined,
           gender: data.gender,
-          roles: ["MEMBER"],
         },
       };
       await myUserControllerApi.updateMyUser(param, {
         headers: { Authorization: `Bearer ${appToken}` },
       });
 
+      reset({
+        id: getValues("id"),
+        email: getValues("email"),
+        fullName: data.fullName,
+        birth: data.birth,
+        gender: data.gender,
+      });
       console.log("Successfully update member info");
       setIsEditMode(false);
       setAppIsFetchedMember(false);

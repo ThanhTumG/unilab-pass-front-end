@@ -118,7 +118,7 @@ const App = (props: Props) => {
         const hasSeenOnboarding = await AsyncStorage.getItem(
           "hasSeenOnboarding"
         );
-        if (hasSeenOnboarding !== null) {
+        if (hasSeenOnboarding === null) {
           router.replace("/OnboardingScreen");
           await AsyncStorage.setItem("hasSeenOnboarding", "true");
         } else {

@@ -16,6 +16,7 @@ import ScreenHeader from "components/ScreenHeader";
 import { NotificationControllerApi, NotificationResponse } from "api/index";
 import { useFocusEffect } from "expo-router";
 import NoticeItem from "components/NoticeItem";
+import EmptyIcon from "components/ui/EmptyIcon";
 
 // Types
 type Props = {};
@@ -125,6 +126,8 @@ const NotificationScreen = (props: Props) => {
                 onPress={() => handleShowModal(item.id ?? "")}
               />
             ))}
+
+          {notList && notList.length === 0 && <EmptyIcon />}
         </View>
       </ScrollView>
 
@@ -163,8 +166,6 @@ const NotificationScreen = (props: Props) => {
           </View>
         </TouchableWithoutFeedback>
       </Modal>
-
-      {/* Snack bar */}
 
       {/* Snackbar */}
       <Snackbar

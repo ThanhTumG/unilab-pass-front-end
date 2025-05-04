@@ -9,6 +9,7 @@ interface UserStoreStatesType {
   appUserId: string | null;
   appUserName: string | null;
   appUserEmail: string | null;
+  appUserPhotoURL: string | null;
   appLabId: string | null;
   appLabName: string | null;
   appLabLocation: string | null;
@@ -20,6 +21,7 @@ interface SetAppUserParamsType {
   userId?: string;
   userName?: string;
   userEmail?: string;
+  userPhotoURL?: string;
   labId?: string;
   labName?: string;
   labLocation?: string;
@@ -43,6 +45,7 @@ const DEFAULT_USER_STORE_STATES: UserStoreStatesType = {
   appUserId: null,
   appUserName: null,
   appUserEmail: null,
+  appUserPhotoURL: null,
   appLabId: null,
   appLabName: null,
   appLabLocation: null,
@@ -89,6 +92,7 @@ const useUserStore = create<UserStoreStatesType & UserStoreActionsType>()(
         userId,
         userName,
         userEmail,
+        userPhotoURL,
         labId,
         labName,
         labLocation,
@@ -98,6 +102,7 @@ const useUserStore = create<UserStoreStatesType & UserStoreActionsType>()(
           appUserId: userId ?? state.appUserId,
           appUserName: userName ?? state.appUserName,
           appUserEmail: userEmail ?? state.appUserEmail,
+          appUserPhotoURL: userPhotoURL ?? state.appUserPhotoURL,
           appLabId: labId ?? state.appLabId,
           appLabName: labName ?? state.appLabName,
           appLabLocation: labLocation ?? state.appLabLocation,

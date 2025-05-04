@@ -22,6 +22,7 @@ import {
   LaboratoryControllerApi,
   LaboratoryControllerApiUpdateLabRequest,
 } from "api/index";
+import useRecordStore from "stores/useRecordStore";
 
 // Types
 type Props = {};
@@ -45,8 +46,15 @@ const LabManageScreen = (props: Props) => {
   const laboratoryControllerApi = new LaboratoryControllerApi();
 
   // Store
-  const { appLabId, appLabName, appLabLocation, setAppUser } = useUserStore();
-  const { setAppIsEvent, removeAppEvent } = useEventStore();
+  const {
+    appLabId,
+    appLabName,
+    appLabLocation,
+    setAppUser,
+    resetAllFetchStatus,
+  } = useUserStore();
+  const { removeAppEvent } = useEventStore();
+  const { removeAppRecord } = useRecordStore();
 
   // Forms
   // Lab information form
@@ -81,6 +89,10 @@ const LabManageScreen = (props: Props) => {
         headers: { Authorization: `Bearer ${appToken}` },
       });
       setAppUser({ labName: data.labName, labLocation: data.location });
+      reset({
+        labName: data.labName,
+        location: data.location,
+      });
       setAlertMessage("Successfully update lab");
       setIsSnackBarVisible(true);
       setIsEditMode(false);
@@ -103,9 +115,14 @@ const LabManageScreen = (props: Props) => {
         { headers: { Authorization: `Bearer ${appToken}` } }
       )
       .then((response) => {
-        setAppUser({ labId: undefined, labName: undefined });
-        setAppIsEvent(false);
+        setAppUser({
+          labId: undefined,
+          labName: undefined,
+          labLocation: undefined,
+        });
         removeAppEvent();
+        removeAppRecord();
+        resetAllFetchStatus();
         setIsWarnDialog(false);
         router.replace("/SelectLabScreen");
       })
@@ -156,7 +173,7 @@ const LabManageScreen = (props: Props) => {
             alignItems: "center",
           }}
         >
-          Lab Information
+          Lab Detail
         </Text>
 
         <IconButton

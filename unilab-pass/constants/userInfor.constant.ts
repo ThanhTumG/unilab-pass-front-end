@@ -33,7 +33,20 @@ const DetailUserInformationFormSchema = z.object({
     .email({ message: "Invalid email" }),
   gender: z.string().min(1, { message: "Gender is required" }),
   birth: z.coerce.date().optional(),
-  permission: z.boolean(),
+});
+
+// Personal information
+const PersonalInformationFormSchema = z.object({
+  fullName: z
+    .string()
+    .trim()
+    .min(1, {
+      message: "Name is required",
+    })
+    .max(100, { message: "Name is too long" })
+    .regex(/^[\p{L}]+(?:\s[\p{L}]+)*$/u, {
+      message: "Name must not contain special character",
+    }),
 });
 
 // Lab information
@@ -57,7 +70,12 @@ const DEFAULT_DETAIL_USER_INFORMATION_FORM_VALUES: z.infer<
   id: "",
   gender: "",
   birth: undefined,
-  permission: true,
+};
+
+const DEFAULT_PERSONAL_INFORMATION_FORM_VALUE: z.infer<
+  typeof PersonalInformationFormSchema
+> = {
+  fullName: "",
 };
 
 const DEFAULT_LAB_INFORMATION_FORM_VALUES: z.infer<
@@ -69,7 +87,9 @@ const DEFAULT_LAB_INFORMATION_FORM_VALUES: z.infer<
 
 export {
   DetailUserInformationFormSchema,
+  PersonalInformationFormSchema,
   LabInformationFormSchema,
   DEFAULT_DETAIL_USER_INFORMATION_FORM_VALUES,
+  DEFAULT_PERSONAL_INFORMATION_FORM_VALUE,
   DEFAULT_LAB_INFORMATION_FORM_VALUES,
 };

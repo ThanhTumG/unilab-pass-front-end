@@ -47,6 +47,12 @@
         }
       ],
       [
+        "expo-image-picker",
+        {
+          "photosPermission": "Allow $(PRODUCT_NAME) to access your photos"
+        }
+      ],
+      [
         "react-native-vision-camera",
         {
           "cameraPermissionText": "$(PRODUCT_NAME) needs access to your Camera.",
@@ -63,7 +69,10 @@
             "minSdkVersion": 26,
             "compileSdkVersion": 35,
             "targetSdkVersion": 34,
-            "buildToolsVersion": "34.0.0"
+            "buildToolsVersion": "34.0.0",
+            "kotlinVersion": "1.9.24",
+            "composeCompilerVersion": "1.5.14",
+            "suppressKotlinVersionCompatibilityCheck": true
           }
         }
       ],

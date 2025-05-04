@@ -17,7 +17,6 @@ import {
 
 // App
 import { splitFullName } from "lib/utils";
-import { WarningDialog } from "components/CustomDialog";
 import { DetailUserInformationFormType } from "constants/userInfor.type";
 import {
   DEFAULT_DETAIL_USER_INFORMATION_FORM_VALUES,
@@ -31,8 +30,6 @@ import { useAuthStore, useUserStore } from "stores";
 import {
   LabMemberControllerApi,
   LabMemberControllerApiAddLabMemberRequest,
-  MyUserControllerApi,
-  MyUserControllerApiUpdateMyUserRequest,
 } from "api/index";
 import ScreenHeader from "components/ScreenHeader";
 import ScanFaceModal from "components/ScanFaceModal";
@@ -51,7 +48,6 @@ const CreateMemberScreen = (props: Props) => {
   // States
   const [alertMessage, setAlertMessage] = useState("");
   const [isAlert, setIsAlert] = useState(false);
-  const [isWarnDialog, setIsWarnDialog] = useState<boolean>(false);
   const [loading, setLoading] = useState({
     createMem: false,
     updateMem: false,
@@ -62,10 +58,8 @@ const CreateMemberScreen = (props: Props) => {
 
   // Server
   const labMemberControllerApi = new LabMemberControllerApi();
-  const myUserControllerApi = new MyUserControllerApi();
 
   // Store
-  const { appToken } = useAuthStore();
   const { appLabId, setAppIsFetchedMember } = useUserStore();
 
   // Form
@@ -103,7 +97,6 @@ const CreateMemberScreen = (props: Props) => {
       lastName: lastName,
       role: "MEMBER",
     };
-
     try {
       const param: LabMemberControllerApiAddLabMemberRequest = {
         request: request,
@@ -120,55 +113,12 @@ const CreateMemberScreen = (props: Props) => {
       setPhotoUri([]);
       setAppIsFetchedMember(false);
     } catch (error: any) {
-      const errLog = error.response.data;
-      if (errLog.code === 1018) {
-        setLoading((prev) => ({ ...prev, createMem: false }));
-        setIsWarnDialog(true);
-        return;
+      if (error.response) {
+        setAlertMessage(error.response.data.message);
+        setIsAlert(true);
       }
-      setAlertMessage(error.response.data.message);
-      setIsAlert(true);
     }
     setLoading((prev) => ({ ...prev, createMem: false }));
-  };
-
-  // Handle update member info
-  const handleUpdateMem = async (data: DetailUserInformationFormType) => {
-    if (loading.updateMem || !photoUri.length) return;
-    setLoading((prev) => ({ ...prev, updateMem: true }));
-    try {
-      const fileUri = photoUri[0];
-      const file = {
-        uri: fileUri,
-        type: "image/jpeg",
-        name: `${data.id}_update_mem_photo.jpg`,
-      };
-      const { firstName, lastName } = splitFullName(data.fullName);
-      const param: MyUserControllerApiUpdateMyUserRequest = {
-        userId: data.id,
-        request: {
-          firstName: firstName,
-          lastName: lastName,
-          dob: data.birth ? dayjs(data.birth).format("YYYY-MM-DD") : undefined,
-          gender: data.gender,
-          roles: [],
-        },
-        file: file,
-      };
-      await myUserControllerApi.updateMyUser(param, {
-        headers: { Authorization: `Bearer ${appToken}` },
-      });
-
-      await handleAddMember(data);
-
-      setAlertMessage("Successfully create member");
-      setIsAlert(true);
-    } catch (error: any) {
-      setAlertMessage(error.response.data.message);
-      setIsAlert(true);
-    }
-    setIsWarnDialog(false);
-    setLoading((prev) => ({ ...prev, createMem: false, updateMem: false }));
   };
 
   // Template
@@ -452,15 +402,6 @@ const CreateMemberScreen = (props: Props) => {
         visible={isVisibleModal}
         setVisible={setIsVisibleModal}
         setPhotoUri={setPhotoUri}
-      />
-
-      {/* Alert Dialog */}
-      <WarningDialog
-        title="Warning"
-        content={`There is already a member with this id and email in another lab, do you want to update member info?`}
-        visible={isWarnDialog}
-        setVisible={setIsWarnDialog}
-        onConfirm={handleSubmit(handleUpdateMem)}
       />
 
       {/* Snackbar */}

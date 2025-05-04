@@ -19,7 +19,6 @@ import {
 import { getFullName, isNumberCharList } from "lib/utils";
 import useEventStore from "stores/useEventStore";
 import { useAuthStore, useUserStore } from "stores";
-import { SuccessDialog } from "components/CustomDialog";
 import { QRScannerOverlay } from "components/ui/Overlay";
 import {
   EventGuestControllerApi,
@@ -38,7 +37,6 @@ const ScanQRScreen = (props: Props) => {
   const [isPendingGetMem, setIsPendingGetMem] = useState<boolean>(false);
   const [alertMessage, setAlertMessage] = useState("");
   const [isAlert, setIsAlert] = useState<boolean>(false);
-  const [isSuccessDialog, setIsSuccessDialog] = useState<boolean>(false);
 
   // Camera permission
   const { hasPermission, requestPermission } = useCameraPermission();
@@ -104,11 +102,12 @@ const ScanQRScreen = (props: Props) => {
           visitorId: idDetected,
           visitorName: response.data.result?.guestName,
         });
-        setIsSuccessDialog(true);
+        handleRouteFaceReg();
       } catch (error: any) {
         setAlertMessage(error.response.data.message);
         setIsAlert(true);
       }
+      setIsPendingGetMem(false);
     };
 
     const handleGetDetailMember = async () => {
@@ -131,7 +130,7 @@ const ScanQRScreen = (props: Props) => {
             visitorName: getFullName({ firstName, lastName }),
             visitorEmail: email,
           });
-          setIsSuccessDialog(true);
+          handleRouteFaceReg();
         } else {
           setAlertMessage("This member status is BLOCKED");
           setIsAlert(true);
@@ -241,15 +240,6 @@ const ScanQRScreen = (props: Props) => {
       >
         {alertMessage}
       </Snackbar>
-
-      {/* Success Dialog */}
-      <SuccessDialog
-        title={"Success"}
-        content="Verify ID successfully"
-        visible={isSuccessDialog}
-        setVisible={setIsSuccessDialog}
-        onCloseDialog={handleRouteFaceReg}
-      />
     </View>
   );
 };

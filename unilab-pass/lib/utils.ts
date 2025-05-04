@@ -90,6 +90,5 @@ export const checkFaceViewIsFrontal = (face: Face) => {
   const maxFaceWidth = width * 0.95;
   const isProperSize =
     bounds.width >= minFaceWidth && bounds.width <= maxFaceWidth;
-  console.log(isFacingFront, isCentered, isProperSize);
   return isFacingFront && isCentered && isProperSize;
 };

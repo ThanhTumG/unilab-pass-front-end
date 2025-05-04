@@ -66,13 +66,16 @@ const LoginScreen = (props: Props) => {
       const response = await myUserControllerApi.getMyInfo({
         headers: { Authorization: `Bearer ${token}` },
       });
+      const userData = response.data.result;
+      console.log(response.data.result);
       setAppUser({
-        userEmail: response.data.result?.email,
-        userId: response.data.result?.id,
+        userEmail: userData?.email,
+        userId: userData?.id,
         userName: getFullName({
-          lastName: response.data.result?.lastName,
-          firstName: response.data.result?.firstName,
+          lastName: userData?.lastName,
+          firstName: userData?.firstName,
         }),
+        userPhotoURL: userData?.photoURL,
       });
     } catch (error) {
       setErrorMessage("Something was wrong");
@@ -104,6 +107,7 @@ const LoginScreen = (props: Props) => {
       setAppIsLoggedIn(true);
       router.replace("/SelectLabScreen");
     } catch (error: any) {
+      console.log(error.response.data);
       setErrorMessage(error.response.data.message);
       setVisible(true);
     }

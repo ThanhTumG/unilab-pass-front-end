@@ -10,7 +10,6 @@ import {
 import React, { useCallback, useState } from "react";
 import { barDataItem } from "react-native-gifted-charts";
 import {
-  FlatList,
   ImageBackground,
   RefreshControl,
   ScrollView,
@@ -22,8 +21,7 @@ import {
 import CustomCard from "components/CustomCard";
 import { useAuthStore, useUserStore } from "stores";
 import CustomBarChart from "components/CustomBarChart";
-import { LogControllerApi, LogRespond, WeeklyReportResponse } from "api/index";
-import Record from "components/Record";
+import { LogControllerApi, WeeklyReportResponse } from "api/index";
 
 // Types
 type Props = {};
@@ -174,7 +172,7 @@ const HomeScreen = (props: Props) => {
         </View>
 
         {/* Chart */}
-        <CustomBarChart data={weeklyLog ?? []} />
+        <CustomBarChart data={weeklyLog} />
       </ScrollView>
     </ImageBackground>
   );

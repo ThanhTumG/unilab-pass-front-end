@@ -133,7 +133,7 @@ const SuccessDialog = ({
       timer = setTimeout(() => {
         setVisible(false);
         onCloseDialog && onCloseDialog();
-      }, 1500);
+      }, 9000);
     }
     return () => clearTimeout(timer);
   }, [visible]);

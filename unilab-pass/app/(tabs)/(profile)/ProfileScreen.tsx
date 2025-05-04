@@ -3,12 +3,14 @@ import React, { useState } from "react";
 import { ImageBackground, ScrollView, StyleSheet, View } from "react-native";
 import { useRouter } from "expo-router";
 import {
+  ActivityIndicator,
   Avatar,
   Button,
   Divider,
   Portal,
   Snackbar,
   Text,
+  TouchableRipple,
 } from "react-native-paper";
 
 // App
@@ -30,6 +32,7 @@ const ProfileScreen = (props: Props) => {
     updateLab: false,
     deleteLab: false,
     getEvent: false,
+    updateAvatar: false,
   });
   const [isVerifyPassModal, setIsVerifyPassModal] = useState(false);
   const [isSnackBarVisible, setIsSnackBarVisible] = useState(false);
@@ -40,14 +43,14 @@ const ProfileScreen = (props: Props) => {
 
   // Store
   const { appToken, removeAppToken } = useAuthStore();
-  const { appUserName, removeAppUser, resetAllFetchStatus } = useUserStore();
+  const { appUserName, appUserPhotoURL, removeAppUser, resetAllFetchStatus } =
+    useUserStore();
   const { removeAppEvent } = useEventStore();
   const { removeAppRecord } = useRecordStore();
 
   // Server
   const authenticationControllerApi = new AuthenticationControllerApi();
 
-  // Methods
   // Handle log out
   const handleLogout = async () => {
     if (loading.logOut) return;
@@ -97,10 +100,30 @@ const ProfileScreen = (props: Props) => {
     >
       {/* Title */}
       <View style={styles.titleContainer}>
-        <Avatar.Image
-          size={72}
-          source={require("../../../assets/images/profile-avatar.png")}
-        />
+        <TouchableRipple
+          rippleColor={"#fcfcfc"}
+          style={{
+            borderRadius: 45,
+            backgroundColor: "#e9e9e9",
+            width: 72,
+            height: 72,
+            justifyContent: "center",
+          }}
+          onPress={() => router.push("/PersonalInfoScreen")}
+        >
+          {loading.updateAvatar ? (
+            <ActivityIndicator animating={true} size={22} />
+          ) : (
+            <Avatar.Image
+              size={72}
+              source={
+                appUserPhotoURL
+                  ? { uri: appUserPhotoURL }
+                  : require("../../../assets/images/profile-avatar.png")
+              }
+            />
+          )}
+        </TouchableRipple>
 
         <Text variant="bodyLarge" style={styles.adminName} numberOfLines={2}>
           {appUserName}
@@ -124,7 +147,7 @@ const ProfileScreen = (props: Props) => {
           <ProfileItem title="Switch Lab" onPress={handleSwitchLab} />
 
           <ProfileItem
-            title="Lab Information"
+            title="Lab Detail"
             onPress={() => router.push("/LabManageScreen")}
           />
 

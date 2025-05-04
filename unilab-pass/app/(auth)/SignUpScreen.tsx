@@ -74,13 +74,6 @@ const SignUpScreen = (props: Props) => {
           });
         });
     } catch (error: any) {
-      if (error.response.data.code == 1002) {
-        console.info("Successfully sign up");
-        router.push({
-          pathname: "/OTPVerificationScreen",
-          params: { email: data.email },
-        });
-      }
       setAlertMessage(error.response.data.message);
       setIsAlert(true);
     }

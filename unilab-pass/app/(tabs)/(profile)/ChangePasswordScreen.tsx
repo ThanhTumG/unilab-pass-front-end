@@ -30,8 +30,8 @@ type Props = {};
 // Component
 const ChangePasswordScreen = (props: Props) => {
   // States
-  const [isHideNewPassword, setIsHideNewPassword] = useState<boolean>(false);
-  const [isHideOldPassword, setIsHideOldPassword] = useState<boolean>(false);
+  const [isHideNewPassword, setIsHideNewPassword] = useState<boolean>(true);
+  const [isHideOldPassword, setIsHideOldPassword] = useState<boolean>(true);
   const [alertMessage, setAlertMessage] = useState("");
   const [isAlert, setIsAlert] = useState(false);
   const [isLoading, setIsLoading] = useState(false);

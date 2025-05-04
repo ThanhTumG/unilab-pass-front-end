@@ -54,6 +54,7 @@ const CustomBarChart = ({ data }: Props) => {
           " S",
           "U ",
         ]}
+        yAxisLabelTexts={["0", "5", "10", "15", "20"]}
         xAxisLabelTextStyle={styles.xAxisLabel}
         yAxisTextStyle={styles.yAxisLabel}
         maxValue={20}
