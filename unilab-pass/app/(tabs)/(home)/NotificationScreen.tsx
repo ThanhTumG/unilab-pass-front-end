@@ -54,7 +54,10 @@ const NotificationScreen = (props: Props) => {
       console.log(response.data.result);
       setNotList(response.data.result);
     } catch (err: any) {
-      console.log(err);
+      if (err.response) {
+        setAlertMessage(err.response.data.message);
+        setIsAlert(true);
+      }
     }
     setIsPendingGetNot(false);
   };
@@ -75,8 +78,10 @@ const NotificationScreen = (props: Props) => {
       setAlertMessage("Successfully delete notification");
       setIsAlert(true);
     } catch (err: any) {
-      setAlertMessage(err.response.data.message);
-      setIsAlert(true);
+      if (err.response) {
+        setAlertMessage(err.response.data.message);
+        setIsAlert(true);
+      }
     }
     setIsPendingDelNot(false);
   };

@@ -78,7 +78,9 @@ const HomeScreen = (props: Props) => {
         ]) ?? DEFAULT_LOG_LIST;
       setWeeklyLog(newLogList);
     } catch (error: any) {
-      console.error(error.response.data);
+      if (error.response) {
+        console.error(error.response.data);
+      }
     } finally {
       setIsPendingGet(false);
     }

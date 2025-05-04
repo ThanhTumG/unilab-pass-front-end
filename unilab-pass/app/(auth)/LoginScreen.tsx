@@ -67,7 +67,7 @@ const LoginScreen = (props: Props) => {
         headers: { Authorization: `Bearer ${token}` },
       });
       const userData = response.data.result;
-      console.log(response.data.result);
+      console.log("User data:", response.data.result);
       setAppUser({
         userEmail: userData?.email,
         userId: userData?.id,
@@ -77,7 +77,8 @@ const LoginScreen = (props: Props) => {
         }),
         userPhotoURL: userData?.photoURL,
       });
-    } catch (error) {
+      router.replace("/SelectLabScreen");
+    } catch (error: any) {
       setErrorMessage("Something was wrong");
       setVisible(true);
     }
@@ -100,16 +101,15 @@ const LoginScreen = (props: Props) => {
       });
 
       const token = response.data.result?.token as string;
+      setAppToken({ token: token });
       await handleGetMyInformation(token);
       console.info("Successfully log in:", response.data.result);
-      console.log("Successfully get my info");
-      setAppToken({ token: token });
       setAppIsLoggedIn(true);
-      router.replace("/SelectLabScreen");
     } catch (error: any) {
-      console.log(error.response.data);
-      setErrorMessage(error.response.data.message);
-      setVisible(true);
+      if (error.response) {
+        setErrorMessage(error.response.data.message);
+        setVisible(true);
+      }
     }
     setIsLoading(false);
   };

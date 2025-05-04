@@ -85,16 +85,16 @@ const RecordScreen = (props: Props) => {
           },
           file: file,
         };
-        console.log(param.request);
         await eventLogControllerApi.addEventLog(param, {
           headers: { Authorization: `Bearer ${appToken}` },
         });
         handlePlaySound();
         setIsSuccessDialog(true);
       } catch (error: any) {
-        console.log(error.response.data);
-        setAlertMessage(error.response.data.message);
-        setIsAlert(true);
+        if (error.response) {
+          setAlertMessage(error.response.data.message);
+          setIsAlert(true);
+        }
       }
       setIsPendingPostRecord(false);
       return;
@@ -123,8 +123,10 @@ const RecordScreen = (props: Props) => {
       setIsSuccessDialog(true);
       setAppIsFetchedRecord(false);
     } catch (error: any) {
-      setAlertMessage(error.response.data.message);
-      setIsAlert(true);
+      if (error.response) {
+        setAlertMessage(error.response.data.message);
+        setIsAlert(true);
+      }
     }
     setIsPendingPostRecord(false);
   };

@@ -139,8 +139,10 @@ const CreateEventScreen = () => {
       setFileName(undefined);
       reset();
     } catch (error: any) {
-      setAlertMessage(error.response.data.message);
-      setIsAlert(true);
+      if (error.response) {
+        setAlertMessage(error.response.data.message);
+        setIsAlert(true);
+      }
     }
     setIsPendingCreateEv(false);
   };

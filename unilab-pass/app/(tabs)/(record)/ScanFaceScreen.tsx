@@ -139,8 +139,10 @@ const ScanFaceScreen = (props: Props) => {
       setAppIsFetchedMember(false);
       removeAppRecord();
     } catch (error: any) {
-      setAlertMessage(error.response.data.message);
-      setIsAlert(true);
+      if (error.response) {
+        setAlertMessage(error.response.data.message);
+        setIsAlert(true);
+      }
     }
     setIsPostIllegalLog(false);
   };
@@ -182,8 +184,10 @@ const ScanFaceScreen = (props: Props) => {
         }
       }
     } catch (error: any) {
-      console.log("Error:", error.response.data);
-      setIsVerifyErr(true);
+      if (error.response) {
+        console.log("Error:", error.response.data);
+        setIsVerifyErr(true);
+      }
     } finally {
       setIsUpload(false);
     }

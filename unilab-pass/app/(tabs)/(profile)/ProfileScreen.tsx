@@ -68,8 +68,10 @@ const ProfileScreen = (props: Props) => {
       removeAppToken();
       router.replace("/(auth)/LoginScreen");
     } catch (error: any) {
-      setAlertMessage(error.response.data.message);
-      setIsSnackBarVisible(true);
+      if (error.response) {
+        setAlertMessage(error.response.data.message);
+        setIsSnackBarVisible(true);
+      }
     }
     setLoading((prev) => ({ ...prev, logOut: false }));
   };

@@ -65,8 +65,10 @@ const ForgotPasswordScreen = (props: Props) => {
       await authenticationControllerApi.sendResetPassword(param);
       setIsSuccessDialog(true);
     } catch (error: any) {
-      setAlertMessage(error.response.data.message);
-      setIsAlert(true);
+      if (error.response) {
+        setAlertMessage(error.response.data.message);
+        setIsAlert(true);
+      }
     }
     setIsLoading(false);
   };

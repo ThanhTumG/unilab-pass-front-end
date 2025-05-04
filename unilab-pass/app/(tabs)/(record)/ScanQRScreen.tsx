@@ -104,8 +104,10 @@ const ScanQRScreen = (props: Props) => {
         });
         handleRouteFaceReg();
       } catch (error: any) {
-        setAlertMessage(error.response.data.message);
-        setIsAlert(true);
+        if (error.response) {
+          setAlertMessage(error.response.data.message);
+          setIsAlert(true);
+        }
       }
       setIsPendingGetMem(false);
     };
@@ -136,8 +138,10 @@ const ScanQRScreen = (props: Props) => {
           setIsAlert(true);
         }
       } catch (error: any) {
-        setAlertMessage(error.response.data.message);
-        setIsAlert(true);
+        if (error.response) {
+          setAlertMessage(error.response.data.message);
+          setIsAlert(true);
+        }
       }
       setIsPendingGetMem(false);
     };

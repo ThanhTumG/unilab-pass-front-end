@@ -78,8 +78,10 @@ const EventViewScreen = (props: Props) => {
         });
       }
     } catch (error: any) {
-      setAlertMessage("Failed to get the current event");
-      setIsSnackBarVisible(true);
+      if (error.response) {
+        setAlertMessage("Failed to get the current event");
+        setIsSnackBarVisible(true);
+      }
     }
     setIsLoading((prev) => ({ ...prev, getCurrentEvent: false }));
   }, []);
@@ -98,8 +100,10 @@ const EventViewScreen = (props: Props) => {
       const event = response.data.result ?? [];
       setEventList(event);
     } catch (error: any) {
-      setAlertMessage("Failed to get event list");
-      setIsSnackBarVisible(true);
+      if (error.response) {
+        setAlertMessage("Failed to get event list");
+        setIsSnackBarVisible(true);
+      }
     }
     setIsLoading((prev) => ({ ...prev, getAllEvent: false }));
   }, []);
@@ -121,8 +125,10 @@ const EventViewScreen = (props: Props) => {
       setIsWarnDialog(false);
       onRefresh();
     } catch (error: any) {
-      setAlertMessage(error.response.data.message);
-      setIsSnackBarVisible(true);
+      if (error.response) {
+        setAlertMessage(error.response.data.message);
+        setIsSnackBarVisible(true);
+      }
     }
     setIsLoading((prev) => ({ ...prev, deleteEvent: false }));
   };

@@ -82,7 +82,9 @@ const ManageAccessScreen = (props: Props) => {
       });
       setSearchQuery("");
     } catch (error: any) {
-      console.error(error.response.data);
+      if (error.response) {
+        console.error(error.response.data);
+      }
     } finally {
       setIsPendingGetLog(false);
     }

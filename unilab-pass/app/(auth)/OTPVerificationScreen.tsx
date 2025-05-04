@@ -49,8 +49,6 @@ const OTPVerificationScreen = (props: Props) => {
   // Methods
   // Handle resend otp
   const handleResendOtp = async () => {
-    console.log("sent otp");
-
     if (isLoadingResend) return;
     setIsLoadingResend(true);
     try {
@@ -64,8 +62,10 @@ const OTPVerificationScreen = (props: Props) => {
         new Date(Date.now() + OTP_EXPIRED_DURATION_MILLISECONDS)
       );
     } catch (error: any) {
-      setAlertMessage(error.response.data.message);
-      setIsAlert(true);
+      if (error.response) {
+        setAlertMessage(error.response.data.message);
+        setIsAlert(true);
+      }
     }
     setIsLoadingResend(false);
   };
@@ -90,8 +90,10 @@ const OTPVerificationScreen = (props: Props) => {
       });
       route.replace("/(auth)/LoginScreen");
     } catch (error: any) {
-      setAlertMessage(error.response.data.message);
-      setIsAlert(true);
+      if (error.response) {
+        setAlertMessage(error.response.data.message);
+        setIsAlert(true);
+      }
     }
     setIsLoading(false);
   };

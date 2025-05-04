@@ -97,8 +97,10 @@ const LabManageScreen = (props: Props) => {
       setIsSnackBarVisible(true);
       setIsEditMode(false);
     } catch (error: any) {
-      setAlertMessage(error.response.data.message);
-      setIsSnackBarVisible(true);
+      if (error.response) {
+        setAlertMessage(error.response.data.message);
+        setIsSnackBarVisible(true);
+      }
     }
     setIsLoading((prev) => ({ ...prev, updateLab: false }));
   };
@@ -127,7 +129,10 @@ const LabManageScreen = (props: Props) => {
         router.replace("/SelectLabScreen");
       })
       .catch((error) => {
-        console.log(error.response.data);
+        if (error.response) {
+          setAlertMessage(error.response.data.message);
+          setIsSnackBarVisible(true);
+        }
       });
     setIsLoading((prev) => ({ ...prev, deleteLab: false }));
   };

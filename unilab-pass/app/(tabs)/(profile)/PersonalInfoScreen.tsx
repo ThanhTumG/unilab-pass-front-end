@@ -101,8 +101,10 @@ const PersonalInfoScreen = (props: Props) => {
       });
       handleGetMyInformation();
     } catch (err: any) {
-      setAlertMessage(err.response.data.message);
-      setIsSnackBarVisible(true);
+      if (err.response) {
+        setAlertMessage(err.response.data.message);
+        setIsSnackBarVisible(true);
+      }
     }
   };
 
@@ -126,9 +128,11 @@ const PersonalInfoScreen = (props: Props) => {
       });
       setAlertMessage("Successfully update info");
       setIsSnackBarVisible(true);
-    } catch (error) {
-      setAlertMessage("Something was wrong");
-      setIsSnackBarVisible(true);
+    } catch (error: any) {
+      if (error.response) {
+        setAlertMessage("Something was wrong");
+        setIsSnackBarVisible(true);
+      }
     }
     setIsLoading(false);
   };

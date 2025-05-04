@@ -98,7 +98,9 @@ const MemberManagementScreen = (props: Props) => {
       setMemberList(newLabMemberList);
       setSearchQuery("");
     } catch (error: any) {
-      console.error(error.response.data);
+      if (error.response) {
+        console.error(error.response.data);
+      }
     } finally {
       setIdPendingGetMemList(false);
     }

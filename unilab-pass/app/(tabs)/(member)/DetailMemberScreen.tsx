@@ -127,8 +127,10 @@ const DetailMemberScreen = () => {
       });
       setIsActive(response.data.result?.status === "ACTIVE");
     } catch (error: any) {
-      setAlertMessage(error.response.data.message);
-      setIsAlert(true);
+      if (error.response) {
+        setAlertMessage(error.response.data.message);
+        setIsAlert(true);
+      }
     }
     setLoading((prev) => ({ ...prev, getMem: false }));
   }, [appToken]);
@@ -151,8 +153,10 @@ const DetailMemberScreen = () => {
       setAppIsFetchedRecord(false);
       router.back();
     } catch (error: any) {
-      setAlertMessage(error.response.data.message);
-      setIsAlert(true);
+      if (error.response) {
+        setAlertMessage(error.response.data.message);
+        setIsAlert(true);
+      }
     }
     setLoading((prev) => ({ ...prev, deleteMem: false }));
   };
@@ -175,7 +179,6 @@ const DetailMemberScreen = () => {
       await myUserControllerApi.updateMyUser(param, {
         headers: { Authorization: `Bearer ${appToken}` },
       });
-
       reset({
         id: getValues("id"),
         email: getValues("email"),
@@ -190,8 +193,10 @@ const DetailMemberScreen = () => {
       setAlertMessage("Successfully update member info");
       setIsAlert(true);
     } catch (error: any) {
-      setAlertMessage(error.response.data.message);
-      setIsAlert(true);
+      if (error.response) {
+        setAlertMessage(error.response.data.message);
+        setIsAlert(true);
+      }
     }
     setLoading((prev) => ({ ...prev, updateMem: false }));
   };
@@ -220,8 +225,10 @@ const DetailMemberScreen = () => {
       setIsAlert(true);
     } catch {
       (error: any) => {
-        setAlertMessage(error.response.data.message);
-        setIsAlert(true);
+        if (error.response) {
+          setAlertMessage(error.response.data.message);
+          setIsAlert(true);
+        }
       };
     }
     setLoading((prev) => ({ ...prev, updateStatus: false }));

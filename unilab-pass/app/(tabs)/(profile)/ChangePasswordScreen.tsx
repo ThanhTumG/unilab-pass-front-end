@@ -76,8 +76,10 @@ const ChangePasswordScreen = (props: Props) => {
       setAlertMessage("Successfully change password");
       setIsAlert(true);
     } catch (error: any) {
-      setAlertMessage(error.response.data.message);
-      setIsAlert(true);
+      if (error.response) {
+        setAlertMessage(error.response.data.message);
+        setIsAlert(true);
+      }
     }
     setIsLoading(false);
   };

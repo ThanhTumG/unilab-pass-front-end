@@ -74,8 +74,10 @@ const SignUpScreen = (props: Props) => {
           });
         });
     } catch (error: any) {
-      setAlertMessage(error.response.data.message);
-      setIsAlert(true);
+      if (error.response) {
+        setAlertMessage(error.response.data.message);
+        setIsAlert(true);
+      }
     }
     setIsLoading(false);
   };

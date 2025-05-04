@@ -55,19 +55,18 @@ const SelectLabScreen = (props: Props) => {
   const eventControllerApi = new EventControllerApi();
 
   // Store
-  const { appToken } = useAuthStore();
   const { setAppUser } = useUserStore();
   const { setAppIsEvent, setAppEvent } = useEventStore();
 
   // Methods
   // Handle get all lab
-  const handleGetAllLab = async (token?: string) => {
+  const handleGetAllLab = async () => {
     if (isLoading) return;
-    const finalToken = token || appToken;
+    const { appToken } = useAuthStore.getState();
     setIsLoading(true);
     try {
       const response = await laboratoryControllerApi.getAllLabs({
-        headers: { Authorization: `Bearer ${finalToken}` },
+        headers: { Authorization: `Bearer ${appToken}` },
       });
       const newLabLst =
         response.data.result?.map((lab) => {
@@ -93,6 +92,7 @@ const SelectLabScreen = (props: Props) => {
   const handleCreateLab = async () => {
     if (isLoadingCreate) return;
     setIsLoadingCreate(true);
+    const { appToken } = useAuthStore.getState();
     try {
       const param: LabCreationRequest = {
         name: `Lab ${now.format("YYYY/MM/DD HH:mm")}`,
@@ -104,8 +104,7 @@ const SelectLabScreen = (props: Props) => {
         { labCreationRequest: param },
         options
       );
-      const { appToken: latestToken } = useAuthStore.getState();
-      handleGetAllLab(latestToken ?? "");
+      handleGetAllLab();
     } catch (error: any) {
       setAlertMessage(error.response.data.message);
       setIsAlert(true);
@@ -117,7 +116,7 @@ const SelectLabScreen = (props: Props) => {
   useFocusEffect(
     useCallback(() => {
       if (myLabList.length === 0) handleGetAllLab();
-    }, [appToken])
+    }, [])
   );
 
   useEffect(() => {
@@ -125,6 +124,7 @@ const SelectLabScreen = (props: Props) => {
     const handlePressHomePage = async () => {
       if (!labId) return;
       setIsLoading(true);
+      const { appToken } = useAuthStore.getState();
       const currentLab = myLabList.find((lab) => lab.value == labId);
       try {
         const response = await eventControllerApi.getCurrentEvent(
@@ -148,8 +148,10 @@ const SelectLabScreen = (props: Props) => {
         });
         router.replace("/(tabs)/(home)/HomeScreen");
       } catch (error: any) {
-        setAlertMessage(error.response.data.message);
-        setIsAlert(true);
+        if (error.response) {
+          setAlertMessage(error.response.data.message);
+          setIsAlert(true);
+        }
       }
       setIsLoading(false);
     };
