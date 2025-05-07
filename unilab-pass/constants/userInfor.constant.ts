@@ -1,13 +1,5 @@
 // Core
-import dayjs from "dayjs";
 import { z } from "zod";
-
-// Methods
-// check valid date
-const validate = (date: string, format: string) => {
-  const today = dayjs();
-  return dayjs(date, format).format(format) === date && today.isAfter(date);
-};
 
 // Form schemas
 // Detail user information
@@ -32,7 +24,7 @@ const DetailUserInformationFormSchema = z.object({
     .min(1, { message: "Email is required" })
     .email({ message: "Invalid email" }),
   gender: z.string().min(1, { message: "Gender is required" }),
-  birth: z.coerce.date().optional(),
+  birth: z.string().min(1, { message: "Birth is required" }),
 });
 
 // Personal information
@@ -69,7 +61,7 @@ const DEFAULT_DETAIL_USER_INFORMATION_FORM_VALUES: z.infer<
   email: "",
   id: "",
   gender: "",
-  birth: undefined,
+  birth: "",
 };
 
 const DEFAULT_PERSONAL_INFORMATION_FORM_VALUE: z.infer<

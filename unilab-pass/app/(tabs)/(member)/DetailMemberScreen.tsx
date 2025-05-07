@@ -121,7 +121,7 @@ const DetailMemberScreen = () => {
           lastName: memberInfo?.lastName,
         }),
         id: memberInfo?.id,
-        birth: memberInfo?.dob ? new Date(memberInfo.dob) : undefined,
+        birth: memberInfo?.dob,
         email: memberInfo?.email,
         gender: memberInfo?.gender,
       });
@@ -376,7 +376,7 @@ const DetailMemberScreen = () => {
             <Controller
               control={control}
               name="birth"
-              render={({ field: { onChange, onBlur, value } }) => (
+              render={({ field: { onChange, value } }) => (
                 <View>
                   <Pressable
                     disabled={!isEditMode}
@@ -407,14 +407,20 @@ const DetailMemberScreen = () => {
                           />
                         }
                         label="Birth"
-                        value={value ? dayjs(value).format("YYYY-MM-DD") : ""}
+                        value={value}
                       />
                     </View>
                   </Pressable>
 
+                  {errors.birth && (
+                    <Text
+                      style={styles.error}
+                    >{`${errors.birth.message}`}</Text>
+                  )}
+
                   {isDatePicker && (
                     <DateTimePicker
-                      value={value ?? new Date()}
+                      value={new Date()}
                       mode="date"
                       display="spinner"
                       onChange={(event, date) => {
@@ -425,7 +431,7 @@ const DetailMemberScreen = () => {
                             .tz("Asia/Ho_Chi_Minh")
                             .startOf("day")
                             .toDate();
-                          onChange(localDate);
+                          onChange(dayjs(localDate).format("YYYY-MM-DD"));
                         }
                       }}
                     />

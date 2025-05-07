@@ -90,7 +90,7 @@ const CreateMemberScreen = (props: Props) => {
     const request = {
       labId: appLabId ?? "",
       userId: data.id,
-      dob: data.birth ? dayjs(data.birth).format("YYYY-MM-DD") : undefined,
+      dob: data.birth,
       gender: data.gender,
       email: data.email,
       firstName: firstName,
@@ -214,7 +214,7 @@ const CreateMemberScreen = (props: Props) => {
             <Controller
               control={control}
               name="birth"
-              render={({ field: { onChange, onBlur, value } }) => (
+              render={({ field: { onChange, value } }) => (
                 <View>
                   <Pressable
                     onPress={() => {
@@ -229,6 +229,7 @@ const CreateMemberScreen = (props: Props) => {
                             onSurfaceVariant: "#777",
                           },
                         }}
+                        error={!!errors.birth}
                         textColor="#333"
                         mode="outlined"
                         style={styles.inputField}
@@ -243,14 +244,20 @@ const CreateMemberScreen = (props: Props) => {
                           />
                         }
                         label="Birth"
-                        value={value ? dayjs(value).format("YYYY-MM-DD") : ""}
+                        value={value}
                       />
                     </View>
                   </Pressable>
 
+                  {errors.birth && (
+                    <Text
+                      style={styles.error}
+                    >{`${errors.birth.message}`}</Text>
+                  )}
+
                   {isDatePicker && (
                     <DateTimePicker
-                      value={value ?? new Date()}
+                      value={new Date()}
                       mode="date"
                       display="spinner"
                       onChange={(event, date) => {
@@ -261,7 +268,7 @@ const CreateMemberScreen = (props: Props) => {
                             .tz("Asia/Ho_Chi_Minh")
                             .startOf("day")
                             .toDate();
-                          onChange(localDate);
+                          onChange(dayjs(localDate).format("YYYY-MM-DD"));
                         }
                       }}
                     />
