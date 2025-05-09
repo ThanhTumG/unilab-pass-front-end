@@ -129,10 +129,8 @@ const PersonalInfoScreen = (props: Props) => {
       setAlertMessage("Successfully update info");
       setIsSnackBarVisible(true);
     } catch (error: any) {
-      if (error.response) {
-        setAlertMessage("Something was wrong");
-        setIsSnackBarVisible(true);
-      }
+      setAlertMessage("Something was wrong");
+      setIsSnackBarVisible(true);
     }
     setIsLoading(false);
   };

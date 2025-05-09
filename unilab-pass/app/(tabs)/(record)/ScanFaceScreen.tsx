@@ -185,9 +185,9 @@ const ScanFaceScreen = (props: Props) => {
       }
     } catch (error: any) {
       if (error.response) {
-        console.log("Error:", error.response.data);
-        setIsVerifyErr(true);
+        console.log("Error verify:", error.response.data);
       }
+      setIsVerifyErr(true);
     } finally {
       setIsUpload(false);
     }
@@ -208,7 +208,6 @@ const ScanFaceScreen = (props: Props) => {
         const elapsedTime = currentTime - (conditionStartTime.current || 0);
         setFaceMsg("Keep your face steady");
         if (elapsedTime >= 1500) {
-          console.log("snap");
           handleTakePhoto();
         }
       } else {
