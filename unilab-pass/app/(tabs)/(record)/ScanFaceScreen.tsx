@@ -119,7 +119,7 @@ const ScanFaceScreen = (props: Props) => {
       const file = {
         uri: photoUri[photoUri.length - 1],
         type: "image/jpeg",
-        name: `${appVisitorId}_normal_record_photo.jpg`,
+        name: `${appVisitorId}_${Date.now()}_normal_record_photo.jpg`,
       };
       const param: LogControllerApiCreateNewLogRequest = {
         request: {
@@ -158,7 +158,7 @@ const ScanFaceScreen = (props: Props) => {
       const file = {
         uri: fileUri,
         type: "image/jpeg",
-        name: `${appVisitorId}_photo.jpg`,
+        name: `${appVisitorId}_${Date.now()}_photo.jpg`,
       };
       const param: ModelControllerApiVerifyRequest = {
         userId: appVisitorId ?? "",
@@ -187,7 +187,8 @@ const ScanFaceScreen = (props: Props) => {
       if (error.response) {
         console.log("Error verify:", error.response.data);
       }
-      setIsVerifyErr(true);
+      setIsErrorDialog(true);
+      // setIsVerifyErr(true);
     } finally {
       setIsUpload(false);
     }

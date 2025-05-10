@@ -85,7 +85,7 @@ const CreateMemberScreen = (props: Props) => {
     const file = {
       uri: fileUri,
       type: "image/jpeg",
-      name: `${data.id}_create_mem_photo.jpg`,
+      name: `${data.id}_${Date.now()}_create_mem_photo.jpg`,
     };
     const request = {
       labId: appLabId ?? "",

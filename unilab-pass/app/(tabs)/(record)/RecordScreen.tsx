@@ -75,7 +75,7 @@ const RecordScreen = (props: Props) => {
         const file = {
           uri: appRecordImg,
           type: "image/jpeg",
-          name: `${appVisitorId}_event_record_photo.jpg`,
+          name: `guest_${appVisitorId}_${Date.now()}_event_record_photo.jpg`,
         };
         const param: EventLogControllerApiAddEventLogRequest = {
           request: {
@@ -105,7 +105,7 @@ const RecordScreen = (props: Props) => {
       const file = {
         uri: appRecordImg,
         type: "image/jpeg",
-        name: `${appVisitorId}_normal_record_photo.jpg`,
+        name: `member_${appVisitorId}_${Date.now()}_normal_record_photo.jpg`,
       };
       const param: LogControllerApiCreateNewLogRequest = {
         request: {

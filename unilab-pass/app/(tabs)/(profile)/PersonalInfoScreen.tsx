@@ -61,7 +61,7 @@ const PersonalInfoScreen = (props: Props) => {
   const handlePickImage = async () => {
     // No permissions request is necessary for launching the image library
     let result = await ImagePicker.launchImageLibraryAsync({
-      mediaTypes: ["images", "videos"],
+      mediaTypes: ["images"],
       allowsEditing: true,
       aspect: [1, 1],
       quality: 1,
@@ -83,7 +83,7 @@ const PersonalInfoScreen = (props: Props) => {
       const file = {
         uri: photoUri,
         type: "image/jpeg",
-        name: `${appUserId}_update_user_photo.jpg`,
+        name: `${appUserId}_${Date.now()}_update_user_photo.jpg`,
       };
       const { firstName, lastName } = splitFullName(
         data.fullName ?? appUserName ?? ""
@@ -103,8 +103,11 @@ const PersonalInfoScreen = (props: Props) => {
     } catch (err: any) {
       if (err.response) {
         setAlertMessage(err.response.data.message);
-        setIsSnackBarVisible(true);
+      } else {
+        setAlertMessage("Something was wrong");
       }
+      setIsSnackBarVisible(true);
+      setIsLoading(false);
     }
   };
 
