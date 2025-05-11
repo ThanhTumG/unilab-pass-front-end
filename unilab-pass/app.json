@@ -70,6 +70,7 @@
             "compileSdkVersion": 35,
             "targetSdkVersion": 34,
             "buildToolsVersion": "34.0.0",
+            "kspVersion": "2.0.21",
             "kotlinVersion": "1.9.24",
             "composeCompilerVersion": "1.5.14",
             "suppressKotlinVersionCompatibilityCheck": true
@@ -79,7 +80,7 @@
       [
         "expo-notifications",
         {
-          "icon": "./assets/images/notification-icon.png",
+          "icon": "./assets/images/unilab-pass-logo.png",
           "color": "#ffffff"
         }
       ]
