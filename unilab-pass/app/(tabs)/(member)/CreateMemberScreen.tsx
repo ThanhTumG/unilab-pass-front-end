@@ -3,7 +3,6 @@ import dayjs from "dayjs";
 import React, { useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Dropdown } from "react-native-paper-dropdown";
 import DateTimePicker from "@react-native-community/datetimepicker";
 import { Pressable, ScrollView, StyleSheet, View } from "react-native";
 import {
@@ -22,10 +21,6 @@ import {
   DEFAULT_DETAIL_USER_INFORMATION_FORM_VALUES,
   DetailUserInformationFormSchema,
 } from "constants/userInfor.constant";
-import {
-  CustomDropdownInput,
-  CustomDropdownItem,
-} from "components/CustomDropdown";
 import { useAuthStore, useUserStore } from "stores";
 import {
   LabMemberControllerApi,
@@ -33,6 +28,7 @@ import {
 } from "api/index";
 import ScreenHeader from "components/ScreenHeader";
 import ScanFaceModal from "components/ScanFaceModal";
+import CustomDropdown from "components/PaperDropdown";
 
 // Types
 type Props = {};
@@ -318,33 +314,13 @@ const CreateMemberScreen = (props: Props) => {
               name="gender"
               render={({ field: { onChange, value } }) => (
                 <View style={{ marginTop: 8 }}>
-                  <Dropdown
-                    mode="outlined"
-                    placeholder="Gender"
+                  <CustomDropdown
                     options={OPTIONS}
                     value={value}
                     onSelect={(value) => onChange(value)}
-                    menuUpIcon={
-                      <TextInput.Icon
-                        icon="menu-up"
-                        color="#333"
-                        pointerEvents="none"
-                      />
-                    }
+                    placeholder="Gender"
+                    mode="outlined"
                     error={!!errors.gender}
-                    menuDownIcon={
-                      <TextInput.Icon
-                        icon="menu-down"
-                        color="#333"
-                        pointerEvents="none"
-                      />
-                    }
-                    menuContentStyle={{
-                      marginTop: 25,
-                    }}
-                    hideMenuHeader={true}
-                    CustomDropdownItem={CustomDropdownItem}
-                    CustomDropdownInput={CustomDropdownInput}
                   />
                   {errors.gender && (
                     <Text

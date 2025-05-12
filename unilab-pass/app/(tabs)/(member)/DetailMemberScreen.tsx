@@ -3,7 +3,6 @@ import dayjs from "dayjs";
 import React, { useCallback, useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Dropdown } from "react-native-paper-dropdown";
 import DateTimePicker from "@react-native-community/datetimepicker";
 import {
   View,
@@ -34,15 +33,12 @@ import {
   DetailUserInformationFormSchema,
 } from "constants/userInfor.constant";
 import {
-  CustomDropdownInput,
-  CustomDropdownItem,
-} from "components/CustomDropdown";
-import {
   LabMemberControllerApi,
   LabMemberControllerApiDeleteMemberRequest,
   MyUserControllerApi,
   MyUserControllerApiUpdateMyUserRequest,
 } from "api/index";
+import CustomDropdown from "components/PaperDropdown";
 
 // Options
 const OPTIONS = [
@@ -446,26 +442,14 @@ const DetailMemberScreen = () => {
               name="gender"
               render={({ field: { onChange, onBlur, value } }) => (
                 <View>
-                  <Dropdown
-                    mode="outlined"
-                    placeholder="Gender"
+                  <CustomDropdown
                     options={OPTIONS}
                     value={value}
                     onSelect={(value) => onChange(value)}
-                    menuUpIcon={
-                      <TextInput.Icon icon="menu-up" pointerEvents="none" />
-                    }
-                    disabled={!isEditMode}
+                    placeholder="Gender"
+                    mode="outlined"
                     error={!!errors.gender}
-                    menuDownIcon={
-                      <TextInput.Icon icon="menu-down" pointerEvents="none" />
-                    }
-                    menuContentStyle={{
-                      marginTop: 25,
-                    }}
-                    hideMenuHeader={true}
-                    CustomDropdownItem={CustomDropdownItem}
-                    CustomDropdownInput={CustomDropdownInput}
+                    disabled={!isEditMode}
                   />
                   {errors.gender && (
                     <Text

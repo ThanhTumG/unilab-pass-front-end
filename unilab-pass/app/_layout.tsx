@@ -5,7 +5,7 @@ import { Stack, useRouter } from "expo-router";
 import { StatusBar } from "expo-status-bar";
 import { useEffect } from "react";
 import { StyleSheet } from "react-native";
-import { PaperProvider, DefaultTheme } from "react-native-paper";
+import { DefaultTheme, PaperProvider, MD3LightTheme } from "react-native-paper";
 import { SafeAreaView } from "react-native-safe-area-context";
 import * as SplashScreen from "expo-splash-screen";
 
@@ -73,12 +73,14 @@ export default function RootLayout() {
 
   // Theme
   const customTheme = {
-    ...DefaultTheme,
+    ...MD3LightTheme,
     colors: {
-      ...DefaultTheme.colors,
+      ...MD3LightTheme.colors,
       text: "#333",
       primary: "rgba(27, 97, 181, 0.89)",
       outline: "#6C6C6C",
+      background: "#fff",
+      surface: "#fff",
       elevation: {
         level0: "transparent",
         level1: "#FAFCFF",
@@ -92,8 +94,8 @@ export default function RootLayout() {
 
   // Template
   return (
-    <SafeAreaView style={styles.safeArea}>
-      <PaperProvider theme={customTheme}>
+    <PaperProvider theme={customTheme}>
+      <SafeAreaView style={styles.safeArea}>
         {!appIsLoggedIn ? (
           <Stack>
             <Stack.Screen name="index" options={{ headerShown: false }} />
@@ -129,8 +131,8 @@ export default function RootLayout() {
           title="Error"
           content={`Your account is logged in on another device.`}
         />
-      </PaperProvider>
-    </SafeAreaView>
+      </SafeAreaView>
+    </PaperProvider>
   );
 }
 

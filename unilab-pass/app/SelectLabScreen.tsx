@@ -1,7 +1,6 @@
 // Core
 import dayjs from "dayjs";
 import React, { useCallback, useEffect, useState } from "react";
-import { Dropdown } from "react-native-paper-dropdown";
 import { useFocusEffect, useRouter } from "expo-router";
 import { ImageBackground, StyleSheet, View } from "react-native";
 import {
@@ -10,21 +9,17 @@ import {
   Snackbar,
   Surface,
   Text,
-  TextInput,
 } from "react-native-paper";
 
 // App
 import useEventStore from "stores/useEventStore";
 import { useAuthStore, useUserStore } from "stores";
 import {
-  CustomDropdownInput,
-  CustomDropdownItem,
-} from "components/CustomDropdown";
-import {
   EventControllerApi,
   LabCreationRequest,
   LaboratoryControllerApi,
 } from "api/index";
+import CustomDropdown from "components/PaperDropdown";
 
 // Types
 type Props = {};
@@ -183,28 +178,12 @@ const SelectLabScreen = (props: Props) => {
 
       {/* Select */}
       <View style={[styles.content, styles.alignCenter]}>
-        <Dropdown
-          placeholder="Select your lab"
+        <CustomDropdown
           options={myLabList}
           value={labId}
           onSelect={setLabId}
-          menuContentStyle={{
-            marginTop: 22,
-          }}
-          menuUpIcon={
-            <TextInput.Icon icon="menu-up" color="#333" pointerEvents="none" />
-          }
-          menuDownIcon={
-            <TextInput.Icon
-              icon="menu-down"
-              color="#333"
-              pointerEvents="none"
-            />
-          }
+          placeholder="Select your lab"
           mode="outlined"
-          hideMenuHeader={true}
-          CustomDropdownItem={CustomDropdownItem}
-          CustomDropdownInput={CustomDropdownInput}
         />
 
         <Text
@@ -213,7 +192,6 @@ const SelectLabScreen = (props: Props) => {
         >
           Or
         </Text>
-
         {/* Create Lab Button */}
         <Button
           mode="outlined"
