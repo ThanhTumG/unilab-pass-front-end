@@ -1,7 +1,8 @@
 // Core
 import React from "react";
-import { Image, StyleSheet } from "react-native";
-import { Modal, Portal, Text } from "react-native-paper";
+import { StyleSheet, Platform, View } from "react-native";
+import { Modal, Portal } from "react-native-paper";
+import { Image } from "expo-image";
 
 // Types
 type Props = {
@@ -12,7 +13,9 @@ type Props = {
 
 // Component
 const MemberPhotoModal = ({ visible, setVisible, photoURL }: Props) => {
-  const hideModal = () => setVisible(false);
+  const hideModal = () => {
+    setVisible(false);
+  };
 
   return (
     <Portal>
@@ -21,14 +24,16 @@ const MemberPhotoModal = ({ visible, setVisible, photoURL }: Props) => {
         onDismiss={hideModal}
         contentContainerStyle={styles.containerStyle}
       >
-        <Image
-          style={styles.image}
-          source={
-            photoURL
-              ? { uri: photoURL }
-              : require("../assets/images/no-photo.jpg")
-          }
-        />
+        <View style={styles.imageContainer}>
+          <Image
+            style={styles.image}
+            source={
+              photoURL ? photoURL : require("../assets/images/no-photo.jpg")
+            }
+            contentFit="cover"
+            transition={150}
+          />
+        </View>
       </Modal>
     </Portal>
   );
@@ -47,6 +52,12 @@ const styles = StyleSheet.create({
     padding: 17,
     width: "90%",
     maxHeight: "70%",
+  },
+  imageContainer: {
+    flex: 1,
+    width: "100%",
+    justifyContent: "center",
+    alignItems: "center",
   },
   image: {
     flex: 1,

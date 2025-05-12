@@ -70,7 +70,7 @@ const ManageAccessScreen = (props: Props) => {
         { labId: appLabId ?? "" },
         { headers: { Authorization: `Bearer ${appToken}` } }
       );
-      console.log("Successfully get all log");
+      console.log("Successfully get all log", response.data.result);
       setLogList(response.data.result);
       setMarkedDates({
         currentDate: initialDate,

@@ -3,8 +3,6 @@ import React, { useState } from "react";
 import { ImageBackground, ScrollView, StyleSheet, View } from "react-native";
 import { useRouter } from "expo-router";
 import {
-  ActivityIndicator,
-  Avatar,
   Button,
   Divider,
   Portal,
@@ -12,6 +10,7 @@ import {
   Text,
   TouchableRipple,
 } from "react-native-paper";
+import { Image } from "expo-image";
 
 // App
 import ProfileItem from "components/ProfileItem";
@@ -110,21 +109,20 @@ const ProfileScreen = (props: Props) => {
             width: 72,
             height: 72,
             justifyContent: "center",
+            overflow: "hidden",
           }}
           onPress={() => router.push("/PersonalInfoScreen")}
         >
-          {loading.updateAvatar ? (
-            <ActivityIndicator animating={true} size={22} />
-          ) : (
-            <Avatar.Image
-              size={72}
-              source={
-                appUserPhotoURL
-                  ? { uri: appUserPhotoURL }
-                  : require("../../../assets/images/profile-avatar.png")
-              }
-            />
-          )}
+          <Image
+            style={{ width: 72, height: 72 }}
+            source={
+              appUserPhotoURL
+                ? appUserPhotoURL
+                : require("../../../assets/images/profile-avatar.png")
+            }
+            contentFit="cover"
+            transition={0}
+          />
         </TouchableRipple>
 
         <Text variant="bodyLarge" style={styles.adminName} numberOfLines={2}>

@@ -2,7 +2,6 @@
 import { StyleSheet, View } from "react-native";
 import React, { useState } from "react";
 import {
-  Avatar,
   Button,
   Portal,
   Snackbar,
@@ -13,6 +12,7 @@ import {
 import { Controller, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as ImagePicker from "expo-image-picker";
+import { Image } from "expo-image";
 
 // App
 import ScreenHeader from "components/ScreenHeader";
@@ -151,19 +151,35 @@ const PersonalInfoScreen = (props: Props) => {
           borderRadius: 200,
           backgroundColor: "#e9e9e9",
           justifyContent: "center",
+          overflow: "hidden",
+          width: 186,
+          height: 186,
         }}
         onPress={handlePickImage}
       >
-        <Avatar.Image
-          size={186}
+        <Image
+          style={{ width: 186, height: 186 }}
           source={
             photoUri
-              ? { uri: photoUri }
+              ? photoUri
               : appUserPhotoURL
-              ? { uri: appUserPhotoURL }
+              ? appUserPhotoURL
               : require("../../../assets/images/profile-avatar.png")
           }
+          contentFit="cover"
+          transition={0}
         />
+        {/* <Image
+          style={{ width: 186, height: 186 }}
+          source={
+            photoUri
+              ? { uri: photoUri, cache: "reload" }
+              : appUserPhotoURL
+              ? { uri: appUserPhotoURL, cache: "reload" }
+              : require("../../../assets/images/profile-avatar.png")
+          }
+          defaultSource={require("../../../assets/images/profile-avatar.png")}
+        /> */}
       </TouchableRipple>
 
       {/* Fullname */}
