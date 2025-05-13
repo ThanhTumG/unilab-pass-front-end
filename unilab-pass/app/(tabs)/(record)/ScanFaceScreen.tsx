@@ -187,8 +187,8 @@ const ScanFaceScreen = (props: Props) => {
       if (error.response) {
         console.log("Error verify:", error.response.data);
       }
-      setIsErrorDialog(true);
-      // setIsVerifyErr(true);
+      // setIsErrorDialog(true);
+      setIsVerifyErr(true);
     } finally {
       setIsUpload(false);
     }

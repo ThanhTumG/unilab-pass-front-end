@@ -13,6 +13,7 @@ import { Controller, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as ImagePicker from "expo-image-picker";
 import { Image } from "expo-image";
+import * as FileSystem from "expo-file-system";
 
 // App
 import ScreenHeader from "components/ScreenHeader";
@@ -99,6 +100,20 @@ const PersonalInfoScreen = (props: Props) => {
       await myUserControllerApi.updateMyUser(param, {
         headers: { Authorization: `Bearer ${appToken}` },
       });
+
+      // Xóa cache ảnh cũ nếu có
+      if (appUserPhotoURL) {
+        const urlParts = appUserPhotoURL.split("/");
+        const versionAndFilename = urlParts.slice(-2).join("_");
+        const oldFileUri = `${FileSystem.cacheDirectory}${versionAndFilename}`;
+        try {
+          await FileSystem.deleteAsync(oldFileUri, { idempotent: true });
+          console.log("Deleted old profile image cache");
+        } catch (error) {
+          console.log("Error deleting old profile image cache:", error);
+        }
+      }
+
       handleGetMyInformation();
     } catch (err: any) {
       if (err.response) {
@@ -169,17 +184,6 @@ const PersonalInfoScreen = (props: Props) => {
           contentFit="cover"
           transition={0}
         />
-        {/* <Image
-          style={{ width: 186, height: 186 }}
-          source={
-            photoUri
-              ? { uri: photoUri, cache: "reload" }
-              : appUserPhotoURL
-              ? { uri: appUserPhotoURL, cache: "reload" }
-              : require("../../../assets/images/profile-avatar.png")
-          }
-          defaultSource={require("../../../assets/images/profile-avatar.png")}
-        /> */}
       </TouchableRipple>
 
       {/* Fullname */}

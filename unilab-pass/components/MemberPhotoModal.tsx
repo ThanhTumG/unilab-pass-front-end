@@ -1,8 +1,9 @@
 // Core
-import React from "react";
-import { StyleSheet, Platform, View } from "react-native";
-import { Modal, Portal } from "react-native-paper";
+import React, { useEffect, useState } from "react";
+import { StyleSheet, View } from "react-native";
+import { ActivityIndicator, Modal, Portal } from "react-native-paper";
 import { Image } from "expo-image";
+import * as FileSystem from "expo-file-system";
 
 // Types
 type Props = {
@@ -13,9 +14,66 @@ type Props = {
 
 // Component
 const MemberPhotoModal = ({ visible, setVisible, photoURL }: Props) => {
+  // States
+  const [localUri, setLocalUri] = useState<string>();
+  const [isLoading, setIsLoading] = useState(false);
+
   const hideModal = () => {
     setVisible(false);
+    setLocalUri(undefined);
   };
+
+  // Effects
+  useEffect(() => {
+    const downloadAndCacheImage = async () => {
+      if (!photoURL) return;
+
+      try {
+        setIsLoading(true);
+        // Tạo tên file duy nhất từ URL
+        const filename = photoURL.split("/").pop() || "image.jpg";
+        const fileUri = `${FileSystem.cacheDirectory}${filename}`;
+
+        // Kiểm tra xem file đã tồn tại trong cache chưa
+        const fileInfo = await FileSystem.getInfoAsync(fileUri);
+
+        if (fileInfo.exists) {
+          console.log("Using cached image");
+          setLocalUri(fileUri);
+          setIsLoading(false);
+          return;
+        }
+
+        // Tải ảnh và lưu vào cache
+        console.log("Downloading image...");
+        const downloadResult = await FileSystem.downloadAsync(
+          photoURL,
+          fileUri
+        );
+
+        if (downloadResult.status === 200) {
+          console.log("Image downloaded successfully");
+          setLocalUri(downloadResult.uri);
+        } else {
+          console.log("Download failed");
+          setLocalUri(undefined);
+        }
+      } catch (error) {
+        console.log("Error downloading image:", error);
+        setLocalUri(undefined);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    if (visible && photoURL) {
+      downloadAndCacheImage();
+    }
+
+    return () => {
+      setLocalUri(undefined);
+    };
+  }, [visible, photoURL]);
 
   return (
     <Portal>
@@ -25,14 +83,19 @@ const MemberPhotoModal = ({ visible, setVisible, photoURL }: Props) => {
         contentContainerStyle={styles.containerStyle}
       >
         <View style={styles.imageContainer}>
-          <Image
-            style={styles.image}
-            source={
-              photoURL ? photoURL : require("../assets/images/no-photo.jpg")
-            }
-            contentFit="cover"
-            transition={150}
-          />
+          {isLoading ? (
+            <ActivityIndicator animating={true} />
+          ) : (
+            <Image
+              style={styles.image}
+              source={
+                localUri ? localUri : require("../assets/images/no-photo.jpg")
+              }
+              contentFit="contain"
+              transition={300}
+              cachePolicy="memory-disk"
+            />
+          )}
         </View>
       </Modal>
     </Portal>
@@ -62,6 +125,6 @@ const styles = StyleSheet.create({
   image: {
     flex: 1,
     width: "100%",
-    resizeMode: "contain",
+    height: "100%",
   },
 });
