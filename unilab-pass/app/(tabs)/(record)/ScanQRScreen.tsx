@@ -37,6 +37,9 @@ const ScanQRScreen = (props: Props) => {
   const [isPendingGetMem, setIsPendingGetMem] = useState<boolean>(false);
   const [alertMessage, setAlertMessage] = useState("");
   const [isAlert, setIsAlert] = useState<boolean>(false);
+  const [cameraPosition, setCameraPosition] = useState<"front" | "back">(
+    "front"
+  );
 
   // Camera permission
   const { hasPermission, requestPermission } = useCameraPermission();
@@ -63,13 +66,13 @@ const ScanQRScreen = (props: Props) => {
   });
 
   // Device mode
-  const device = useCameraDevice("back");
+  const device = useCameraDevice(cameraPosition);
 
   // Methods
   // Handle get id
   const handleOnDetectId = (id: string | undefined) => {
     if (!id || id === idDetected) return;
-    if (isNumberCharList(id)) {
+    if (true) {
       setIdDetected(id);
       return;
     }
@@ -82,6 +85,10 @@ const ScanQRScreen = (props: Props) => {
     router.push({
       pathname: "/ScanFaceScreen",
     });
+  };
+
+  const toggleCamera = () => {
+    setCameraPosition((current) => (current === "front" ? "back" : "front"));
   };
 
   // Effects
@@ -113,6 +120,8 @@ const ScanQRScreen = (props: Props) => {
     };
 
     const handleGetDetailMember = async () => {
+      console.log(appLabId, idDetected);
+
       if (isPendingGetMem) return;
       setIsPendingGetMem(true);
       try {
@@ -120,6 +129,7 @@ const ScanQRScreen = (props: Props) => {
           {
             labId: appLabId ?? "",
             memberId: idDetected,
+            isQrCode: true,
           },
           { headers: { Authorization: `Bearer ${appToken}` } }
         );
@@ -139,6 +149,7 @@ const ScanQRScreen = (props: Props) => {
         }
       } catch (error: any) {
         if (error.response) {
+          console.log(error.response.data);
           setAlertMessage(error.response.data.message);
           setIsAlert(true);
         }
@@ -192,6 +203,8 @@ const ScanQRScreen = (props: Props) => {
             isActive
             device={device}
             codeScanner={codeScanner}
+            focusable
+            enableZoomGesture={true}
           />
           {/* Header */}
           <View
@@ -225,6 +238,14 @@ const ScanQRScreen = (props: Props) => {
                 Scan QR/Barcode
               </Text>
             </View>
+            {/* Flip camera button */}
+            <IconButton
+              icon="camera-flip"
+              size={20}
+              iconColor="#fff"
+              style={styles.flipBtn}
+              onPress={toggleCamera}
+            />
           </View>
         </>
       )}
@@ -265,6 +286,12 @@ const styles = StyleSheet.create({
   backBtn: {
     position: "absolute",
     left: 10,
+    zIndex: 10,
+    backgroundColor: "rgba(255, 255, 255, .15)",
+  },
+  flipBtn: {
+    position: "absolute",
+    right: 10,
     zIndex: 10,
     backgroundColor: "rgba(255, 255, 255, .15)",
   },

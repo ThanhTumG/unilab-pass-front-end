@@ -25,6 +25,7 @@ const MemberPhotoModal = ({ visible, setVisible, photoURL }: Props) => {
 
   // Effects
   useEffect(() => {
+    console.log(photoURL);
     const downloadAndCacheImage = async () => {
       if (!photoURL) return;
 
@@ -85,12 +86,18 @@ const MemberPhotoModal = ({ visible, setVisible, photoURL }: Props) => {
         <View style={styles.imageContainer}>
           {isLoading ? (
             <ActivityIndicator animating={true} />
+          ) : localUri ? (
+            <Image
+              style={styles.image}
+              source={localUri}
+              contentFit="contain"
+              transition={300}
+              cachePolicy="memory-disk"
+            />
           ) : (
             <Image
               style={styles.image}
-              source={
-                localUri ? localUri : require("../assets/images/no-photo.jpg")
-              }
+              source={require("../assets/images/no-photo.jpg")}
               contentFit="contain"
               transition={300}
               cachePolicy="memory-disk"

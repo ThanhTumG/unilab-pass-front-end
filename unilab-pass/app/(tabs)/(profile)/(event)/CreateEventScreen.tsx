@@ -97,6 +97,7 @@ const CreateEventScreen = () => {
         const obj = {
           guestId: values[0],
           name: values[1].trim(),
+          email: values[2],
         };
         return obj;
       });

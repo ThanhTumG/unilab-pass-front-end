@@ -84,8 +84,8 @@ export const checkFaceViewIsFrontal = (face: Face) => {
   const faceCenterX = bounds.x / 2 + bounds.width / 2;
   const faceCenterY = bounds.y + bounds.height * 0.6;
   const isCentered =
-    Math.abs(faceCenterX - screenCenterX) < 25 &&
-    Math.abs(faceCenterY - screenCenterY) < 55;
+    Math.abs(faceCenterX - screenCenterX) < 45 &&
+    Math.abs(faceCenterY - screenCenterY) < 65;
   const minFaceWidth = width * 0.6;
   const maxFaceWidth = width * 0.95;
   const isProperSize =

@@ -66,8 +66,8 @@ const EventViewScreen = (props: Props) => {
         { labId: appLabId ?? "" },
         { headers: { Authorization: `Bearer ${appToken}` } }
       );
-      console.log("Success get current event");
       const event = response.data.result;
+      console.log("Success get current event", event?.id);
       if (event?.id) {
         setAppIsEvent(true);
         setAppEvent({

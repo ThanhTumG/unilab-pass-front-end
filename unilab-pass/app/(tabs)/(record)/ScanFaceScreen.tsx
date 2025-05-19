@@ -24,6 +24,8 @@ import {
 // App
 import { useAuthStore, useUserStore } from "stores";
 import {
+  EventLogControllerApi,
+  EventLogControllerApiAddEventLogRequest,
   LogControllerApi,
   LogControllerApiCreateNewLogRequest,
   ModelControllerApi,
@@ -85,15 +87,14 @@ const ScanFaceScreen = (props: Props) => {
 
   // Server
   const modelControllerApi = new ModelControllerApi();
-  const logControllerApi = new LogControllerApi();
+  const eventLogControllerApi = new EventLogControllerApi();
 
   // Store
   const { appToken } = useAuthStore();
   const { appLabId, setAppIsFetchedRecord, setAppIsFetchedMember } =
     useUserStore();
-  const { appVisitorId, appRecordType, setAppRecord, removeAppRecord } =
-    useRecordStore();
-  const { appIsEvent } = useEventStore();
+  const { appVisitorId, appRecordType, removeAppRecord } = useRecordStore();
+  const { appIsEvent, appEventId } = useEventStore();
 
   // Methods
   // Handle take photo
@@ -105,48 +106,10 @@ const ScanFaceScreen = (props: Props) => {
       setIsCapturing(true);
       const newPhotoUri = "file://" + photo.path;
       setPhotoUri((prev) => [...prev, newPhotoUri]);
-      console.log("Photo:", photo.path);
     } catch (error) {
       console.log("Camera Error:", error);
     }
   };
-
-  // Handle post illegal log
-  const handleIllegalRecord = async (token?: string) => {
-    setIsPostIllegalLog(true);
-    const finalToken = token || appToken;
-    try {
-      const file = {
-        uri: photoUri[photoUri.length - 1],
-        type: "image/jpeg",
-        name: `${appVisitorId}_${Date.now()}_normal_record_photo.jpg`,
-      };
-      const param: LogControllerApiCreateNewLogRequest = {
-        request: {
-          labId: appLabId ?? "",
-          userId: appVisitorId ?? "",
-          recordType: appRecordType ?? undefined,
-          logType: "ILLEGAL",
-        },
-        file: file,
-      };
-      console.log(param);
-      await logControllerApi.createNewLog(param, {
-        headers: { Authorization: `Bearer ${finalToken}` },
-      });
-      setIsFailDialog(true);
-      setAppIsFetchedRecord(false);
-      setAppIsFetchedMember(false);
-      removeAppRecord();
-    } catch (error: any) {
-      if (error.response) {
-        setAlertMessage(error.response.data.message);
-        setIsAlert(true);
-      }
-    }
-    setIsPostIllegalLog(false);
-  };
-
   // Handle verify face
   const handleVerifyFace = async () => {
     if (isUpload || !photoUri[0]) return;
@@ -163,8 +126,10 @@ const ScanFaceScreen = (props: Props) => {
       const param: ModelControllerApiVerifyRequest = {
         userId: appVisitorId ?? "",
         image1: file,
+        recordType: appRecordType ?? "CHECKIN",
         labId: appLabId ?? "",
       };
+      console.log(appRecordType);
       const response = await modelControllerApi.verify(param, {
         headers: {
           Authorization: `Bearer ${appToken}`,
@@ -172,12 +137,13 @@ const ScanFaceScreen = (props: Props) => {
       });
       const isVerify = response.data.result as VerifyResult;
       if (isVerify.isIllegal) {
-        const { appToken: latestToken } = useAuthStore.getState();
-        handleIllegalRecord(latestToken ?? "");
+        setIsFailDialog(true);
+        setAppIsFetchedRecord(false);
+        setAppIsFetchedMember(false);
       } else {
         if (isVerify?.result.samePerson) {
-          setAppRecord({ recordImg: fileUri });
           setPhotoUri([]);
+          setAppIsFetchedRecord(false);
           setIsSuccessDialog(true);
         } else {
           setIsErrorDialog(true);
@@ -186,9 +152,11 @@ const ScanFaceScreen = (props: Props) => {
     } catch (error: any) {
       if (error.response) {
         console.log("Error verify:", error.response.data);
+        setAlertMessage(error.response.data.message);
+        setIsAlert(true);
+      } else {
+        setIsVerifyErr(true);
       }
-      // setIsErrorDialog(true);
-      setIsVerifyErr(true);
     } finally {
       setIsUpload(false);
     }
@@ -222,10 +190,38 @@ const ScanFaceScreen = (props: Props) => {
   });
 
   // Handle save guest face if is event
-  const handleSaveGuestFace = () => {
-    if (!photoUri[0]) return;
-    setAppRecord({ recordImg: photoUri[photoUri.length - 1] });
-    setIsSuccessDialog(true);
+  const handlePostGuestRecord = async () => {
+    if (isUpload || !photoUri[0]) return;
+    setIsUpload(true);
+    console.log(photoUri[0]);
+    try {
+      const fileUri = photoUri[photoUri.length - 1];
+      const file = {
+        uri: fileUri,
+        type: "image/jpeg",
+        name: `guest_${appVisitorId}_${Date.now()}_event_record_photo.jpg`,
+      };
+      const param: EventLogControllerApiAddEventLogRequest = {
+        request: {
+          eventId: appEventId ?? "",
+          guestId: appVisitorId ?? "",
+          recordType: appRecordType ?? undefined,
+        },
+        file: file,
+      };
+      await eventLogControllerApi.addEventLog(param, {
+        headers: { Authorization: `Bearer ${appToken}` },
+      });
+      setPhotoUri([]);
+      setIsSuccessDialog(true);
+    } catch (error: any) {
+      if (error.response) {
+        setAlertMessage(error.response.data.message);
+        setIsAlert(true);
+      }
+    } finally {
+      setIsUpload(false);
+    }
   };
 
   // Handle verify face again
@@ -262,7 +258,7 @@ const ScanFaceScreen = (props: Props) => {
 
   useEffect(() => {
     if (!isCapturing) return;
-    if (appIsEvent) handleSaveGuestFace();
+    if (appIsEvent) handlePostGuestRecord();
     else handleVerifyFace();
   }, [isCapturing]);
 
@@ -381,14 +377,13 @@ const ScanFaceScreen = (props: Props) => {
       {/* Success Dialog */}
       <SuccessDialog
         title={"Success"}
-        content={
-          appIsEvent
-            ? "Take guest photo successfully"
-            : "Verify face successfully"
-        }
+        content={"Record activity successfully"}
         visible={isSuccessDialog}
         setVisible={setIsSuccessDialog}
-        onCloseDialog={() => router.push("/RecordScreen")}
+        onCloseDialog={() => {
+          router.dismissAll();
+          removeAppRecord();
+        }}
       />
 
       {/* Error Dialog */}

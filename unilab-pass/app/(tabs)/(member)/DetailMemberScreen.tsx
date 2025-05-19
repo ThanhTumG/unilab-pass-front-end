@@ -105,7 +105,7 @@ const DetailMemberScreen = () => {
     setLoading((prev) => ({ ...prev, getMem: true }));
     try {
       const response = await labMemberControllerApi.getLabMemberDetailInfo(
-        { labId: appLabId ?? "", memberId: id as string },
+        { labId: appLabId ?? "", memberId: id as string, isQrCode: false },
         { headers: { Authorization: `Bearer ${appToken}` } }
       );
 
