@@ -2,13 +2,15 @@
 import { FlatList } from "react-native";
 import { useFocusEffect } from "expo-router";
 import React, { useCallback, useMemo, useState } from "react";
-import { Icon, Searchbar, Text, useTheme } from "react-native-paper";
+import { Icon, Searchbar, Text, useTheme, FAB } from "react-native-paper";
 import {
   ImageBackground,
   RefreshControl,
   StyleSheet,
   View,
 } from "react-native";
+import * as FileSystem from "expo-file-system";
+import * as Sharing from "expo-sharing";
 
 // App
 import Record from "components/Record";
@@ -70,7 +72,7 @@ const ManageAccessScreen = (props: Props) => {
         { labId: appLabId ?? "" },
         { headers: { Authorization: `Bearer ${appToken}` } }
       );
-      console.log("Successfully get all log", response.data.result);
+      console.log("Successfully get all log");
       setLogList(response.data.result);
       setMarkedDates({
         currentDate: initialDate,
@@ -89,6 +91,51 @@ const ManageAccessScreen = (props: Props) => {
       setIsPendingGetLog(false);
     }
   }, [appLabId]);
+
+  // Handle export log
+  const handleExportLogs = async () => {
+    const { appToken } = useAuthStore.getState();
+    try {
+      const response = await logControllerApi.exportCSV(
+        {
+          labId: appLabId ?? "",
+        },
+        {
+          headers: { Authorization: `Bearer ${appToken}` },
+        }
+      );
+
+      // Tạo tên file với timestamp
+      const fileName = `access_logs_${new Date().getTime()}.csv`;
+      const filePath = `${FileSystem.cacheDirectory}${fileName}`;
+
+      // Ghi dữ liệu vào file
+      await FileSystem.writeAsStringAsync(
+        filePath,
+        response.data as unknown as string,
+        {
+          encoding: FileSystem.EncodingType.UTF8,
+        }
+      );
+
+      // Kiểm tra xem thiết bị có hỗ trợ chia sẻ không
+      const isAvailable = await Sharing.isAvailableAsync();
+
+      if (isAvailable) {
+        await Sharing.shareAsync(filePath, {
+          mimeType: "text/csv",
+          dialogTitle: "Tải xuống file CSV",
+          UTI: "public.comma-separated-values-text",
+        });
+      } else {
+        console.error("Chia sẻ không khả dụng trên thiết bị này");
+      }
+    } catch (error: any) {
+      if (error.response) {
+        console.error(error.response.data);
+      }
+    }
+  };
 
   // Memo
   const filterLogList = useMemo(() => {
@@ -181,6 +228,7 @@ const ManageAccessScreen = (props: Props) => {
         <FlatList
           data={filterLogList ?? logList}
           keyExtractor={(item) => item.id ?? ""}
+          style={{ paddingBottom: 100 }}
           refreshControl={
             <RefreshControl
               refreshing={isPendingGetLog}
@@ -215,6 +263,15 @@ const ManageAccessScreen = (props: Props) => {
         visible={isShowPhoto}
         setVisible={setIsShowPhoto}
         photoURL={photoURL}
+      />
+
+      {/* Export FAB */}
+      <FAB
+        icon="file-export"
+        style={[styles.fab, { backgroundColor: "#1b61b5" }]}
+        onPress={handleExportLogs}
+        color="#fff"
+        size="medium"
       />
     </ImageBackground>
   );
@@ -276,5 +333,10 @@ const styles = StyleSheet.create({
     borderTopWidth: 1,
     borderColor: "rgba(0, 0, 0, 0.15)",
     paddingBottom: 82,
+  },
+  fab: {
+    position: "absolute",
+    right: 16,
+    bottom: 85,
   },
 });

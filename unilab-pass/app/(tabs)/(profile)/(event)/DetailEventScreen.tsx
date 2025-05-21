@@ -47,7 +47,7 @@ const DetailEventScreen = (props: Props) => {
         { eventId: eventId as string },
         { headers: { Authorization: `Bearer ${appToken}` } }
       );
-      console.log("Successfully get event log", response.data);
+      console.log("Successfully get event log");
       setLogList(response.data.result);
     } catch (error: any) {
       if (error.response) {

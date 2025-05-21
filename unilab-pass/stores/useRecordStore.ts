@@ -3,6 +3,7 @@ import { create } from "zustand";
 // Types
 // States type
 interface RecordStoreStatesType {
+  appIsEvRecord: boolean;
   appRecordType: "CHECKIN" | "CHECKOUT" | null;
   appVisitorId: string | null;
   appVisitorName: string | null;
@@ -17,15 +18,18 @@ interface SetAppRecordParamsType {
   visitorName?: string;
   visitorEmail?: string;
   recordImg?: string;
+  isEvent?: boolean;
 }
 
 interface RecordStoreActionsType {
+  setAppIsEvRecord: (isEv: boolean) => void;
   setAppRecord: (params: SetAppRecordParamsType) => void;
   removeAppRecord: () => void;
 }
 
 // Constants
 const DEFAULT_RECORD_STORE_STATES: RecordStoreStatesType = {
+  appIsEvRecord: false,
   appRecordType: null,
   appVisitorId: null,
   appVisitorName: null,
@@ -41,12 +45,16 @@ const useRecordStore = create<RecordStoreStatesType & RecordStoreActionsType>()(
       ...DEFAULT_RECORD_STORE_STATES,
 
       // Actions
+      setAppIsEvRecord: (isEv: boolean) => {
+        set(() => ({ appIsEvRecord: isEv }));
+      },
       setAppRecord: ({
         recordType,
         visitorId,
         visitorName,
         visitorEmail,
         recordImg,
+        isEvent,
       }) => {
         // Set user data
         set((state) => ({
@@ -55,6 +63,7 @@ const useRecordStore = create<RecordStoreStatesType & RecordStoreActionsType>()(
           appVisitorName: visitorName ?? state.appVisitorName,
           appVisitorEmail: visitorEmail ?? state.appVisitorEmail,
           appRecordImg: recordImg ?? state.appRecordImg,
+          appIsEvRecord: isEvent ?? state.appIsEvRecord,
         }));
       },
       removeAppRecord: () => {

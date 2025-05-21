@@ -6,7 +6,6 @@ export default function StackLayout() {
       <Stack.Screen name="RecordActivityScreen" />
       <Stack.Screen name="ScanQRScreen" />
       <Stack.Screen name="ScanFaceScreen" />
-      <Stack.Screen name="RecordScreen" />
     </Stack>
   );
 }

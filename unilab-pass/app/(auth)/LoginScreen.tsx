@@ -67,7 +67,6 @@ const LoginScreen = (props: Props) => {
         headers: { Authorization: `Bearer ${token}` },
       });
       const userData = response.data.result;
-      console.log("User data:", response.data.result);
       setAppUser({
         userEmail: userData?.email,
         userId: userData?.id,
@@ -87,6 +86,7 @@ const LoginScreen = (props: Props) => {
   // Handle submit form
   const handleOnSubmit = async (data: LoginFormType) => {
     if (isLoading) return;
+    setIsLoading(true);
     const expoPushToken = await AsyncStorage.getItem("pushNotificationToken");
 
     const param: AuthenticationRequest = {
@@ -94,7 +94,6 @@ const LoginScreen = (props: Props) => {
       password: data.password,
       expoPushToken: expoPushToken ?? "",
     };
-    setIsLoading(true);
     try {
       const response = await authenticationControllerApi.authenticate({
         authenticationRequest: param,
@@ -110,8 +109,9 @@ const LoginScreen = (props: Props) => {
         setErrorMessage(error.response.data.message);
         setVisible(true);
       }
+    } finally {
+      setIsLoading(false);
     }
-    setIsLoading(false);
   };
 
   // Handle sign up

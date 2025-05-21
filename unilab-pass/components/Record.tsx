@@ -22,6 +22,7 @@ const iconMap = {
   SUCCESS: require("../assets/images/checked.png"),
   ILLEGAL: require("../assets/images/block.png"),
   BLOCKED: require("../assets/images/block.png"),
+  AUTO: require("../assets/images/auto-check.png"),
   None: require("../assets/images/calendar.png"),
 };
 

@@ -1,5 +1,4 @@
 // Core
-import { useLocalSearchParams, useRouter } from "expo-router";
 import { Modal, StyleSheet, View } from "react-native";
 import { Worklets } from "react-native-worklets-core";
 import React, { useEffect, useRef, useState } from "react";
@@ -41,6 +40,9 @@ const ScanFaceModal = ({ visible, setVisible, setPhotoUri }: Props) => {
   const [isCapturing, setIsCapturing] = useState(false);
   const [faceMsg, setFaceMsg] = useState("");
   const [isActive, setIsActive] = useState(false);
+  const [cameraPosition, setCameraPosition] = useState<"front" | "back">(
+    "back"
+  );
 
   // Ref
   const camera = useRef<Camera>(null);
@@ -54,7 +56,7 @@ const ScanFaceModal = ({ visible, setVisible, setPhotoUri }: Props) => {
     landmarkMode: "all",
     contourMode: "none",
   }).current;
-  const device = useCameraDevice("front");
+  const device = useCameraDevice(cameraPosition);
   const { detectFaces } = useFaceDetector(faceDetectionOptions);
 
   // Camera permission
@@ -103,6 +105,11 @@ const ScanFaceModal = ({ visible, setVisible, setPhotoUri }: Props) => {
       conditionStartTime.current = null;
     }
   });
+
+  // Handle toggle camera
+  const handleToggleCamera = () => {
+    setCameraPosition((current) => (current === "front" ? "back" : "front"));
+  };
 
   // Frame processor
   const frameProcessor = useFrameProcessor(
@@ -208,6 +215,14 @@ const ScanFaceModal = ({ visible, setVisible, setPhotoUri }: Props) => {
                   Face Capture
                 </Text>
               </View>
+              {/* Flip camera button */}
+              <IconButton
+                icon="camera-flip"
+                size={20}
+                iconColor="#fff"
+                style={styles.flipBtn}
+                onPress={handleToggleCamera}
+              />
             </View>
 
             {/* Overlay */}
@@ -260,6 +275,12 @@ const styles = StyleSheet.create({
   backBtn: {
     position: "absolute",
     left: 10,
+    zIndex: 10,
+    backgroundColor: "rgba(255, 255, 255, .15)",
+  },
+  flipBtn: {
+    position: "absolute",
+    right: 10,
     zIndex: 10,
     backgroundColor: "rgba(255, 255, 255, .15)",
   },

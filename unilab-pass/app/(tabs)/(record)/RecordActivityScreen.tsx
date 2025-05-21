@@ -1,5 +1,5 @@
 // Core
-import { Button, Text } from "react-native-paper";
+import { Button, Text, useTheme, FAB } from "react-native-paper";
 import { useFocusEffect, useRouter } from "expo-router";
 import React, { useCallback, useRef, useState } from "react";
 import {
@@ -16,6 +16,7 @@ import { useUserStore } from "stores";
 import useBackHandler from "utils/useBackHandler";
 import VerifyPasswordModal from "components/VerifyPasswordModal";
 import useRecordStore from "stores/useRecordStore";
+import useEventStore from "stores/useEventStore";
 
 // Types
 type Props = {};
@@ -26,13 +27,22 @@ const RecordActivityScreen = (props: Props) => {
   const [isVerifyPassModal, setIsVerifyPassModal] = useState(false);
   const swipeBtnWidth = useRef(new Animated.Value(45)).current;
   const [isShowSwipeBtn, setIsShowSwipeBtn] = useState(false);
+  const [recordType, setRecordType] = useState<"normal" | "event">("normal");
+  const [state, setState] = useState({ open: false });
 
+  const onStateChange = ({ open }: { open: boolean }) => setState({ open });
+
+  const { open } = state;
   // Route
   const router = useRouter();
+
+  // Theme
+  const theme = useTheme();
 
   // Store
   const { appIsOnlyScanMode } = useUserStore();
   const { setAppRecord } = useRecordStore();
+  const { appIsEvent } = useEventStore();
 
   // Methods
   // handle back
@@ -45,8 +55,14 @@ const RecordActivityScreen = (props: Props) => {
   });
 
   // Handle route scan screen
-  const handleRouteScanScreen = (isCheckIn: boolean) => {
-    setAppRecord({ recordType: isCheckIn ? "CHECKIN" : "CHECKOUT" });
+  const handleRouteScanScreen = (
+    isCheckIn: boolean,
+    isEvent: boolean = false
+  ) => {
+    setAppRecord({
+      recordType: isCheckIn ? "CHECKIN" : "CHECKOUT",
+      isEvent: isEvent,
+    });
     router.push({
       pathname: "/ScanQRScreen",
     });
@@ -88,6 +104,10 @@ const RecordActivityScreen = (props: Props) => {
   // Effects
   useFocusEffect(
     useCallback(() => {
+      if (!appIsEvent) {
+        setState({ open: false });
+        setRecordType("normal");
+      }
       if (!appIsOnlyScanMode) return;
       return () => {
         Animated.spring(swipeBtnWidth, {
@@ -96,7 +116,7 @@ const RecordActivityScreen = (props: Props) => {
         }).start();
         setIsShowSwipeBtn(false);
       };
-    }, [appIsOnlyScanMode])
+    }, [appIsOnlyScanMode, appIsEvent])
   );
 
   // Template
@@ -108,7 +128,7 @@ const RecordActivityScreen = (props: Props) => {
       >
         {/* Title */}
         <Text variant="headlineLarge" style={styles.title}>
-          {appIsOnlyScanMode ? "Only Scan Mode" : "Select Record Type"}
+          {appIsOnlyScanMode ? "Only Scan Mode" : "Record Activity"}
         </Text>
 
         {appIsOnlyScanMode && (
@@ -137,7 +157,7 @@ const RecordActivityScreen = (props: Props) => {
           </Animated.View>
         )}
 
-        {/* Action button */}
+        {/* Action buttons */}
         <View style={[styles.actionBtnContainer, styles.alignCenter]}>
           <Button
             mode="outlined"
@@ -149,7 +169,7 @@ const RecordActivityScreen = (props: Props) => {
             textColor="#44CC77"
             contentStyle={{ width: 270, height: 55 }}
             buttonColor="rgba(204, 255, 204, .75)"
-            onPress={() => handleRouteScanScreen(true)}
+            onPress={() => handleRouteScanScreen(true, recordType === "event")}
             icon={"home-import-outline"}
             labelStyle={{ fontSize: 24 }}
           >
@@ -172,7 +192,7 @@ const RecordActivityScreen = (props: Props) => {
             contentStyle={{ width: 270, height: 55 }}
             icon={"home-export-outline"}
             labelStyle={{ fontSize: 24 }}
-            onPress={() => handleRouteScanScreen(false)}
+            onPress={() => handleRouteScanScreen(false, recordType === "event")}
           >
             <Text
               variant="bodyLarge"
@@ -182,6 +202,53 @@ const RecordActivityScreen = (props: Props) => {
             </Text>
           </Button>
         </View>
+
+        {/* Record Type Selection */}
+        <FAB.Group
+          open={open}
+          visible
+          color="#fff"
+          icon={recordType === "normal" ? "calendar-account" : "calendar-clock"}
+          label={open ? "" : recordType === "normal" ? "Normal" : "Event"}
+          fabStyle={{
+            marginBottom: appIsOnlyScanMode ? 12 : 85,
+            backgroundColor: "#1b61b5",
+          }}
+          actions={[
+            {
+              icon: "close",
+              rippleColor: "#1B61B580",
+              color: "#333",
+              onPress: () => setState({ open: false }),
+            },
+            {
+              icon: "calendar-account",
+              label: "Normal record",
+              rippleColor: "#1B61B580",
+              color: "#333",
+              labelStyle: styles.fabLabel,
+              onPress: () => setRecordType("normal"),
+            },
+            ...(appIsEvent
+              ? [
+                  {
+                    icon: "calendar-clock",
+                    label: "Event record",
+                    rippleColor: "#1B61B580",
+                    color: "#333",
+                    labelStyle: styles.fabLabel,
+                    onPress: () => setRecordType("event"),
+                  },
+                ]
+              : []),
+          ]}
+          onStateChange={onStateChange}
+          onPress={() => {
+            if (open) {
+              // do something if the speed dial is open
+            }
+          }}
+        />
 
         {/* Verify password */}
         <VerifyPasswordModal
@@ -206,16 +273,13 @@ const styles = StyleSheet.create({
     resizeMode: "cover",
     justifyContent: "flex-start",
     alignItems: "center",
-    paddingTop: 150,
+    paddingTop: 140,
   },
   title: {
     fontFamily: "Poppins-Bold",
     color: "#1B61B5",
   },
-  actionBtnContainer: {
-    marginTop: 90,
-    gap: 32,
-  },
+
   buttonLabel: {
     fontFamily: "Poppins-SemiBold",
   },
@@ -251,6 +315,13 @@ const styles = StyleSheet.create({
     borderCurve: "continuous",
   },
   exitText: {
+    fontFamily: "Poppins-Medium",
+  },
+  actionBtnContainer: {
+    marginTop: 90,
+    gap: 27,
+  },
+  fabLabel: {
     fontFamily: "Poppins-Medium",
   },
 });

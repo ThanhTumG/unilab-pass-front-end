@@ -58,11 +58,13 @@ const ScanFaceScreen = (props: Props) => {
   const [faceMsg, setFaceMsg] = useState("");
   const [isActive, setIsActive] = useState(false);
   const [isUpload, setIsUpload] = useState(false);
-  const [isPostIllegalLog, setIsPostIllegalLog] = useState<boolean>(false);
   const [isSuccessDialog, setIsSuccessDialog] = useState<boolean>(false);
   const [isErrorDialog, setIsErrorDialog] = useState<boolean>(false);
   const [isVerifyErr, setIsVerifyErr] = useState<boolean>(false);
   const [isFailDialog, setIsFailDialog] = useState<boolean>(false);
+  const [cameraPosition, setCameraPosition] = useState<"front" | "back">(
+    "front"
+  );
 
   // Ref
   const camera = useRef<Camera>(null);
@@ -76,7 +78,7 @@ const ScanFaceScreen = (props: Props) => {
     landmarkMode: "all",
     contourMode: "none",
   }).current;
-  const device = useCameraDevice("front");
+  const device = useCameraDevice(cameraPosition);
   const { detectFaces } = useFaceDetector(faceDetectionOptions);
 
   // Camera permission
@@ -93,8 +95,9 @@ const ScanFaceScreen = (props: Props) => {
   const { appToken } = useAuthStore();
   const { appLabId, setAppIsFetchedRecord, setAppIsFetchedMember } =
     useUserStore();
-  const { appVisitorId, appRecordType, removeAppRecord } = useRecordStore();
-  const { appIsEvent, appEventId } = useEventStore();
+  const { appVisitorId, appRecordType, removeAppRecord, appIsEvRecord } =
+    useRecordStore();
+  const { appEventId } = useEventStore();
 
   // Methods
   // Handle take photo
@@ -189,6 +192,11 @@ const ScanFaceScreen = (props: Props) => {
     }
   });
 
+  // Handle toggle camera
+  const handleToggleCamera = () => {
+    setCameraPosition((current) => (current === "front" ? "back" : "front"));
+  };
+
   // Handle save guest face if is event
   const handlePostGuestRecord = async () => {
     if (isUpload || !photoUri[0]) return;
@@ -258,7 +266,7 @@ const ScanFaceScreen = (props: Props) => {
 
   useEffect(() => {
     if (!isCapturing) return;
-    if (appIsEvent) handlePostGuestRecord();
+    if (appIsEvRecord) handlePostGuestRecord();
     else handleVerifyFace();
   }, [isCapturing]);
 
@@ -295,6 +303,7 @@ const ScanFaceScreen = (props: Props) => {
         frameProcessor={frameProcessor}
         pixelFormat="yuv"
       />
+
       {/* Header */}
       <View
         style={{
@@ -324,9 +333,18 @@ const ScanFaceScreen = (props: Props) => {
           }}
         >
           <Text variant="titleMedium" style={styles.title}>
-            {appIsEvent ? "Face capture " : "Face recognition"}
+            {appIsEvRecord ? "Face capture " : "Face recognition"}
           </Text>
         </View>
+
+        {/* Flip camera button */}
+        <IconButton
+          icon="camera-flip"
+          size={20}
+          iconColor="#fff"
+          style={styles.flipBtn}
+          onPress={handleToggleCamera}
+        />
       </View>
 
       {/* Overlay */}
@@ -338,7 +356,7 @@ const ScanFaceScreen = (props: Props) => {
         </Text>
       )}
 
-      {(isUpload || isPostIllegalLog) && (
+      {isUpload && (
         <View
           style={[
             StyleSheet.absoluteFill,
@@ -442,6 +460,12 @@ const styles = StyleSheet.create({
   backBtn: {
     position: "absolute",
     left: 10,
+    zIndex: 10,
+    backgroundColor: "rgba(255, 255, 255, .15)",
+  },
+  flipBtn: {
+    position: "absolute",
+    right: 10,
     zIndex: 10,
     backgroundColor: "rgba(255, 255, 255, .15)",
   },

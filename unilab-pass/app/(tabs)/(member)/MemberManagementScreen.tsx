@@ -94,7 +94,7 @@ const MemberManagementScreen = (props: Props) => {
           };
           return Obj;
         }) ?? [];
-      console.log("Successfully get members", newLabMemberList);
+      console.log("Successfully get members");
       setMemberList(newLabMemberList);
       setSearchQuery("");
     } catch (error: any) {

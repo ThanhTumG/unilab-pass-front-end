@@ -54,8 +54,8 @@ const ScanQRScreen = (props: Props) => {
   // Store
   const { appToken } = useAuthStore();
   const { appLabId } = useUserStore();
-  const { appIsEvent, appEventId } = useEventStore();
-  const { setAppRecord } = useRecordStore();
+  const { appEventId } = useEventStore();
+  const { appIsEvRecord, setAppRecord } = useRecordStore();
 
   // Code scanner
   const codeScanner = useCodeScanner({
@@ -72,7 +72,7 @@ const ScanQRScreen = (props: Props) => {
   // Handle get id
   const handleOnDetectId = (id: string | undefined) => {
     if (!id || id === idDetected) return;
-    if (true) {
+    if (isNumberCharList(id)) {
       setIdDetected(id);
       return;
     }
@@ -87,7 +87,8 @@ const ScanQRScreen = (props: Props) => {
     });
   };
 
-  const toggleCamera = () => {
+  // Handle toggle camera
+  const handleToggleCamera = () => {
     setCameraPosition((current) => (current === "front" ? "back" : "front"));
   };
 
@@ -120,8 +121,6 @@ const ScanQRScreen = (props: Props) => {
     };
 
     const handleGetDetailMember = async () => {
-      console.log(appLabId, idDetected);
-
       if (isPendingGetMem) return;
       setIsPendingGetMem(true);
       try {
@@ -157,7 +156,7 @@ const ScanQRScreen = (props: Props) => {
       setIsPendingGetMem(false);
     };
 
-    if (appIsEvent) {
+    if (appIsEvRecord) {
       handleGetGuest();
     } else handleGetDetailMember();
 
@@ -238,13 +237,14 @@ const ScanQRScreen = (props: Props) => {
                 Scan QR/Barcode
               </Text>
             </View>
+
             {/* Flip camera button */}
             <IconButton
               icon="camera-flip"
               size={20}
               iconColor="#fff"
               style={styles.flipBtn}
-              onPress={toggleCamera}
+              onPress={handleToggleCamera}
             />
           </View>
         </>

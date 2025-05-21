@@ -81,6 +81,7 @@ export default function RootLayout() {
       outline: "#6C6C6C",
       background: "#fff",
       surface: "#fff",
+      secondaryContainer: "rgba(27, 97, 181, 0.15)",
       elevation: {
         level0: "transparent",
         level1: "#FAFCFF",
