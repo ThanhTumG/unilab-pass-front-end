@@ -1,5 +1,6 @@
 // Core
 import { useRouter } from "expo-router";
+import { useAudioPlayer } from "expo-audio";
 import { StyleSheet, View } from "react-native";
 import { Worklets } from "react-native-worklets-core";
 import React, { useEffect, useRef, useState } from "react";
@@ -26,8 +27,6 @@ import { useAuthStore, useUserStore } from "stores";
 import {
   EventLogControllerApi,
   EventLogControllerApiAddEventLogRequest,
-  LogControllerApi,
-  LogControllerApiCreateNewLogRequest,
   ModelControllerApi,
   ModelControllerApiVerifyRequest,
 } from "api/index";
@@ -47,6 +46,9 @@ interface VerifyResult {
     samePerson: boolean;
   };
 }
+
+// Audio
+const audioSource = require("../../../assets/sounds/doorbell-tone.mp3");
 
 // Component
 const ScanFaceScreen = (props: Props) => {
@@ -68,6 +70,9 @@ const ScanFaceScreen = (props: Props) => {
 
   // Ref
   const camera = useRef<Camera>(null);
+
+  // Player
+  const player = useAudioPlayer(audioSource);
 
   // Time stamp
   const conditionStartTime = useRef<number | null>(null);
@@ -113,6 +118,17 @@ const ScanFaceScreen = (props: Props) => {
       console.log("Camera Error:", error);
     }
   };
+
+  // Handle play success sound
+  const handlePlaySound = async () => {
+    try {
+      await player.seekTo(0);
+      player.play();
+    } catch (error) {
+      console.error("Error play sound:", error);
+    }
+  };
+
   // Handle verify face
   const handleVerifyFace = async () => {
     if (isUpload || !photoUri[0]) return;
@@ -132,7 +148,6 @@ const ScanFaceScreen = (props: Props) => {
         recordType: appRecordType ?? "CHECKIN",
         labId: appLabId ?? "",
       };
-      console.log(appRecordType);
       const response = await modelControllerApi.verify(param, {
         headers: {
           Authorization: `Bearer ${appToken}`,
@@ -145,6 +160,7 @@ const ScanFaceScreen = (props: Props) => {
         setAppIsFetchedMember(false);
       } else {
         if (isVerify?.result.samePerson) {
+          handlePlaySound();
           setPhotoUri([]);
           setAppIsFetchedRecord(false);
           setIsSuccessDialog(true);
@@ -374,7 +390,7 @@ const ScanFaceScreen = (props: Props) => {
             variant="bodyMedium"
             style={{ fontFamily: "Poppins-Regular", color: "#f6f6f6" }}
           >
-            Waiting for verification...
+            Please wait a little...
           </Text>
         </View>
       )}

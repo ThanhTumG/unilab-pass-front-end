@@ -67,7 +67,7 @@ const EventViewScreen = (props: Props) => {
         { headers: { Authorization: `Bearer ${appToken}` } }
       );
       const event = response.data.result;
-      console.log("Success get current event", event?.id);
+      console.log("Success get current event");
       if (event?.id) {
         setAppIsEvent(true);
         setAppEvent({

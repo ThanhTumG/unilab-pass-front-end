@@ -22,17 +22,20 @@ import { useAuthStore, useUserStore } from "stores";
 import { QRScannerOverlay } from "components/ui/Overlay";
 import {
   EventGuestControllerApi,
+  EventLogControllerApi,
   LabMemberControllerApi,
+  LogControllerApi,
   MyUserResponse,
 } from "api/index";
 import useRecordStore from "stores/useRecordStore";
+import { SuccessDialog } from "components/CustomDialog";
 
 // Types
 type Props = {};
 
 // Component
 const ScanQRScreen = (props: Props) => {
-  // Stated
+  // States
   const [idDetected, setIdDetected] = useState<string>();
   const [isPendingGetMem, setIsPendingGetMem] = useState<boolean>(false);
   const [alertMessage, setAlertMessage] = useState("");
@@ -40,6 +43,7 @@ const ScanQRScreen = (props: Props) => {
   const [cameraPosition, setCameraPosition] = useState<"front" | "back">(
     "front"
   );
+  const [isSuccessDialog, setIsSuccessDialog] = useState<boolean>(false);
 
   // Camera permission
   const { hasPermission, requestPermission } = useCameraPermission();
@@ -50,12 +54,15 @@ const ScanQRScreen = (props: Props) => {
   // Server
   const labMemberControllerApi = new LabMemberControllerApi();
   const eventGuestControllerApi = new EventGuestControllerApi();
+  const logControllerApi = new LogControllerApi();
+  const eventLogControllerApi = new EventLogControllerApi();
 
   // Store
   const { appToken } = useAuthStore();
-  const { appLabId } = useUserStore();
+  const { appLabId, setAppIsFetchedRecord } = useUserStore();
   const { appEventId } = useEventStore();
-  const { appIsEvRecord, setAppRecord } = useRecordStore();
+  const { appIsEvRecord, appRecordType, setAppRecord, removeAppRecord } =
+    useRecordStore();
 
   // Code scanner
   const codeScanner = useCodeScanner({
@@ -71,7 +78,7 @@ const ScanQRScreen = (props: Props) => {
   // Methods
   // Handle get id
   const handleOnDetectId = (id: string | undefined) => {
-    if (!id || id === idDetected) return;
+    if (!id || id === idDetected || isPendingGetMem) return;
     if (isNumberCharList(id)) {
       setIdDetected(id);
       return;
@@ -92,12 +99,67 @@ const ScanQRScreen = (props: Props) => {
     setCameraPosition((current) => (current === "front" ? "back" : "front"));
   };
 
+  // Handle add member log
+  const handleAddMemLog = async () => {
+    if (isPendingGetMem) return;
+    setIsPendingGetMem(true);
+    try {
+      await logControllerApi.createNewLog(
+        {
+          request: {
+            labId: appLabId ?? "",
+            logType: "LEGAL",
+            recordType: appRecordType ?? "CHECKOUT",
+            userId: idDetected,
+          },
+        },
+        { headers: { Authorization: `Bearer ${appToken}` } }
+      );
+      setIsSuccessDialog(true);
+      setAppIsFetchedRecord(false);
+    } catch (error: any) {
+      if (error.response) {
+        setAlertMessage(error.response.data.message);
+        setIsAlert(true);
+      }
+    } finally {
+      setIsPendingGetMem(false);
+    }
+  };
+
+  // Handle add event log
+  const handleAddGuestLog = async () => {
+    if (isPendingGetMem) return;
+    setIsPendingGetMem(true);
+    try {
+      await eventLogControllerApi.addEventLog(
+        {
+          request: {
+            eventId: appEventId ?? "",
+            guestId: idDetected,
+            recordType: appRecordType ?? "CHECKOUT",
+          },
+        },
+        { headers: { Authorization: `Bearer ${appToken}` } }
+      );
+      setIsSuccessDialog(true);
+      setAppIsFetchedRecord(false);
+    } catch (error: any) {
+      if (error.response) {
+        setAlertMessage(error.response.data.message);
+        setIsAlert(true);
+      }
+    } finally {
+      setIsPendingGetMem(false);
+    }
+  };
+
   // Effects
   useEffect(() => {
-    if (!idDetected) return;
+    if (!idDetected || isPendingGetMem) return;
+    console.log(idDetected);
+    setIsPendingGetMem(true);
     const handleGetGuest = async () => {
-      if (isPendingGetMem) return;
-      setIsPendingGetMem(true);
       try {
         const response = await eventGuestControllerApi.getListEventGuests1(
           {
@@ -121,8 +183,6 @@ const ScanQRScreen = (props: Props) => {
     };
 
     const handleGetDetailMember = async () => {
-      if (isPendingGetMem) return;
-      setIsPendingGetMem(true);
       try {
         const response = await labMemberControllerApi.getLabMemberDetailInfo(
           {
@@ -148,7 +208,6 @@ const ScanQRScreen = (props: Props) => {
         }
       } catch (error: any) {
         if (error.response) {
-          console.log(error.response.data);
           setAlertMessage(error.response.data.message);
           setIsAlert(true);
         }
@@ -157,10 +216,20 @@ const ScanQRScreen = (props: Props) => {
     };
 
     if (appIsEvRecord) {
-      handleGetGuest();
-    } else handleGetDetailMember();
-
-    setIdDetected(undefined);
+      if (appRecordType === "CHECKOUT") {
+        handleAddGuestLog();
+      } else {
+        handleGetGuest();
+        setIdDetected(undefined);
+      }
+    } else {
+      if (appRecordType === "CHECKOUT") {
+        handleAddMemLog();
+      } else {
+        handleGetDetailMember();
+        setIdDetected(undefined);
+      }
+    }
   }, [idDetected]);
 
   // Effects
@@ -265,6 +334,18 @@ const ScanQRScreen = (props: Props) => {
       >
         {alertMessage}
       </Snackbar>
+
+      {/* Success Dialog */}
+      <SuccessDialog
+        title={"Success"}
+        content={"Record activity successfully"}
+        visible={isSuccessDialog}
+        setVisible={setIsSuccessDialog}
+        onCloseDialog={() => {
+          router.dismissAll();
+          removeAppRecord();
+        }}
+      />
     </View>
   );
 };

@@ -9,7 +9,11 @@
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "infoPlist": {
+        "NSCameraUsageDescription": "$(PRODUCT_NAME) needs access to your Camera.",
+        "NSMicrophoneUsageDescription": "$(PRODUCT_NAME) needs access to your Microphone."
+      }
     },
     "android": {
       "jsEngine": "hermes",
@@ -57,7 +61,6 @@
         {
           "cameraPermissionText": "$(PRODUCT_NAME) needs access to your Camera.",
           "enableCodeScanner": true,
-
           "enableMicrophonePermission": true,
           "microphonePermissionText": "$(PRODUCT_NAME) needs access to your Microphone."
         }
@@ -83,6 +86,12 @@
           "icon": "./assets/images/unilab-pass-logo.png",
           "color": "#ffffff"
         }
+      ],
+      [
+        "expo-audio",
+        {
+          "microphonePermission": "Allow $(PRODUCT_NAME) to access your microphone."
+        }
       ]
     ],
     "experiments": {
@@ -93,7 +102,7 @@
         "origin": false
       },
       "eas": {
-        "projectId": "aa34aa9b-7a6b-4d51-b97a-67d98dd70765"
+        "projectId": "2af75ac6-5770-4264-885c-fd0a628fee35"
       }
     }
   }
