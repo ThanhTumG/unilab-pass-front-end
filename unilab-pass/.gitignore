@@ -36,7 +36,7 @@ yarn-error.*
 *.tsbuildinfo
 
 # api
-api/
+# api/
 
 openapi-config.yaml
 

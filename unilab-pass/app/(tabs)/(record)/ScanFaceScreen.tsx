@@ -1,6 +1,6 @@
 // Core
 import { useRouter } from "expo-router";
-import { useAudioPlayer } from "expo-audio";
+import { Audio } from "expo-av";
 import { StyleSheet, View } from "react-native";
 import { Worklets } from "react-native-worklets-core";
 import React, { useEffect, useRef, useState } from "react";
@@ -67,12 +67,10 @@ const ScanFaceScreen = (props: Props) => {
   const [cameraPosition, setCameraPosition] = useState<"front" | "back">(
     "front"
   );
+  const [sound, setSound] = useState<Audio.Sound>();
 
   // Ref
   const camera = useRef<Camera>(null);
-
-  // Player
-  const player = useAudioPlayer(audioSource);
 
   // Time stamp
   const conditionStartTime = useRef<number | null>(null);
@@ -122,12 +120,28 @@ const ScanFaceScreen = (props: Props) => {
   // Handle play success sound
   const handlePlaySound = async () => {
     try {
-      await player.seekTo(0);
-      player.play();
+      console.log("Starting to play sound...");
+      if (sound) {
+        await sound.unloadAsync();
+      }
+      const { sound: newSound } = await Audio.Sound.createAsync(audioSource);
+      setSound(newSound);
+      await newSound.playAsync();
+      console.log("Sound played successfully");
     } catch (error) {
-      console.error("Error play sound:", error);
+      console.error("Error playing sound:", error);
     }
   };
+
+  // Cleanup sound on unmount
+  useEffect(() => {
+    return sound
+      ? () => {
+          console.log("Unloading sound...");
+          sound.unloadAsync();
+        }
+      : undefined;
+  }, [sound]);
 
   // Handle verify face
   const handleVerifyFace = async () => {
@@ -237,6 +251,7 @@ const ScanFaceScreen = (props: Props) => {
         headers: { Authorization: `Bearer ${appToken}` },
       });
       setPhotoUri([]);
+      handlePlaySound();
       setIsSuccessDialog(true);
     } catch (error: any) {
       if (error.response) {
