@@ -40,7 +40,7 @@ yarn-error.*
 
 openapi-config.yaml
 
-scripts/
+# scripts/
 
 firebase-adminsdk.json
 
